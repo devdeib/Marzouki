@@ -1,0 +1,88 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div class="container-fluid px-4 mt-3">
+      <div class="paints-header text-center mt-3 font-weight-bold">
+        <hr class="hr--large" />
+        <form class="d-flex justify-content-end search-form" action="{% url 'search' %}" style="position: relative; right: 423px; margin-bottom: 20px;">
+          <input class="form-control me-sm-2 search" type="search" placeholder="Search for products" name="query">
+          <button class="btn btn-secondary my-2 my-sm-0" type="submit" style="position: relative; right: 190px;">Search</button>
+        </form>
+      </div>
+      <div class="row">
+        <!-- Left column for Sections -->
+        <div class="col-md-2 mt-3">
+          <h4>categories</h4>
+          <hr style="width: 200px" />
+          <br />
+          {% for section in sections %}
+          <div class="mb-3">
+            <h5>
+              <a
+                href="{% url 'category_browse' section.id%}"
+                style="text-decoration: none"
+              >
+                {{ section.name }}
+              </a>
+            </h5>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Right column for Items -->
+        <div class="col-md-8">
+          <div class="row">
+            {% for item in items %}
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card bg-light">
+                <a
+                  href="{% url 'paint_detail' item.pk %}"
+                  style="text-decoration: none"
+                >
+                  <div class="card-body">
+                    <div class="text-center">
+                      <img
+                        src="{% static item.item_photo %}"
+                        alt="Paint Photo"
+                        class="img-fluid"
+                      />
+                    </div>
+                    <h4 class="text-center card-title">{{ item.item_name }}</h4>
+                    <p class="card-text">Price: {{ item.item_price }}$</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+            {% empty %}
+            <p>No items available.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#">&laquo;</a>
+          </li>
+          <li class="page-item active">
+            <a class="page-link" href="#">1</a>
+          </li>
+          <!-- More pagination links -->
+          <li class="page-item">
+            <a class="page-link" href="#">&raquo;</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  Your shopping cart
+{% endblock %}
+{% block content %}
+  <div class="paints-header text-center mt-3 font-weight-bold">
+    <h1>Your Cart</h1>
+    <h3 class="font-weight-light">
+      You have{% with total_items=cart.cart.values|length %}
+        {% if total_items > 0 %}
+          {{ total_items }}
+        {% else %}
+          No
+        {% endif %}
+      {% endwith %}items in your cart
+    </h3>
+    <hr class="hr--large" />
+  </div>
+
+  <div class="cart-details-container container mt-3">
+    <!-- Bootstrap container -->
+    <div class="row main-container">
+      <!-- Bootstrap row to contain both containers -->
+
+      <!-- Cart Details Container (8 columns wide on md and larger screens) -->
+      <div class="cartlist col-md-8">
+        {% for item_id, item_data in cart.cart.items %}
+          <a href="{% url 'paint_detail' item_data.id %}" style="text-decoration: none;">
+            <div class="list">
+            
+                <div class="cart-img">
+                  <img src="{% static item_data.item_photo %}" alt="Paint Photo" class="" />
+                </div>
+                <div class="cart-details-responsive">
+                  <h3 class="cart-title mb-2">
+                    {{ item_data.item_name }}
+                    <strong class="small-quantity">{{ item_data.quantity }}x</strong>
+                    <small class="small-quantity"><a href="{% url 'paint_detail' item_data.id %}" class="text-danger">Edit</a></small>
+                  </h3>
+                  <strong class="cart-price mb-2">{{ item_data.item_price }} $</strong>
+                  <p class="size-in-cart mb-2">{{ item_data.variation.choice }}</p>
+                  <p class="card-text cart-description mb-4">{{ item_data.item_description }}</p>
+                  <form action="{% url 'cart:cart_remove' item_data.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-danger remove-item" type="submit">Remove</button>
+                  </form>
+                </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div> <!-- end row -->
+      {% with total_items=cart.cart.values|length %}
+        {% if total_items > 0 %}
+          <div class="payment-options col-md-4">
+            <h3>How you'll pay</h3>
+            <div class="payment-method">
+              <input type="radio" id="visa" name="payment" value="VISA" /> <label for="visa">VISA</label>
+            </div>
+            <div class="payment-method">
+              <input type="radio" id="paypal" name="payment" value="PayPal" /> <label for="paypal">PayPal</label>
+            </div>
+            <!-- ... Additional payment methods ... -->
+          </div> <!-- end Payment Options Container -->
+          <div class="total-price mb-3">
+            <strong>Total: {{ total_price }} $</strong>
+          </div>
+
+          <div class="options">
+            <p>
+              <a href="{% url 'paints' %}" class="button light mb-3">Continue shopping</a>
+            </p>
+            <p>
+              <a href="{% url 'orders:order_create' %}" class="btn btn-warning">Checkout</a>
+            </p>
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div> <!-- end Cart Details Container -->
+  </div> <!-- end Bootstrap container -->
+{% endblock %}

@@ -1,0 +1,667 @@
+footer {
+  font-size: 11px;
+  position: sticky;
+  margin-bottom: auto;
+}
+
+body {
+  background-color: #f7f7f7;
+  height: 100%;
+  margin: 0;
+
+}
+.search{
+  background-color: #e5e5e5 !important;
+  border-color: #e5e5e5 !important;
+  width: 500px;
+  align-items: right;
+}
+
+.search{
+  align-items: right;
+  position: relative;
+  right: 200px;
+
+}
+
+.hr--large {
+  border: none;
+  height: 1.5px;
+  background-color: #5e5e5e;
+  margin: 20px auto;
+  /* Add margin to the top and bottom, and center it horizontally */
+  width: 5%;
+  /* Set the width to 50% of the column */
+}
+
+/* ------------------ Header -------------- */
+
+.header-icon img {
+  justify-content: center;
+  width: 26px;
+  margin: 0 6px;
+  height: auto;
+}
+
+.position-relative {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: 0;
+  background-color: #af0000;
+  /* Badge background color */
+  color: white;
+  /* Badge text color */
+  padding: 1px 1px;
+  /* Badge padding */
+  border-radius: 50%;
+  /* Circular badge */
+  font-size: 0.65rem;
+  /* Badge font size */
+  min-width: 15px;
+  /* Ensures the badge is at least a certain width */
+  height: 15px;
+  /* Sets the badge height */
+  line-height: 14px;
+  /* Centers the text vertically */
+  text-align: center;
+  /* Centers the text horizontally */
+  box-sizing: border-box;
+  border: none;
+  /* Optional: white border to separate the badge from the icon if needed */
+}
+
+/* ------------------ Home ---------------- */
+
+
+.hero-container {
+  position: relative;
+  text-align: center;
+  width: 100vw;
+  /* Set width to 100% of viewport width */
+  height: 100vh;
+  /* Set height to 100% of viewport height */
+  overflow: hidden;
+}
+
+
+.hero-img {
+  object-fit: cover;
+  width: 100%;
+  /* Make the image responsive to the container width */
+  height: 100%;
+  /* Make the image fill the entire container height */
+  display: block;
+  opacity: 0.8;
+}
+
+
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: 100%;
+}
+
+
+.hero-text {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  color: white;
+  font-size: 4em;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+
+/* Slideshow styles */
+.slideshow-container {
+  max-width: 100vw;
+  margin: auto;
+  height: 100vh;
+}
+
+
+.mySlides {
+  animation: fade 6s infinite;
+}
+
+
+@keyframes fade {
+
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  25%,
+  75% {
+    opacity: 1;
+  }
+}
+
+/* --------------------- Paints --------------------- */
+
+
+.paints-header h1 {
+  font-size: 60px;
+}
+
+
+.container {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 200px;
+}
+
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 200px;
+
+}
+
+
+.card-body {
+  background-color: #f7f7f7;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+}
+
+
+.card-text,
+.card-price {
+  text-align: center;
+
+  /* Add margin to the top of title, description, and price */
+}
+
+
+.card-body img {
+  margin-bottom: 10px;
+  /* Add margin to the bottom of the image */
+}
+
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 60px;
+  justify-items: center;
+  align-items: center;
+  max-width: 1200px;
+  /* Set a maximum width for the card container */
+  margin: 0 auto;
+  /* Center the grid horizontally */
+}
+
+
+.pagination {
+  text-align: center;
+  position: center;
+  justify-content: center;
+  margin-top: 30px;
+  z-index: 1000;
+  /* Set a high z-index to ensure it's above other elements */
+}
+
+
+/* ----------------- Paint Details -------------------- */
+
+
+.details-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* margin-top: 40px; */
+  margin-right: 5%;
+  margin-left: 5%;
+  margin-top: 25px;
+}
+
+
+.paint-img img {
+  width: 600px;
+  height: auto;
+  object-fit: cover;
+  flex: 1 1 300px;
+  margin-right: 35px;
+  margin-left: auto;
+  margin-top: 30px;
+}
+
+
+.details {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: auto;
+
+}
+
+.width {
+  display: flex;
+  font-weight: 400;
+  font-size: 17px;
+  margin-right: auto;
+}
+
+.width span {
+  display: flex;
+  font-weight: 300;
+  font-size: 17px;
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+.height {
+  display: flex;
+  font-weight: 400;
+  font-size: 17px;
+  margin-right: auto;
+}
+
+.height span {
+  display: flex;
+  font-weight: 300;
+  font-size: 17px;
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+
+
+.title {
+  font-size: 35px;
+  margin-right: auto;
+  right: auto;
+  justify-content: center;
+}
+
+
+.description {
+  margin-right: auto;
+  text-align: left;
+  width: 100%;
+  max-width: 600px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.size {
+  display: flex;
+  font-weight: 400;
+  font-size: 20px;
+  margin-right: auto;
+}
+
+.personalize {
+  display: flex;
+  font-weight: 400;
+  margin-right: auto;
+  font-size: 20px;
+}
+
+.per-desc {
+  font-size: small;
+}
+
+.textarea {
+  width: auto;
+  height: 50px;
+  border: none;
+  border-color: #f7f7f9;
+  resize: vertical;
+  background-color: #e9e9e9;
+  overflow-wrap: break-word;
+}
+
+.textarea::after {
+  width: auto;
+  height: 50px;
+  border: none;
+  border-color: #f7f7f9;
+  resize: vertical;
+  background-color: #e9e9e9;
+  overflow-wrap: break-word;
+}
+
+.dropbtn:hover {
+  background-color: #f7f7f7;
+  border-color: #c2c2c2;
+  border-style: solid;
+  color: #767676;
+}
+
+.dropbtn {
+  align-items: left;
+  background-color: #f7f7f7;
+  border: #9a9a9a;
+  border-color: #c2c2c2;
+  border-style: solid;
+  padding: 8px 15px;
+  color: #767676;
+  cursor: pointer;
+
+}
+
+option p {
+  color: green;
+}
+
+
+.qdropbtn {
+  align-items: left;
+  background-color: #f7f7f7;
+  border: #9a9a9a;
+  border-color: #c2c2c2;
+  border-style: solid;
+  width: auto;
+  height: 40px;
+  padding: 8px 15px;
+  color: #767676;
+  cursor: pointer;
+
+}
+
+.vdropbtn {
+  align-items: left;
+  background-color: #f7f7f7;
+  border: #9a9a9a;
+  border-color: #c2c2c2;
+  border-style: solid;
+  width: 250px;
+  height: 40px;
+  padding: 8px 15px;
+  color: #767676;
+  cursor: pointer;
+}
+
+.optionn {
+  font-weight: lighter;
+  letter-spacing: 1px;
+
+}
+
+
+.price-title {
+  font-size: 30px;
+  margin-right: auto;
+  color: #2a2a2a;
+  margin-bottom: -10px;
+
+}
+
+p .discounting{
+  color: green;
+  font-weight: bold;
+  font-size: 30px;
+  margin-bottom: -10px;
+}
+
+.quantitys {
+  color: red;
+
+}
+
+.btn-warning {
+  align-items: center;
+  width: 100%;
+
+}
+
+
+.related-products-slider {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+
+  list-style: none;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+}
+
+.related-item {
+  flex-shrink: 0;
+  width: 80%;
+  height: 90vh;
+
+  background-color: #FFF;
+
+  scroll-snap-align: center;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  font-family: sans-serif;
+  font-size: 64px;
+  font-weight: bold;
+}
+
+/* ---------------- Signup ------------- */
+.signupform {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-control {
+  border: 1px solid #c8c8c8;
+  padding: 0.375rem 0.75rem;
+  line-height: 1.5;
+}
+
+
+.signupcard-body {
+  background-color: #f7f7f7;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  width: 320px;
+}
+
+.text-sm-danger {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  text-align: left;
+  /* add this property */
+}
+
+.text-secondary-emphasis p {
+  text-decoration: none
+}
+
+/* ---------------------------- Cart ----------------------------- */
+
+
+.main-container {
+  position: relative;
+  width: auto;
+  margin: 0%;
+  margin-left: -3%;
+
+}
+
+.cartlist {
+  margin-right: 100px;
+
+}
+
+.payment-options {
+  position: relative;
+  height: 20px;
+  margin-bottom: 40px;
+  margin-top: 40px;
+  width: fit-content;
+}
+
+.cart-detail {
+  margin-right: -10px;
+}
+
+.small-quantity {
+  font-weight: 300;
+  font-size: 15px;
+  position: relative;
+  bottom: 3px;
+}
+
+
+
+.cart-img img {
+  width: 300px;
+  height: auto;
+  object-fit: cover;
+  flex: 1 1 300px;
+  margin-right: 35px;
+  margin-left: auto;
+
+}
+
+.cart-details-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 40px;
+  margin-right: 5%;
+  margin-left: 5%;
+}
+
+.cart-details-responsive {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: auto;
+
+
+}
+
+.list {
+  display: flex;
+  /* flex-wrap: wrap; */
+  top: auto;
+  margin-bottom: 40px;
+  margin-top: 40px;
+  /* margin-left: 150px; */
+  /* margin-right: 100px; */
+}
+
+.hr--cart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  height: 1.5px;
+  background-color: #5e5e5e;
+  margin-top: 20px;
+  margin: 20px;
+  width: 35%;
+}
+
+.cart-title {
+  font-size: 25px;
+  margin-right: auto;
+  right: auto;
+  justify-content: center;
+}
+
+.cart-price {
+  font-size: 15px;
+  font-weight: 400;
+  margin-right: auto;
+  position: relative;
+  right: auto;
+  margin-bottom: 0px;
+  align-self: flex-start;
+}
+
+.cart-description {
+  margin-right: auto;
+  text-align: left;
+  right: auto;
+  font-size: 13px;
+  margin-right: auto;
+  text-align: left;
+  width: 100%;
+  max-width: 600px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.total-price {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 100px;
+  font-size: 15px;
+
+}
+
+.size-in-cart {
+  margin-bottom: 0%;
+  font-weight: 400;
+}
+
+
+.options {
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 15px;
+
+}
+
+/* .badge rounded-pill bg-warning { */
+/* display: none; */
+/* } */
+
+/* --------------------- Order ----------------------- */
+
+.order-form {
+  background-color: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-right: 0%;
+  padding: 20px;
+  width: 450px;
+  margin-left: 10%;
+  margin-right: 10%;
+  border: solid;
+  border-color: #dbdbdb;
+  border-width: 1.5px;
+}
+
+.check {
+  background-color: #f7f7f7;
+  display: flex;
+  position: relative;
+  left: 250px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  width: 450px;
+  border: solid;
+  border-color: #dbdbdb;
+  border-width: 1.5px;
+}

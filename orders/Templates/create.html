@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}
+  Checkout
+{% endblock %}
+{% block content %}
+  <div class="paints-header text-center mt-3 font-weight-bold">
+    <h1>Checkout</h1>
+    <h3 class="font-weight-light">Your Order:</h3>
+  </div>
+
+  <form method="post">
+    <div class="order-form">
+      <div class="form-group">
+        <label for="{{ first_name }}" class="form-label mt-3">First Name</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="First Name" />
+      </div>
+
+      <div class="form-group">
+        <label for="{{ last_name }}" class="form-label mt-3">Last Name</label>
+        <input type="text" name="lastname" id="lastname" class="form-control" placeholder="Last Name" />
+      </div>
+
+      <div class="form-group">
+        <label for="{{ email }}" class="form-label mt-4">Email address</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" />
+      </div>
+
+      <div class="form-group">
+        <label for="{{ address }}" class="form-label mt-3">Address</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="Address" />
+      </div>
+
+      <div class="form-group">
+        <label for="{{ postal_code }}" class="form-label mt-3">Postal Code</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="Postal Code" />
+      </div>
+
+      <div class="form-group">
+        <label for="{{ city }}" class="form-label mt-3">City</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="City" />
+      </div>
+
+      <button type="button" class="btn btn-warning mt-3">Place Order</button>
+      {% csrf_token %}
+    </div>
+  </form>
+
+  <div class="check">
+    <ul>
+      {% for item in cart %}
+        <li>
+          {{ item.quantity }}x {{ item.storeitem.item_name }}
+          <span>${{ item.total_price }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    <p>Total: ${{ cart.get_total_price }}</p>
+  </div>
+{% endblock %}

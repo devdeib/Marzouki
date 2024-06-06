@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+    </head>
+    <body>
+      <div class="paint-detail-header text-center mt-1 font-weight-bold">
+        
+        
+      </div>
+
+      <div class="details-container px-4">
+        <br />
+        <div class="paint-img">
+          <div class="paint-img">
+            <img src="{% static item.item_photo %}" alt="{{ item.item_name }}" class="img-fluid" />
+          </div>
+        </div>
+        <div class="details">
+          <h4 class="text-center title mb-2 mt-3">{{ item.item_name }}</h4>
+          {% with discount=item.discount_set.first %}
+            <div class="price" id="price-section">
+              {% if discount %}
+                <span id="discounted-price" style="color: green; font-weight: bold; font-size: 30px; margin-bottom: -10px;">${{ new_price }}</span>
+                <span id="original-price" style="text-decoration: line-through; font-size: 20px; margin-bottom: -10px;">${{ item.item_price }}</span>
+              {% else %}
+                <span id="original-price" style="font-weight: bolder; font-size: 30px; margin-bottom: -10px; color: #2a2a2a;">${{ item.item_price }}.00</span>
+              {% endif %}
+            </div>
+          {% endwith %}
+              
+          <div class="tags mb-2">
+            {% for tag in item.tags.all %}
+              <span class="tag badge bg-light">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+          <p class="card-text description mb-3">{{ item.item_description }}</p>
+          <p class="width mb-2">Width: <span class="">{{ item.width }} cm</span></p>
+          <p class="height mb-3">Height: <span class="">{{ item.height }} cm</span></p>
+          <form action="{% url 'cart:cart_add' item.id %}" method="post">
+            <!-- product_detail.html -->
+            <hr>
+      
+            {% for variation in variations_with_choices %}
+              <div>
+                <p><strong class = "personalize">{{ variation.variation.name }}:</strong></p> 
+                <!-- Dropdown for variation choices -->
+                <select class="vdropbtn variation-selector mb-4" id="variation{{ variation.variation.id }}" name="variation{{ variation.variation.id }}" required>
+                  <option value="" disabled selected>Choose {{ variation.variation.name }}</option>
+                  {% for choice in variation.choices %}
+                    <option value="{{ choice.value }}" data-price-increment="{{ choice.price_increment }}">
+                      {{ choice.name }}{% if choice.price_increment %}(+{{ choice.price_increment }} $){% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              {% if not forloop.last %}
+              {% endif %}
+            {% endfor %}
+            
+            {% csrf_token %}
+            <p class="personalize mb-1">Quantity:</p>
+            <div class="quantitys">
+              <select class="qdropbtn mb-3" name="quantity">
+                {% for value, label in cart_product_form.fields.quantity.choices %}
+                  <option value="{{ value }}" {% if cart_product_form.quantity.value == value %}selected{% endif %} >
+                   {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-warning column mt-3">Add To Cart</button>
+          </form>
+        </div>
+        </div>
+      </div>
+      <script>
+        var basePrice = parseFloat('{{ item.item_price }}');
+        var isDiscounted = {% if discount %}true{% else %}false{% endif %};
+        var discountAmount = isDiscounted ? basePrice - parseFloat('{{ new_price }}') : 0;
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var variationSelects = document.querySelectorAll('.vdropbtn');
+        
+          variationSelects.forEach(function(select) {
+            select.addEventListener('change', function() {
+              var priceAdditions = 0;
+            
+              variationSelects.forEach(function(select) {
+                var option = select.options[select.selectedIndex];
+                var additionalCost = option.getAttribute('data-price-increment');
+                if (additionalCost) {
+                  priceAdditions += parseFloat(additionalCost);
+                }
+              });
+            
+              var newPrice = basePrice + priceAdditions;
+              var newDiscountedPrice = newPrice - discountAmount;
+            
+              if (isDiscounted) {
+                document.getElementById('discounted-price').textContent = '$' + newDiscountedPrice.toFixed(2);
+              }
+              document.getElementById('original-price').textContent = '$' + newPrice.toFixed(2);
+            });
+          });
+        });
+      </script>
+    </body>
+  </html>
+{% endblock %}

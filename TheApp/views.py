@@ -9,6 +9,7 @@ from .models import *
 from cart.forms import CartAddProductForm
 from django.utils import timezone
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 def signup(request):
@@ -52,8 +53,20 @@ def home(request):
 
 def paints(request):
     items = StoreItems.objects.all()
+    paginator = Paginator(items, 12)  # Show 12 items per page
     sections = Section.objects.all()
-    return render(request, 'paints.html', {'items': items, 'sections': sections})
+    
+    page = request.GET.get('page')  # Get the page number from the request
+    try:
+        itemss = paginator.page(page)  # Get the items for the requested page
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        itemss = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        itemss = paginator.page(paginator.num_pages)
+    
+    return render(request, 'paints.html', {'items': items, 'sections': sections, 'itemss':itemss})
 
 
 def about(request):

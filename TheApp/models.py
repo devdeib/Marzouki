@@ -112,7 +112,7 @@ class Choices(models.Model):
         return self.name
 
 
-class ItemImage(models.Model):
+class StoreItemImage(models.Model):
     item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='items_media/')
 

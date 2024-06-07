@@ -6,8 +6,8 @@ from nested_admin import NestedTabularInline, NestedModelAdmin
 
 
 class ItemImageInline(admin.TabularInline):
-    model = StoreItemImage
-    extra = 1  # Number of empty extra forms
+    model = ItemImage
+
 
 class ItemDiscountInLine(admin.TabularInline):
     model = Discount
@@ -59,10 +59,6 @@ class DiscountAdmin(admin.ModelAdmin):
     list_display = ['section', 'item', 'discount_type',
                     'discount_value', 'start_date', 'end_date']
 
-class StoreItemImageAdmin(admin.ModelAdmin):
-    inlines = [
-        ItemImageInline,
-    ]
 
 # Registering models with their admins
 admin.site.register(StoreItems, StoreItemAdmin)

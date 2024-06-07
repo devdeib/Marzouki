@@ -48,9 +48,6 @@
                 </div>
             </div>
           </a>
-          {% if not forloop.last %}
-          <hr class="hr--large" /> <!-- This is the horizontal rule to separate items -->
-          {% endif %}
         {% endfor %}
       </div> <!-- end row -->
       {% with total_items=cart.cart.values|length %}

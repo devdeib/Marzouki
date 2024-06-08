@@ -24,35 +24,37 @@
       <!-- Bootstrap row to contain both containers -->
 
       <!-- Cart Details Container (8 columns wide on md and larger screens) -->
-      <div class="cartlist col-md-8">
-        {% for item_id, item_data in cart.cart.items %}
-          <a href="{% url 'paint_detail' item_data.id %}" style="text-decoration: none;">
+      
+<div class="cartlist col-md-8">
+    {% for item_id, item_data in cart.cart.items %}
+        <a href="{% url 'paint_detail' item_data.id %}" style="text-decoration: none;">
             <div class="list">
-            
                 <div class="cart-img">
-                  <img src="{% static item_data.item_photo %}" alt="Paint Photo" class="" />
+                    <img src="{{ item_data.item_photo }}" alt="Item Photo" class="" />
                 </div>
                 <div class="cart-details-responsive">
-                  <h3 class="cart-title mb-2">
-                    {{ item_data.item_name }}
-                    <strong class="small-quantity">{{ item_data.quantity }}x</strong>
-                    <small class="small-quantity"><a href="{% url 'paint_detail' item_data.id %}" class="text-danger">Edit</a></small>
-                  </h3>
-                  <strong class="cart-price mb-2">{{ item_data.item_price }} $</strong>
-                  <p class="size-in-cart mb-2">{{ item_data.variation.choice }}</p>
-                  <p class="card-text cart-description mb-4">{{ item_data.item_description }}</p>
-                  <form action="{% url 'cart:cart_remove' item_data.id %}" method="post">
-                    {% csrf_token %}
-                    <button class="btn btn-danger remove-item" type="submit">Remove</button>
-                  </form>
+                    <h3 class="cart-title mb-2">
+                        {{ item_data.item_name }}
+                        <strong class="small-quantity">{{ item_data.quantity }}x</strong>
+                        <small class="small-quantity"><a href="{% url 'paint_detail' item_data.id %}" class="text-danger">Edit</a></small>
+                    </h3>
+                    <strong class="cart-price mb-2">{{ item_data.item_price }} $</strong>
+                    <p class="size-in-cart mb-2">{{ item_data.variation }}</p>
+                    <p class="size-in-cart mb-2">{{ choice.name }}</p>
+                    <p class="card-text cart-description mb-4">{{ item_data.item_description }}</p>
+                    <form action="{% url 'cart:cart_remove' item_data.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger remove-item" type="submit">Remove</button>
+                    </form>
                 </div>
             </div>
-          </a>
-          {% if not forloop.last %}
-          <hr class="hr--large" /> <!-- This is the horizontal rule to separate items -->
-          {% endif %}
-        {% endfor %}
-      </div> <!-- end row -->
+        </a>
+        {% if not forloop.last %}
+        <hr class="hr--large" />
+        {% endif %}
+    {% endfor %}
+</div>
+
       {% with total_items=cart.cart.values|length %}
         {% if total_items > 0 %}
           <div class="payment-options col-md-4">

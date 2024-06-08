@@ -9,7 +9,7 @@ class CartAddProductForm(forms.Form):
     size = forms.ModelChoiceField(queryset=Size.objects.all(), required=False)
     variation = forms.ModelChoiceField(
         queryset=Variation.objects.all(), required=False)
-
+    
     def __init__(self, *args, **kwargs):  # This line should have double underscores
         item = kwargs.pop('item', None)
         super().__init__(*args, **kwargs)  # This line also should have double underscores

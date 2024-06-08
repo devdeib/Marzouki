@@ -11,46 +11,45 @@ def cart_add(request, item_id):
     item = get_object_or_404(StoreItems, id=item_id)
     if request.method == 'POST':
         form = CartAddProductForm(request.POST, item=item)
+
         if form.is_valid():
             cd = form.cleaned_data
-
             variation_name = cd.get('variation')
+            choice_name = cd.get('choice')
             quantity = cd['quantity']
             personalization = cd.get('personalization')
             override_quantity = cd.get('override')
             variation_object = None
+            choice_object = None
+            new_price = item.item_price
+
             if variation_name:
-                # Get the variation object based on the actual name
                 variation_object = get_object_or_404(
                     Variation, name=variation_name)
-
                 item_variation = get_object_or_404(
                     ItemVariation, item=item, variation=variation_object)
-                # Calculate new price based on the percentage increase
-                price_increase_percentage = item_variation.price_increase_percentage
-                new_price = item.item_price + (price_increase_percentage)
-                # Now add the correct quantity, variation name, and price to the cart
-                cart.add(item=item, quantity=quantity, variation=variation_name,
-                         price=new_price, personalization=personalization, override_quantity=True)
+
+                if choice_name:
+                    choice_object = get_object_or_404(
+                        Choices, variation=item_variation, name=choice_name)
+                    new_price += choice_object.price_increment
+
+                # Add item to the cart with variation and choice
+                cart.add(item=item, quantity=quantity, variation=variation_object, choice=choice_object,
+                         price=new_price, personalization=personalization, override_quantity=override_quantity)
             else:
-                # If no variation is selected, add the item with default attributes
-                cart.add(item=item, quantity=quantity,
-                         personalization=personalization, override_quantity=True)
+                print("helooooooooooooooooooooooooooooooooooooooooooo")
+                # Add item to the cart without variation
+                cart.add(item=item, quantity=quantity, personalization=personalization,
+                         price=new_price, override_quantity=override_quantity)
 
             if override_quantity:
-                cart.set_quantity(
-                    item=item,
-                    quantity=quantity,
-                    variation=variation_name,  # Pass the variation name
-                    personalization=personalization
-                )
-        else:
-            # Form is invalid, handle the errors.
-            return render(request, 'paint_detail.html', {
-                'form': form,
-                'item': item
-            })
+                cart.set_quantity(item=item, quantity=quantity, variation=variation_object,
+                                  choice=choice_object, personalization=personalization)
+
     return redirect('cart:cart_detail')
+
+
 
 
 @require_POST
@@ -81,6 +80,9 @@ def cart_detail(request):
 
         variation_name = item_data.get('variation')
         item_data['variation'] = variation_name  # Use the size name directly
+        
+        choice_name = item_data.get('choice')
+        item_data['choice'] = choice_name  # Use the size name directly
 
     cart.save()  # No need to save the cart just because we accessed it, but this does not hurt
 

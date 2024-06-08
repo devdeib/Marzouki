@@ -5,23 +5,19 @@ from TheApp.models import *
 
 class Cart:
     def __init__(self, request):
-        """
-        Initialize the cart.
-        """
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
-            # Save an empty cart in the session
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
         self.variation = request.session.get('variation', {})
-        self.personalization = request.session.get('personalization', {})
+        self.choice = request.session.get('choice', {})
 
-    def add(self, item, quantity=1, variation=None, personalization=None, price=None, override_quantity=False):
+    def add(self, item, quantity=1, variation=None, choice=None, personalization=None, price=None, override_quantity=False):
         variation_part = f'-{str(variation.id)}' if variation else ''
-        cart_item_id = f'{item.id}{variation_part}'
+        choice_part = f'-{str(choice.id)}' if choice else ''
+        cart_item_id = f'{item.id}{variation_part}{choice_part}'
 
-        # Check if the cart_item_id is already in the cart to prevent KeyError
         if cart_item_id not in self.cart:
             self.cart[cart_item_id] = {
                 'quantity': 0,
@@ -30,6 +26,7 @@ class Cart:
                 'item_description': item.item_description,
                 'item_photo': item.item_photo.url if item.item_photo else None,
                 'variation': variation.name if variation else None,
+                'choice': choice.name if choice else None,
                 'personalization': personalization
             }
 
@@ -42,8 +39,8 @@ class Cart:
 
     def save(self):
         self.session[settings.CART_SESSION_ID] = self.cart
-        self.session['personalization'] = self.personalization
         self.session.modified = True
+
 
     def remove(self, item, variation=None):
         """

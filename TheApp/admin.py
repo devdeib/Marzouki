@@ -5,9 +5,11 @@ from nested_admin import NestedTabularInline, NestedModelAdmin
 # Inlines
 
 
-class ItemImageInline(admin.TabularInline):
+class ItemImageInline(NestedTabularInline):
     model = StoreItemImage
     extra = 1  # Number of empty extra forms
+    # This should be the name of the field used to order the images
+    
 
 
 class ItemDiscountInLine(admin.TabularInline):
@@ -30,8 +32,8 @@ class ItemVariationInline(NestedTabularInline):
 class StoreItemAdmin(NestedModelAdmin):
     list_display = ['item_name', 'item_price',
                     'item_status', 'item_quantity', 'created', 'updated']
-    inlines = [ItemVariationInline]
-    # Other admin configurations, if needed
+    inlines = [ItemImageInline, ItemVariationInline]
+
 
 
 class SectionAdmin(admin.ModelAdmin):

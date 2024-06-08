@@ -226,7 +226,7 @@ body {
 .details-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  
   /* margin-top: 40px; */
   margin-right: 5%;
   margin-left: 5%;

@@ -87,6 +87,7 @@ def paint_detail(request, item_id):
         current_discount = store_item.discount_set.filter(
             start_date__lte=timezone.now(), end_date__gte=timezone.now()
         ).first()
+        item_images = StoreItemImage.objects.filter(item=store_item)
 
         # By default, the new price is the same as the item price
         new_price = store_item.item_price
@@ -123,6 +124,7 @@ def paint_detail(request, item_id):
             'related_items': related_items,
             'new_price': new_price,  # Add the new_price to context
             'discount': current_discount,  # Add the discount to context
+            'item_images': item_images,
         }
         return render(request, 'paint_detail.html', context)
 

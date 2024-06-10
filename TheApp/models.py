@@ -93,14 +93,6 @@ class Color(models.Model):
         return self.name
 
 
-class ItemVariation(models.Model):
-    item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
-    variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.item.item_name} - {self.variation.name}"
-
-
 class Choices(models.Model):
     variation = models.ForeignKey(
         'ItemVariation', related_name='choices', on_delete=models.CASCADE)
@@ -110,6 +102,15 @@ class Choices(models.Model):
 
     def __str__(self):
         return self.name
+
+class ItemVariation(models.Model):
+    item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
+    variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"{self.item.item_name} - {self.variation.name}"
+
+
 
 
 class StoreItemImage(models.Model):

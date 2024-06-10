@@ -44,7 +44,7 @@ class Cart:
 
     def remove(self, item, variation=None):
         """
-        Remove an item from the cart.
+        Remove an itezm from the cart.
         """
         variation_part = f'-{str(variation.id)}' if variation else ''
         cart_item_id = f'{item.id}{variation_part}'

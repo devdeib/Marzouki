@@ -39,8 +39,6 @@
                         <small class="small-quantity"><a href="{% url 'paint_detail' item_data.id %}" class="text-danger">Edit</a></small>
                     </h3>
                     <strong class="cart-price mb-2">{{ item_data.item_price }} $</strong>
-                    <p class="size-in-cart mb-2">{{ item_data.variation }}</p>
-                    <p class="size-in-cart mb-2">{{ choice.name }}</p>
                     <p class="card-text cart-description mb-4">{{ item_data.item_description }}</p>
                     <form action="{% url 'cart:cart_remove' item_data.id %}" method="post">
                         {% csrf_token %}

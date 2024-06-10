@@ -82,6 +82,7 @@ def paint_detail(request, item_id):
         related_items = StoreItems.objects.filter(
             tags__in=tags_of_item).exclude(id=store_item.id).distinct()
         item_variations = ItemVariation.objects.filter(item=store_item)
+        item_choices = Choices.objects.filter(id=store_item.id)
         variations_and_percentage = store_item.variations.through.objects.filter(
             item=store_item).select_related('variation').all()
         current_discount = store_item.discount_set.filter(
@@ -110,10 +111,10 @@ def paint_detail(request, item_id):
         cart_product_form = CartAddProductForm(item=store_item)
 
         for item_variation in item_variations:
-            choice = Choices.objects.filter(variation=item_variation)
+            choices = Choices.objects.filter(variation=item_variation)
             variations_with_choices.append({
                 'variation': item_variation.variation,
-                'choices': choice,
+                'choices': choices,
             })
 
         context = {
@@ -126,6 +127,7 @@ def paint_detail(request, item_id):
             'discount': current_discount,  # Add the discount to context
             'item_images': item_images,
         }
+        
         return render(request, 'paint_detail.html', context)
 
     except StoreItems.DoesNotExist:

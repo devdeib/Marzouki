@@ -22,7 +22,7 @@ def cart_add(request, item_id):
             variation_object = None
             choice_object = None
             new_price = item.item_price
-
+            
             if variation_name:
                 variation_object = get_object_or_404(
                     Variation, name=variation_name)
@@ -38,7 +38,6 @@ def cart_add(request, item_id):
                 cart.add(item=item, quantity=quantity, variation=variation_object, choice=choice_object,
                          price=new_price, personalization=personalization, override_quantity=override_quantity)
             else:
-                print("helooooooooooooooooooooooooooooooooooooooooooo")
                 # Add item to the cart without variation
                 cart.add(item=item, quantity=quantity, personalization=personalization,
                          price=new_price, override_quantity=override_quantity)
@@ -73,9 +72,7 @@ def cart_detail(request):
     for item_id, item_data in cart.cart.items():
         # Split the cart_item_id to get the original item_id and size_id
         item_id_parts = item_id.split('-')
-        # This extracts the item_id only without the size_id
         original_item_id = item_id_parts[0]
-        # Assign the original item_id to the item_data for URL reversing
         item_data['id'] = original_item_id
 
         variation_name = item_data.get('variation')

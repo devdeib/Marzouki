@@ -9,7 +9,6 @@
     <title>Document</title>
     <style>
         .image-thumbnails-slider {
-            {% comment %} display: flex; {% endcomment %}
             align-items: center;
             justify-content: center;
             margin-top: 10px;
@@ -17,7 +16,6 @@
             width: 600px;
         }
         .image-thumbnails {
-            {% comment %} display: flex; {% endcomment %}
             overflow: hidden;
             width: 500px;
         }
@@ -28,7 +26,6 @@
             margin: 5px;
             cursor: pointer;
         }
-        
     </style>
 </head>
 <body>
@@ -45,7 +42,6 @@
                         <img class="thumbnail" src="{{ image.image.url }}" alt="Thumbnail" onclick="changeMainImage('{{ image.image.url }}');">
                     {% endfor %}
                 </div>
-                
             </div>
         </div>
         <div class="details">
@@ -141,7 +137,7 @@
                     variationSelects.forEach(function(select) {
                         var option = select.options[select.selectedIndex];
                         var additionalCost = option.getAttribute('data-price-increment');
-                        if (additionalCost) {
+                        if (additionalCost && !isNaN(additionalCost)) {
                             priceAdditions += parseFloat(additionalCost);
                         }
                     });

@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'TheApp',
     'cart',
     'orders',
-    'payment',
     'nested_admin',
     
 ]
@@ -144,3 +143,8 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CART_SESSION_ID = 'cart'
+
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51OZyQpGMLzi3uEVVnDxQbqdrFqixuQcqPsLdhrKVwtgfeOvjbjQ7cxytuy0gVbKa6QsSznxktd0IGX24WoxzOuXv00PqP82w9J'  # Publishable key
+STRIPE_SECRET_KEY = 'sk_test_51OZyQpGMLzi3uEVViwOcib3y0fxO3R2OKexZvdyNPUgc8nLjHkeOHHzJjqXHqkel0UJFJICJ8KafxymyY7FVdccA00Ithv6G9P'  # Secret key
+STRIPE_API_VERSION = '2024-04-10'

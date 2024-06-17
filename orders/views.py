@@ -4,6 +4,11 @@ from .models import OrderItem
 from .forms import OrderCreateForm
 from cart.cart import Cart
 from .tasks import order_created
+from django.http import JsonResponse
+from TheApp.models import StoreItems
+from django.core.serializers import serialize
+from django.db import transaction
+from django.contrib import messages
 
 
 def order_create(request):
@@ -12,24 +17,19 @@ def order_create(request):
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             order = form.save()
-            for item in cart:
+            for cart_item_id, item in cart.cart.items():
+                storeitem = StoreItems.objects.get(id=item['item_id'])
                 OrderItem.objects.create(
                     order=order,
-                    storeitem=item['item'],
+                    storeitem=storeitem,
                     item_price=item['item_price'],
                     quantity=item['quantity']
                 )
+
             # clear the cart
             cart.clear()
-            # launch asynchronous task
-            order_created.delay(order.id)
-            # set the order in the session
-            request.session['order_id'] = order.id
-            # redirect for payment
-            return redirect(reverse('payment:process'))
-    else:
-        # This line should be inside the 'else' block, not in the 'if' block.
-        form = OrderCreateForm()
+        return render(request, 'created.html', {'order': order})
 
-    # This return statement is outside the 'if' block.
+    else:
+        form = OrderCreateForm()
     return render(request, 'create.html', {'cart': cart, 'form': form})

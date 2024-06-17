@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST
 from TheApp.models import *
 from .cart import Cart
 from .forms import *
-
+from django.core.serializers import serialize
 
 @require_POST
 def cart_add(request, item_id):
@@ -22,7 +22,7 @@ def cart_add(request, item_id):
             variation_object = None
             choice_object = None
             new_price = item.item_price
-            
+
             if variation_name:
                 variation_object = get_object_or_404(
                     Variation, name=variation_name)
@@ -47,9 +47,6 @@ def cart_add(request, item_id):
                                   choice=choice_object, personalization=personalization)
 
     return redirect('cart:cart_detail')
-
-
-
 
 @require_POST
 def cart_remove(request, item_id, variation_id=None):

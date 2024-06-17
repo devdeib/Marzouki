@@ -50,7 +50,7 @@ class StoreItems(models.Model):
     status = models.CharField(
         max_length=2, choices=STATUS_CHOICES, default=DRAFT)
     item_name = models.CharField(max_length=200)
-    item_price = models.IntegerField(null=False)
+    item_price = models.FloatField(null=False)
     item_status = models.BooleanField(default=True)
     item_photo = models.ImageField(
         upload_to='items_media/', default="default.webp", null=True, blank=True)
@@ -65,10 +65,10 @@ class StoreItems(models.Model):
     secondary_color = models.ForeignKey(
         'Color', related_name='secondary_color_items', blank=True, null=True, on_delete=models.SET_NULL)
     video = models.FileField(upload_to='items_videos/', null=True, blank=True)
-    width = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
-    height = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
+    width = models.FloatField(
+         null=True, blank=True)
+    height = models.FloatField(
+         null=True, blank=True)
 
 
 class Cart(models.Model):
@@ -97,8 +97,8 @@ class Choices(models.Model):
     variation = models.ForeignKey(
         'ItemVariation', related_name='choices', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    price_increment = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True, default=None)
+    price_increment = models.FloatField(
+        blank=True, null=True, default=None)
 
     def __str__(self):
         return self.name
@@ -135,7 +135,7 @@ class Discount(models.Model):
         'StoreItems', on_delete=models.SET_NULL, blank=True, null=True)
     discount_type = models.CharField(
         max_length=1, choices=DISCOUNT_TYPE_CHOICES)
-    discount_value = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_value = models.FloatField(null=False)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 

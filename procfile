@@ -1,1 +1,1 @@
-web: gunicorn TheProject.wsgi
+web: gunicorn Marzouki.wsgi:application --log-file -

@@ -4,24 +4,45 @@
 {% block content %}
 <div class="paints-header text-center mt-3 font-weight-bold">
   <h1>Checkout</h1>
-  <h3 class="font-weight-light">Your Order:</h3>
+  <h3 class="font-weight-light">Please provide your informations:</h3>
 </div>
-
+<br>
+<div class="d-flex justify-content-center align-items-center"">
 <form method="post" class="order-form">
-  {{ form.as_p }}
-  <p><input type="submit" value="Place order" /></p>
   {% csrf_token %}
+  <div class="form-group">
+    <label for="id_first_name">First name</label>
+    <input type="text" class="form-control" id="id_first_name" name="first_name" placeholder="First name" value="{{ form.first_name.value|default_if_none:'' }}">
+  </div>
+  <p></p>
+  <div class="form-group">
+    <label for="id_last_name">Last name</label>
+    <input type="text" class="form-control" id="id_last_name" name="last_name" placeholder="Last name" value="{{ form.last_name.value|default_if_none:'' }}">
+  </div>
+  <p></p>
+  <div class="form-group">
+    <label for="id_email">Email</label>
+    <input type="email" class="form-control" id="id_email" name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}">
+  </div>
+  <p></p>
+  <div class="form-group">
+    <label for="id_address">Address</label>
+    <input type="text" class="form-control" id="id_address" name="address" placeholder="Address" value="{{ form.address.value|default_if_none:'' }}">
+  </div>
+  <p></p>
+  <div class="form-group">
+    <label for="id_postal_code">Postal code</label>
+    <input type="text" class="form-control" id="id_postal_code" name="postal_code" placeholder="Postal code" value="{{ form.postal_code.value|default_if_none:'' }}">
+  </div>
+  <p></p>
+  <div class="form-group">
+    <label for="id_city">City</label>
+    <input type="text" class="form-control" id="id_city" name="city" placeholder="City" value="{{ form.city.value|default_if_none:'' }}">
+  </div>
+  <p></p>
+  <p style="color: red; font-size: small;">All of the provided informations at your own responsibility</p>
+  <button type="submit" class="btn btn-primary">Place order</button>
 </form>
-
-<div class="check">
-  <ul>
-    {% for item in cart_items %}
-    <li>
-      {{ item.quantity }}x {{ item.product }}
-      <span>${{ item.total_price }}</span>
-    </li>
-    {% endfor %}
-  </ul>
-  <p>Total: ${{ cart_total_price }}</p>
 </div>
+<br>
 {% endblock %}

@@ -1,6 +1,14 @@
 from django.contrib import admin
 from .models import Order, OrderItem
 from django.utils.safestring import mark_safe
+from django.urls import reverse
+
+
+from django.contrib import admin
+from .models import Order, OrderItem
+from django.utils.safestring import mark_safe
+from django.urls import reverse
+
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -11,7 +19,7 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email',
                     'address', 'postal_code', 'city', 'paid',
-                    'order_payment_display', 'created', 'updated']
+                    'order_payment_display', 'created', 'updated', 'order_detail']
     list_filter = ['paid', 'created', 'updated']
     inlines = [OrderItemInline]
 
@@ -21,5 +29,9 @@ class OrderAdmin(admin.ModelAdmin):
             html = f'<a href="{url}" target="_blank">{obj.stripe_id}</a>'
             return mark_safe(html)
         return ''
-
     order_payment_display.short_description = 'Stripe payment'
+
+    def order_detail(self, obj):
+        url = reverse('orders:admin_order_detail', args=[obj.id])
+        return mark_safe(f'<a href="{url}">View</a>')
+    order_detail.short_description = 'Order Details'

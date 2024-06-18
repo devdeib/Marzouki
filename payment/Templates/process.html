@@ -4,41 +4,66 @@
   Pay your order
 {% endblock %}
 {% block content %}
-  <h1>Order summary</h1>
-  <table class="cart">
-    <thead>
-      <tr>
-        <th>Image</th>
-        <th>Product</th>
-        <th>Price</th>
-        <th>Quantity</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in order.items.all %}
-        <tr class="row{% cycle '1' '2' %}">
-          <td>
-            <img src="{% if item.item_photo %}
-                {{ item.product.item_photo.url }}
-              {% else %}
-                {% static 'img/no_image.png' %}
-              {% endif %}" />
-          </td>
-          <td>{{ item.product.item_name }}</td>
-          <td class="num">${{ item.item_price }}</td>
-          <td class="num">{{ item.quantity }}</td>
-          <td class="num">${{ item.get_cost }}</td>
-        </tr>
-      {% endfor %}
-      <tr class="total">
-        <td colspan="4">Total</td>
-        <td class="num">${{ order.get_total_cost }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <form action="{% url 'payment:process' %}" method="post">
-    <input type="submit" value="Pay now" />
-    {% csrf_token %}
-  </form>
+  <div class="paints-header text-center mt-3 font-weight-bold">
+    <h1>Order Summary</h1>
+    <hr class="hr--large" />
+  </div>
+
+  <div class="container mt-3">
+    <div class="row main-container">
+      
+      <div class="cartlist col-md-8" style="padding-right: 50px;">
+        {% for item in order.items.all %}
+          <a href="{% url 'paint_detail' item.storeitem.id %}" class="text-decoration-none text-dark">
+            <div class="list d-flex  ">
+              <div class="cart-img ">
+                <img 
+                  src="{% if item.storeitem.item_photo %}{{ item.storeitem.item_photo.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" 
+                  alt="{{ item.storeitem.item_name }}" 
+                  style="width: 200px; height: auto; object-fit: cover; border-radius: 5px;" 
+                />
+              </div>
+              <div class="cart-details-responsive flex-grow-1">
+                <h3 class="cart-title mb-2">
+                  {{ item.storeitem.item_name }}
+                  <span class="small-quantity">{{ item.quantity }}x</span>
+                </h3>
+                <p class="cart-price mb-2" style="font-size: 1.2rem;">${{ item.storeitem.item_price }}</p>
+                <p class="card-text cart-description mb-4">{{ item.storeitem.item_description }}</p>
+              </div>
+            </div>
+          </a>
+          {% if not forloop.last %}
+          <hr class="hr--large" />
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="payment-options col-md-4">
+        <div class="text-center mb-4">
+          <h4 class="mb-3">Total Cost: ${{ order.get_total_cost }}</h4>
+        
+        </div>
+        <form action="{% url 'payment:process' %}" method="post" class=" text-center">
+          {% csrf_token %}
+          <input type="submit" value="Pay now" class="btn btn-warning " />
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    .hover-shadow:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .custom-btn {
+      background-color: #ff9800;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    .custom-btn:hover {
+      background-color: #e68900;
+    }
+  </style>
 {% endblock %}

@@ -541,7 +541,6 @@ p .discounting{
 }
 
 .cart-details-container {
-  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   margin-top: 40px;
@@ -665,3 +664,5 @@ p .discounting{
   border-color: #dbdbdb;
   border-width: 1.5px;
 }
+
+/* ------------------------------------ Order Summary ---------------------------------- */

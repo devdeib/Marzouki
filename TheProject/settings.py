@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import stripe
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
     'TheApp',
     'cart',
     'orders',
+    'payment',
     'nested_admin',
     
 ]
@@ -145,6 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CART_SESSION_ID = 'cart'
 
 
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51OZyQpGMLzi3uEVVnDxQbqdrFqixuQcqPsLdhrKVwtgfeOvjbjQ7cxytuy0gVbKa6QsSznxktd0IGX24WoxzOuXv00PqP82w9J'  # Publishable key
+stripe.api_key = STRIPE_SECRET_KEY = 'sk_test_51OZyQpGMLzi3uEVViwOcib3y0fxO3R2OKexZvdyNPUgc8nLjHkeOHHzJjqXHqkel0UJFJICJ8KafxymyY7FVdccA00Ithv6G9P' 
 STRIPE_SECRET_KEY = 'sk_test_51OZyQpGMLzi3uEVViwOcib3y0fxO3R2OKexZvdyNPUgc8nLjHkeOHHzJjqXHqkel0UJFJICJ8KafxymyY7FVdccA00Ithv6G9P'  # Secret key
 STRIPE_API_VERSION = '2024-04-10'

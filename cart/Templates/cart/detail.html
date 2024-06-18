@@ -53,7 +53,24 @@
     {% endfor %}
 </div>
 
-  
+      {% with total_items=cart.cart.values|length %}
+        {% if total_items > 0 %}
+          
+          <div class="total-price mb-3">
+            <strong>Total: {{ total_price }} $</strong>
+          </div>
+
+          <div class="options">
+            <p>
+              <a href="{% url 'paints' %}" class="button light mb-3">Continue shopping</a>
+            </p>
+            <p>
+              <a href="{% url 'orders:order_create' %}" class="btn btn-warning">Checkout</a>
+            </p>
+            
+          </div>
+        {% endif %}
+      {% endwith %}
     </div> <!-- end Cart Details Container -->
   </div> <!-- end Bootstrap container -->
 {% endblock %}

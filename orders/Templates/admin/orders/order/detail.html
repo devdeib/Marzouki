@@ -3,7 +3,7 @@
   Order {{ order.id }} {{ block.super }}
 {% endblock %}
 {% block breadcrumbs %}
-  <div class="breadcrumbs">
+  <div class="breadcrumbs text-center">
     <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
     <a href="{% url 'admin:orders_order_changelist' %}">Orders</a>
     &rsaquo;
@@ -12,82 +12,114 @@
   </div>
 {% endblock %}
 {% block content %}
-  <div class="module">
-    <h1>Order {{ order.id }}</h1>
-    <ul class="object-tools">
-      <li>
-        <a href="#" onclick="window.print();">Print order</a>
-      </li>
-    </ul>
-    <table>
-      <tr>
-        <th>Created</th>
-        <td>{{ order.created }}</td>
-      </tr>
-      <tr>
-        <th>Customer</th>
-        <td>{{ order.first_name }} {{ order.last_name }}</td>
-      </tr>
-      <tr>
-        <th>E-mail</th>
-        <td>
-          <a href="mailto:{{ order.email }}">{{ order.email }}</a>
-        </td>
-      </tr>
-      <tr>
-        <th>Address</th>
-        <td>{{ order.address }},
-          {{ order.postal_code }} {{ order.city }}</td>
-      </tr>
-      <tr>
-        <th>Total amount</th>
-        <td>${{ order.get_total_cost }}</td>
-      </tr>
-      <tr>
-        <th>Status</th>
-        <td>
-          {% if order.paid %}
-            Paid
-          {% else %}
-            Pending payment
-          {% endif %}
-        </td>
-      </tr>
-      <tr>
-        <th>Stripe payment</th>
-        <td>
-          {% if order.stripe_id %}
-            <a href="{{ order.get_stripe_url }}" target="_blank">{{ order.stripe_id }}</a>
-          {% endif %}
-        </td>
-      </tr>
-    </table>
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="row w-100 justify-content-center">
+      <div class="col-md-5">
+        
+        <div class="module">
+          <h2 class="text-center">Order {{ order.id }}</h2>
+          <table class="table table-bordered mt-3">
+            <tr>
+              <th>Created</th>
+              <td>{{ order.created }}</td>
+            </tr>
+            <tr>
+              <th>Customer</th>
+              <td>{{ order.first_name }} {{ order.last_name }}</td>
+            </tr>
+            <tr>
+              <th>E-mail</th>
+              <td>
+                <a href="mailto:{{ order.email }}">{{ order.email }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th>Address</th>
+              <td>{{ order.address }},
+                {{ order.postal_code }} {{ order.city }}</td>
+            </tr>
+            <tr>
+              <th>Total amount</th>
+              <td>${{ order.get_total_cost }}</td>
+            </tr>
+            <tr>
+              <th>Status</th>
+              <td>
+                {% if order.paid %}
+                Paid
+                {% else %}
+                Pending payment
+                {% endif %}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="module">
+          <h2 class="text-center">Items bought</h2>
+          <table class="table table-bordered mt-3" style="width:100%">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items.all %}
+                <tr class="row{% cycle '1' '2' %}">
+                  <td>{{ item.storeitem.item_name }}</td>
+                  <td class="num">${{ item.storeitem.item_price }}</td>
+                  <td class="num">{{ item.quantity }}</td>
+                  <td class="num">${{ item.get_cost }}</td>
+                </tr>
+              {% endfor %}
+              <tr class="total">
+                <td colspan="3">Total Cost</td>
+                <td class="num">${{ order.get_total_cost }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="text-center mt-4">
+            <a href="#" onclick="window.print();" class="btn btn-warning">Print order</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="module">
-    <h2>Items bought</h2>
-    <table style="width:100%">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in order.items.all %}
-          <tr class="row{% cycle '1' '2' %}">
-            <td>{{ item.product.name }}</td>
-            <td class="num">${{ item.price }}</td>
-            <td class="num">{{ item.quantity }}</td>
-            <td class="num">${{ item.get_cost }}</td>
-          </tr>
-        {% endfor %}
-        <tr class="total">
-          <td colspan="3">Total</td>
-          <td class="num">${{ order.get_total_cost }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+
+  <style>
+    .breadcrumbs {
+      margin-bottom: 1rem;
+    }
+    .table {
+      margin-bottom: 1rem;
+      background-color: transparent;
+    }
+    .table-bordered {
+      border: 1px solid #dee2e6;
+    }
+    .table-bordered th,
+    .table-bordered td {
+      border: 1px solid #dee2e6;
+    }
+    
+    .module {
+      margin-bottom: 1rem;
+    }
+    .btn-warning {
+      background-color: #ff9800;
+      border-color: #ff9800;
+    }
+    .btn-warning:hover {
+      background-color: #e68900;
+      border-color: #e68900;
+    }
+    @media print {
+      header, footer, .breadcrumbs, .text-center a, .card form {
+        display: none !important;
+      }
+  </style>
 {% endblock %}

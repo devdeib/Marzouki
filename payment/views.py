@@ -22,6 +22,9 @@ def payment_process(request):
             'cancel_url': cancel_url,
             'line_items': []
         }
+        cart = Cart(request)
+        cart.clear()
+        request.session.save()
         # add order items to the Stripe checkout session
         for item in order.items.all():
             session_data['line_items'].append({
@@ -37,9 +40,6 @@ def payment_process(request):
         # create Stripe checkout session
         session = stripe.checkout.Session.create(**session_data)
         # redirect to Stripe payment form
-        cart = Cart(request)
-        cart.clear()
-        request.session.save()
         return redirect(session.url, code=303)
 
     else:

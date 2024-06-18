@@ -45,6 +45,7 @@
             </div>
         </div>
         <div class="details">
+<<<<<<< HEAD
             <h4 class="text-center title mb-2 mt-3">{{ item.item_name }}</h4>
             {% with discount=item.discount_set.first %}
                 <div class="price" id="price-section">
@@ -59,6 +60,57 @@
             <div class="tags mb-2">
                 {% for tag in item.tags.all %}
                     <span class="tag badge bg-light">{{ tag.name }}</span>
+=======
+          <h4 class="text-center title mb-2 mt-3">{{ item.item_name }}</h4>
+          {% with discount=item.discount_set.first %}
+            <div class="price" id="price-section">
+              {% if discount %}
+                <span id="discounted-price" style="color: green; font-weight: bold; font-size: 30px; margin-bottom: -10px;">${{ new_price }}</span>
+                <span id="original-price" style="text-decoration: line-through; font-size: 20px; margin-bottom: -10px;">${{ item.item_price }}</span>
+              {% else %}
+                <span id="original-price" style="font-weight: bolder; font-size: 30px; margin-bottom: -10px; color: #2a2a2a;">${{ item.item_price }}.00</span>
+              {% endif %}
+            </div>
+          {% endwith %}
+              
+          <div class="tags mb-2">
+            {% for tag in item.tags.all %}
+              <span class="tag badge bg-light">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+          <p class="card-text description mb-3">{{ item.item_description }}</p>
+          <p class="width mb-2">Width: <span class="">{{ item.width }} cm</span></p>
+          <p class="height mb-3">Height: <span class="">{{ item.height }} cm</span></p>
+          <form action="{% url 'cart:cart_add' item.id %}" method="post">
+            <!-- product_detail.html -->
+            <hr>
+      
+            {% for variation in variations_with_choices %}
+              <div>
+                <p><strong class = "personalize">{{ variation.variation.name }}:</strong></p> 
+                <!-- Dropdown for variation choices -->
+                <select class="vdropbtn variation-selector mb-4" id="variation{{ variation.variation.id }}" name="variation{{ variation.variation.id }}" required>
+                  <option value="" disabled selected>Choose {{ variation.variation.name }}</option>
+                  {% for choice in variation.choices %}
+                    <option value="{{ choice.value }}" data-price-increment="{{ choice.price_increment }}">
+                      {{ choice.name }}{% if choice.price_increment %}(+{{ choice.price_increment }} $){% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              {% if not forloop.last %}
+              {% endif %}
+            {% endfor %}
+            
+            {% csrf_token %}
+            <p class="personalize mb-1">Quantity:</p>
+            <div class="quantitys">
+              <select class="qdropbtn mb-3" name="quantity">
+                {% for value, label in cart_product_form.fields.quantity.choices %}
+                  <option value="{{ value }}" {% if cart_product_form.quantity.value == value %}selected{% endif %} >
+                   {{ label }}
+                  </option>
+>>>>>>> e4621e3e7c7ab2a70e92b40cdbeb53b0da1eb297
                 {% endfor %}
             </div>
             <p class="card-text description mb-3">{{ item.item_description }}</p>

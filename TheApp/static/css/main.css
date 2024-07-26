@@ -665,4 +665,179 @@ p .discounting{
   border-width: 1.5px;
 }
 
-/* ------------------------------------ Order Summary ---------------------------------- */
+/* ------------------------------------ Admin ---------------------------------- */
+/* styles.css */
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.etsy-shop-manager body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+.etsy-shop-manager .container {
+  display: flex;
+  height: 100%;
+}
+
+.etsy-shop-manager .sidebar {
+  width: 250px;
+  background-color: #efefef;
+  color: #000000;
+  padding: 20px;
+  position: fixed;
+  top: 60px;
+  /* Adjust this value according to the height of your header */
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+.etsy-shop-manager .sidebar h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  font-size: 21px;
+  font-weight: 600;
+  color: rgb(26, 26, 26);
+}
+
+.etsy-shop-manager .sidebar nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.etsy-shop-manager .sidebar nav ul li {
+  margin: 15px 0;
+}
+
+.etsy-shop-manager .sidebar nav ul li a {
+  color: rgb(26, 26, 26);
+  text-decoration: none;
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.etsy-shop-manager .sidebar nav ul li a:hover {
+  background-color: #d5d5d5;
+  width: 100%;
+}
+
+.etsy-shop-manager main {
+  margin-left: 270px;
+  padding: 20px;
+  flex-grow: 1;
+  padding-top: 60px;
+  /* Adjust this value according to the height of your header */
+}
+
+.etsy-shop-manager main section {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.etsy-shop-manager .card {
+  display: inline-block;
+  width: 30%;
+  margin-right: 1.5%;
+  padding: 20px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.etsy-shop-manager .card:last-child {
+  margin-right: 0;
+}
+
+.etsy-shop-manager .listings {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.etsy-shop-manager .listing {
+  flex: 1 1 45%;
+  margin: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+}
+
+.etsy-shop-manager .listing img {
+  max-width: 100px;
+  margin-right: 20px;
+}
+
+.etsy-shop-manager .listing-info {
+  flex-grow: 1;
+}
+
+.etsy-shop-manager table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.etsy-shop-manager table,
+th,
+td {
+  border: 1px solid #ddd;
+}
+
+.etsy-shop-manager th,
+td {
+  padding: 10px;
+  text-align: left;
+}
+
+.etsy-shop-manager th {
+  background-color: #f4f4f4;
+}
+
+.etsy-shop-manager footer {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #333;
+  color: #fff;
+}
+/* styles.css */
+
+/* Ensure the icons and text align properly */
+.sidebar nav ul li {
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+}
+
+.sidebar nav ul li a {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar nav ul li a i {
+  margin-right: 10px;
+  /* Space between the icon and the text */
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #575757;
+  width: 100%;
+}

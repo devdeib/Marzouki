@@ -183,3 +183,7 @@ def search(request):
         results = StoreItems.objects.none()
 
     return render(request, 'search_results.html', {'results': results, 'sections': sections, 'query': query})
+
+
+def admin(request):
+    return render(request, 'base_admin.html')

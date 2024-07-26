@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Home{% endblock %}
+{% block content %}
+<h1>Welcome to the Dashboard</h1>
+<ul>
+  {% for model, model_admin in registered_models %}
+            <li>
+                <a href="{% url 'model_list' model.model_name %}">{{ model.verbose_name_plural }}</a>
+            </li>
+  {% endfor %}
+</ul>
+{% endblock %}

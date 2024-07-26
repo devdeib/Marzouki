@@ -1,0 +1,22 @@
+<!-- store_items_list.html -->
+{% extends 'base.html' %}
+{% block title %}Store Items List{% endblock %}
+{% block content %}
+<h1>Store Items List</h1>
+<ul>
+  {% for item in store_items %}
+  <li><a href="{% url 'dashboard:store_item_detail' item.pk %}">{{ item.item_name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
+
+<!-- store_item_detail.html -->
+
+    Store Item Detail
+
+
+<h1>{{ store_item.item_name }}</h1>
+<p>Price: ${{ store_item.item_price }}</p>
+<p>Status: {{ store_item.item_status }}</p>
+<!-- Additional details as needed -->
+

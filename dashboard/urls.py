@@ -8,6 +8,7 @@ app_name = 'dashboard'
 urlpatterns = [
     path('admin_home/', views.home, name='admin_home'),
     path('store_items/', views.store_items_list, name='store_items_list'),
+    path('add/', views.add_store_item, name='add_store_item'),
     path('store_items/<int:pk>/', views.store_item_detail,
          name='store_item_detail'),
     path('sections/', views.section_list, name='section_list'),

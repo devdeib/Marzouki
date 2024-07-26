@@ -8,6 +8,10 @@ from django.shortcuts import render
 from django.contrib import admin
 from django.apps import apps
 from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from TheApp.models import StoreItems
+from .forms import StoreItemForm
+from django.contrib import messages
 
 
 def home(request):
@@ -17,8 +21,34 @@ def home(request):
 
 
 def store_items_list(request):
-    store_items = StoreItems.objects.all()
-    return render(request, 'store_items_list.html', {'store_items': store_items})
+    items = StoreItems.objects.all()
+    paginator = Paginator(items, 12)  # Show 12 items per page
+    sections = Section.objects.all()
+
+    page = request.GET.get('page')  # Get the page number from the request
+    try:
+        itemss = paginator.page(page)  # Get the items for the requested page
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        itemss = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        itemss = paginator.page(paginator.num_pages)
+
+    return render(request, 'store_items_list.html', {'items': items, 'sections': sections, 'itemss': itemss})
+
+
+def add_store_item(request):
+    if request.method == 'POST':
+        form = StoreItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'New item added successfully!')
+            # Redirect to the change list
+            return redirect('admin:your_app_storeitems_changelist')
+    else:
+        form = StoreItemForm()
+    return render(request, 'add_store_item.html', {'form': form})
 
 
 def store_item_detail(request, pk):

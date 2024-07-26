@@ -35,6 +35,7 @@ WSGI_APPLICATION = 'TheProject.wsgi.application'
 # Application definition
 
 INSTALLED_APPS = [
+    
     'crispy_forms',
     'crispy_bootstrap5',
     'django.contrib.admin',
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     'payment',
     'nested_admin',
     'dashboard',
-    
+
 ]
 
 JAZZMIN_UI_TWEAKS = {

@@ -1,0 +1,14 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<h1 class="paints-header text-center mt-3 font-weight-bold">Add New Item</h1>
+<hr class="hr--large">
+<div class="main-content">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success">Add New Item</a>
+    {% comment %} <a href="{% url 'dashboard:TheApp_storeitems_changelist' %}" class="btn btn-secondary">Cancel</a> {% endcomment %}
+  </form>
+  </div>
+{% endblock %}

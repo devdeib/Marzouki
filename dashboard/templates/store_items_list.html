@@ -1,22 +1,122 @@
 <!-- store_items_list.html -->
-{% extends 'base.html' %}
-{% block title %}Store Items List{% endblock %}
+{% extends 'admin_base.html' %} 
+{% load static %} 
+{% block title %}Store Items List{% endblock %} 
 {% block content %}
-<h1>Store Items List</h1>
-<ul>
-  {% for item in store_items %}
-  <li><a href="{% url 'dashboard:store_item_detail' item.pk %}">{{ item.item_name }}</a></li>
-  {% endfor %}
-</ul>
+<h1 class="paints-header text-center mt-3 font-weight-bold">Store Items List</h1>
+<hr class="hr--large">
+<div class="main-content">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <!-- Button trigger modal -->
+      <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success">Add New Listing</a>
+    </div>
+
+    <div class="col-md-8">
+      <div class="row">
+        {% for item in itemss %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card bg-light">
+              <a href="{% url 'paint_detail' item.pk %}" style="text-decoration: none">
+                <div class="card-body">
+                  <div class="text-center">
+                    <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid"/>
+                  </div>
+                  <h4 class="text-center card-title">{{ item.item_name }}</h4>
+                  <p class="card-text">Price: {{ item.item_price }}$</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        {% empty %}
+          <p>No items available.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if itemss.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ itemss.previous_page_number }}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        {% endif %}
+        {% for num in itemss.paginator.page_range %}
+          {% if itemss.number == num %}
+            <li class="page-item active">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% elif num > itemss.number|add:'-3' and num < itemss.number|add:'3' %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+        {% if itemss.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ itemss.next_page_number }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Adding New Item -->
+<div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addItemModalLabel">Add New Listing</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" enctype="multipart/form-data" action="{% url 'dashboard:add_store_item' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="item_name">Item Name</label>
+            <input type="text" class="form-control" id="item_name" name="item_name" required>
+          </div>
+          <div class="form-group">
+            <label for="item_price">Item Price</label>
+            <input type="number" step="0.01" class="form-control" id="item_price" name="item_price" required>
+          </div>
+          <div class="form-group">
+            <label for="item_photo">Item Photo</label>
+            <input type="file" class="form-control-file" id="item_photo" name="item_photo" required>
+          </div>
+          <div class="form-group">
+            <label for="item_description">Item Description</label>
+            <textarea class="form-control" id="item_description" name="item_description"></textarea>
+          </div>
+          <!-- Add other fields as needed -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
-
-<!-- store_item_detail.html -->
-
-    Store Item Detail
-
-
-<h1>{{ store_item.item_name }}</h1>
-<p>Price: ${{ store_item.item_price }}</p>
-<p>Status: {{ store_item.item_status }}</p>
-<!-- Additional details as needed -->
-

@@ -1,9 +1,12 @@
 footer {
   font-size: 11px;
-  position: sticky;
   margin-bottom: auto;
+  background: #f8f9fa;
+  padding: 1rem 0;
+  text-align: center;
+  
 }
-
+html,
 body {
   background-color: #f7f7f7;
   height: 100%;
@@ -816,28 +819,52 @@ td {
 /* styles.css */
 
 /* Ensure the icons and text align properly */
-.sidebar nav ul li {
-  display: flex;
-  align-items: center;
-  margin: 15px 0;
+.sidebar {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  border-right: 1px solid #dee2e6;
+  left: 0;
+  background-color: #f7f7f7;
+  padding-top: 20px;
 }
 
-.sidebar nav ul li a {
+.sidebar-content {
   display: flex;
-  align-items: center;
-  color: #fff;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 15px;
   text-decoration: none;
-  padding: 10px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  font-size: 20px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  color: #0a0a0a;
+  display: block;
+  transition: 0.3s;
 }
 
-.sidebar nav ul li a i {
+.sidebar-item {
+  padding: 15px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 300;
+  color: #0a0a0a;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidebar-item i {
   margin-right: 10px;
-  /* Space between the icon and the text */
 }
 
-.sidebar nav ul li a:hover {
-  background-color: #575757;
+.sidebar-item:hover {
+  background-color: #e4e4e4;
   width: 100%;
+}
+
+.main-content {
+  margin-left: 260px;
+  /* Same as the width of the sidebar */
 }

@@ -15,52 +15,51 @@
   </head>
 
   <body>
-    <!-- Header content -->
-    {% include 'partials/_header.html' %}
+    <div class="header">
+      <!-- Header content -->
+      {% include 'partials/_header.html' %}
+    </div>
 
-    <main>
-      {% block sidebar %}
-      <div class="sidebar">
-        <div class="sidebar-content">
-          <h1 class="sidebar-header text-center" style="margin-top: -20px">
-            Shop Manager
-          </h1>
-          <a href="{% url 'dashboard:admin_home' %}" class="sidebar-item"
-            ><i class="fa fa-window-maximize" aria-hidden="true"></i
-            >Dashboard</a
-          >
-          <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item"
-            ><i class="fas fa-box"></i>Listings</a
-          >
-          <a
-            href="{% url 'admin:TheApp_section_changelist' %}"
-            class="sidebar-item"
-            ><i class="fas fa-th-large"></i>Categories</a
-          >
-          <a
-            href="{% url 'admin:TheApp_discount_changelist' %}"
-            class="sidebar-item"
-            ><i class="fas fa-percent"></i>Financials</a
-          >
-          <a
-            href="{% url 'admin:TheApp_variation_changelist' %}"
-            class="sidebar-item"
-            ><i class="fas fa-layer-group"></i> Variations</a
-          >
-          <a
-            href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
-            class="sidebar-item"
-            ><i class="fa fa-user-plus" aria-hidden="true"></i>Groups</a
-          >
-          <a
-            href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
-            class="sidebar-item"
-            ><i class="fa fa-users" aria-hidden="true"></i>Users</a
-          >
-        </div>
+    <div class="sidebar">
+      <div class="sidebar-content">
+        <h1 class="sidebar-header text-center" style="margin-top: -10px">
+          Shop Manager
+        </h1>
+        <a href="{% url 'dashboard:admin_home' %}" class="sidebar-item"
+          ><i class="fa fa-window-maximize" aria-hidden="true"></i>Dashboard</a
+        >
+        <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item"
+          ><i class="fas fa-box"></i>Listings</a
+        >
+        <a
+          href="{% url 'admin:TheApp_section_changelist' %}"
+          class="sidebar-item"
+          ><i class="fas fa-th-large"></i>Categories</a
+        >
+        <a
+          href="{% url 'admin:TheApp_discount_changelist' %}"
+          class="sidebar-item"
+          ><i class="fas fa-percent"></i>Financials</a
+        >
+        <a
+          href="{% url 'admin:TheApp_variation_changelist' %}"
+          class="sidebar-item"
+          ><i class="fas fa-layer-group"></i> Variations</a
+        >
+        <a
+          href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
+          class="sidebar-item"
+          ><i class="fa fa-user-plus" aria-hidden="true"></i>Groups</a
+        >
+        <a
+          href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
+          class="sidebar-item"
+          ><i class="fa fa-users" aria-hidden="true"></i>Users</a
+        >
       </div>
-      {% endblock %} {% block content %} {% endblock %}
-    </main>
+    </div>
+
+    <main>{% block content %}{% endblock %}</main>
 
     <!-- Footer content -->
     {% include 'partials/_footer.html' %}

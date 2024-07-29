@@ -1,14 +1,162 @@
-{% extends "admin_base.html" %}
+{% extends "admin_base.html" %} {% load form_filters %} {% block content %}
+<h1 class="paints-header text-center mt-3 font-weight-bold custom-header">
+  Add New Item
+</h1>
+{% if messages %}
+<div class="messages">
+  {% for message in messages %}
+  <div class="alert alert-success text-center">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="main-content container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        action="{% url 'dashboard:add_store_item' %}"
+        class="needs-validation"
+        novalidate
+      >
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_item_description">Status</label>
+          {{ form.status|add_class:"form-control" }}
+        </div>
+        <br />
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="id_item_name">Item Name</label>
+            {{ form.item_name|add_class:"form-control" }}
+          </div>
+          <br />
+          <div class="form-group col-md-12">
+            <label for="id_item_price">Item Price</label>
+            {{ form.item_price|add_class:"form-control" }}
+          </div>
+        </div>
+        <br />
+        <div class="form-group">
+          <label for="id_item_photo">Item Photo</label>
+          <input type="file" name="extra_images" multiple />
+        </div>
+        <br />
+        <div id="image-container" class="form-group">
+          <label for="id_images">Extra Images</label>
+          <input
+            type="file"
+            name="extra_images[]"
+            class="image-input"
+            multiple
+          />
+          <button type="button" id="add-image">+</button>
+        </div>
 
-{% block content %}
-<h1 class="paints-header text-center mt-3 font-weight-bold">Add New Item</h1>
-<hr class="hr--large">
-<div class="main-content">
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success">Add New Item</a>
-    {% comment %} <a href="{% url 'dashboard:TheApp_storeitems_changelist' %}" class="btn btn-secondary">Cancel</a> {% endcomment %}
-  </form>
+        <br />
+        <div class="form-group">
+          <label for="id_item_description ">Item Description</label>
+          {{ form.item_description|add_class:"form-control" }}
+        </div>
+        <br />
+        <div class="form-group">
+          <label for="id_item_description">Tags</label>
+          {{ form.tags|add_class:"form-control" }}
+        </div>
+
+        <div class="text-center my-4">
+          <p class="text-center custom-label">Quantity And Variations</p>
+          <hr class="hr--large" />
+        </div>
+
+        <div class="form-group">
+          <label for="id_item_description">Quantity</label>
+          {{ form.item_quantity|add_class:"form-control" }}
+        </div>
+        <br />
+        <div class="form-group">
+          <label for="id_item_description">Variations</label>
+          {{ form.variations|add_class:"form-control" }}
+        </div>
+
+        <div class="text-center my-4">
+          <p class="text-center custom-label">Colors</p>
+          <hr class="hr--large" />
+        </div>
+        <div class="form-group">
+          <label for="id_item_description">Primary Color</label>
+          {{ form.primary_color|add_class:"form-control" }}
+        </div>
+        <br />
+        <div class="form-group">
+          <label for="id_item_description">Secondary Color</label>
+          {{ form.secondary_color|add_class:"form-control" }}
+        </div>
+        <div class="text-center my-4">
+          <p class="text-center custom-label">Video</p>
+          <hr class="hr--large" />
+        </div>
+        <div class="form-group">
+          <label for="id_item_description">Video of the product</label>
+          {{ form.video|add_class:"form-control" }}
+        </div>
+        <div class="text-center my-4">
+          <p class="text-center custom-label">Dimensions</p>
+          <hr class="hr--large" />
+        </div>
+
+        <div class="form-group">
+          <label for="id_item_description">Width</label>
+          {{ form.width|add_class:"form-control" }}
+        </div>
+        <br />
+        <div class="form-group">
+          <label for="id_item_description">Height</label>
+          {{ form.height|add_class:"form-control" }}
+        </div>
+        <br />
+
+        <button type="submit" class="btn btn-success">Add New Item</button>
+        <a
+          href="{% url 'admin:TheApp_storeitems_changelist' %}"
+          class="btn btn-secondary"
+          >Cancel</a
+        >
+      </form>
+    </div>
   </div>
+</div>
+<script>
+  document.getElementById("add-image").addEventListener("click", function () {
+    let input = document.createElement("input");
+    input.type = "file";
+    input.name = "extra_images[]";
+    input.className = "image-input";
+    input.multiple = true;
+
+    let container = document.getElementById("image-container");
+    container.insertBefore(input, document.getElementById("add-image"));
+  });
+</script>
+<style>
+  .custom-header {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    text-align: center;
+  }
+
+  .messages {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+  }
+
+  .alert {
+    align-items: center;
+  }
+
+  .main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+  }
+</style>
 {% endblock %}

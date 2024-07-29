@@ -13,5 +13,6 @@ urlpatterns = [
          name='store_item_detail'),
     path('sections/', views.section_list, name='section_list'),
     path('sections/<int:pk>/', views.section_detail, name='section_detail'),
+    path('dash_search/', views.dash_search, name='dash_search'),
    
 ]

@@ -1,8 +1,10 @@
 from TheApp.models import *
+from django.forms import formset_factory
 from django.shortcuts import render, get_object_or_404
 from django.contrib.admin import site
 from django.shortcuts import render, get_object_or_404, redirect
 from TheApp.models import *
+from django.db.models import Q
 from django.shortcuts import render
 from django.shortcuts import render
 from django.contrib import admin
@@ -10,7 +12,7 @@ from django.apps import apps
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from TheApp.models import StoreItems
-from .forms import StoreItemForm
+from .forms import *
 from django.contrib import messages
 
 
@@ -38,15 +40,38 @@ def store_items_list(request):
     return render(request, 'store_items_list.html', {'items': items, 'sections': sections, 'itemss': itemss})
 
 
+def dash_search(request):
+    query = request.GET.get('query', '')  # Get the query from GET request
+    sections = Section.objects.all()
+    if query:
+        # Q objects are used to make complex queries with | (OR) and & (AND)
+        results = StoreItems.objects.filter(
+            Q(item_name__icontains=query) |
+            Q(primary_color__name__icontains=query) |
+            Q(secondary_color__name__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    else:
+        results = StoreItems.objects.none()
+
+    return render(request, 'dash_search_results.html', {'results': results, 'sections': sections, 'query': query})
+
+
+
 def add_store_item(request):
+    # Assuming a maximum of 3 extra images
     if request.method == 'POST':
         form = StoreItemForm(request.POST, request.FILES)
         if form.is_valid():
+            
             form.save()
-            messages.success(request, 'New item added successfully!')
-            # Redirect to the change list
-            return redirect('admin:your_app_storeitems_changelist')
+            
+            messages.success(request, 'New listing added successfully!')
+            # No redirect; fall through to re-render the form page
+        else:
+            print("Form is not valid")
     else:
+        print("GET request, not POST")
         form = StoreItemForm()
     return render(request, 'add_store_item.html', {'form': form})
 

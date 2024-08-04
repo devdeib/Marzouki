@@ -14,5 +14,13 @@ urlpatterns = [
     path('sections/', views.section_list, name='section_list'),
     path('sections/<int:pk>/', views.section_detail, name='section_detail'),
     path('dash_search/', views.dash_search, name='dash_search'),
-   
+    path('section_list/', views.section_list, name='section_list'),
+    path('section_detail/<int:section_id>/', views.edit_section, name='section_detail'),
+    path('add_section/', views.add_section, name="add_section"),
+    path('discounts/', views.discount_list, name="discount_list"),
+    path('variation_list/', views.variation_list, name="variation_list"),
+    path('edit_section/<int:section_id>/',
+         views.edit_section, name="edit_section"),
+    path('sections/delete/<int:section_id>/',
+         views.delete_section, name='delete_section'),
 ]

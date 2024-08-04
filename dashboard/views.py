@@ -14,6 +14,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from TheApp.models import StoreItems
 from .forms import *
 from django.contrib import messages
+from django.db.models import Count
+
 
 
 def home(request):
@@ -41,7 +43,9 @@ def store_items_list(request):
 
 
 def dash_search(request):
+    items = StoreItems.objects.all()
     query = request.GET.get('query', '')  # Get the query from GET request
+    paginator = Paginator(items, 12)
     sections = Section.objects.all()
     if query:
         # Q objects are used to make complex queries with | (OR) and & (AND)
@@ -53,6 +57,16 @@ def dash_search(request):
         ).distinct()
     else:
         results = StoreItems.objects.none()
+    
+    page = request.GET.get('page')  # Get the page number from the request
+    try:
+        results = paginator.page(page)  # Get the items for the requested page
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        results = paginator.page(paginator.num_pages)
 
     return render(request, 'dash_search_results.html', {'results': results, 'sections': sections, 'query': query})
 
@@ -82,9 +96,70 @@ def store_item_detail(request, pk):
 
 
 def section_list(request):
-    sections = Section.objects.all()
+    sections = Section.objects.annotate(item_count=Count('items'))
     return render(request, 'section_list.html', {'sections': sections})
 
+
+def add_section(request):
+    # Assuming a maximum of 3 extra images
+    if request.method == 'POST':
+        form = SectionForm(request.POST, request.FILES)
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(request, 'New Category added successfully!')
+            # No redirect; fall through to re-render the form page
+        else:
+            print("Form is not valid")
+    else:
+        print("GET request, not POST")
+        form = SectionForm()
+    return render(request, 'add_section.html', {'form': form})
+
+
+def edit_section(request, section_id):
+    section = Section.objects.get(id=section_id)
+    items = StoreItems.objects.all()
+
+    if request.method == 'POST':
+        print("POST request received.")
+        print("POST data:", request.POST)
+
+        form = SectionForm(request.POST, instance=section)
+        if form.is_valid():
+            print("Form is valid.")
+            # Save the form instance
+            section = form.save(commit=False)
+            # Process selected items
+            selected_items = form.cleaned_data['items']
+            section.items.set(selected_items)
+            section.save()
+            return redirect('dashboard:section_list')
+        else:
+            print("Form errors:", form.errors)
+    else:
+        form = SectionForm(instance=section)
+
+    # Separate checked and unchecked items
+    checked_items = []
+    unchecked_items = []
+
+    for item in items:
+        if item in section.items.all():
+            checked_items.append(item)
+        else:
+            unchecked_items.append(item)
+
+    sorted_items = checked_items + unchecked_items
+
+    return render(request, 'section_detail.html', {'form': form, 'section': section, 'items': sorted_items})
+
+
+def delete_section(request, section_id):
+    section = get_object_or_404(Section, id=section_id)
+    section.delete()
+    return redirect('dashboard:section_list')
 
 def section_detail(request, pk):
     section = get_object_or_404(Section, pk=pk)
@@ -113,7 +188,7 @@ def tag_detail(request, pk):
 
 def discount_list(request):
     discounts = Discount.objects.all()
-    return render(request, 'discount_list.html', {'discounts': discounts})
+    return render(request, 'discounts.html', {'discounts': discounts})
 
 
 def discount_detail(request, pk):

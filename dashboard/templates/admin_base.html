@@ -25,35 +25,39 @@
         <h1 class="sidebar-header text-center" style="margin-top: -10px">
           Shop Manager
         </h1>
-        <a href="{% url 'dashboard:admin_home' %}" class="sidebar-item"
+        <a
+          href="{% url 'dashboard:admin_home' %}"
+          class="sidebar-item {% if request.resolver_match.url_name == 'admin_home' %}active{% endif %}"
           ><i class="fa fa-window-maximize" aria-hidden="true"></i>Dashboard</a
         >
-        <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item"
+        <a
+          href="{% url 'dashboard:store_items_list' %}"
+          class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"
           ><i class="fas fa-box"></i>Listings</a
         >
         <a
-          href="{% url 'admin:TheApp_section_changelist' %}"
-          class="sidebar-item"
+          href="{% url 'dashboard:section_list' %}"
+          class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"
           ><i class="fas fa-th-large"></i>Categories</a
         >
         <a
-          href="{% url 'admin:TheApp_discount_changelist' %}"
-          class="sidebar-item"
+          href="{% url 'dashboard:discount_list' %}"
+          class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"
           ><i class="fas fa-percent"></i>Financials</a
         >
         <a
-          href="{% url 'admin:TheApp_variation_changelist' %}"
-          class="sidebar-item"
-          ><i class="fas fa-layer-group"></i> Variations</a
+          href="{% url 'dashboard:variation_list' %}"
+          class="sidebar-item {% if request.resolver_match.url_name == 'variation_list' %}active{% endif %}"
+          ><i class="fas fa-layer-group"></i>Variations</a
         >
         <a
           href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
-          class="sidebar-item"
+          class="sidebar-item {% if request.resolver_match.url_name == 'TheApp_storeitemimage_changelist' %}active{% endif %}"
           ><i class="fa fa-user-plus" aria-hidden="true"></i>Groups</a
         >
         <a
           href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
-          class="sidebar-item"
+          class="sidebar-item {% if request.resolver_match.url_name == 'TheApp_storeitemimage_changelist' %}active{% endif %}"
           ><i class="fa fa-users" aria-hidden="true"></i>Users</a
         >
       </div>
@@ -64,4 +68,10 @@
     <!-- Footer content -->
     {% include 'partials/_footer.html' %}
   </body>
+  <style>
+    .sidebar-item.active {
+      background-color: #e4e4e4; /* Highlight color */
+      /* Text color */
+    }
+  </style>
 </html>

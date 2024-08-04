@@ -39,7 +39,7 @@
         <br />
         <div class="form-group">
           <label for="id_item_photo">Item Photo</label>
-          <input type="file" name="extra_images" multiple />
+          {{ form.item_photo|add_class:"form-control" }}
         </div>
         <br />
         <div id="image-container" class="form-group">

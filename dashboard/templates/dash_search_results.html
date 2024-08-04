@@ -1,6 +1,6 @@
 <!-- search_results.html -->
 {% extends 'admin_base.html' %} {% load static %} {% block content %}
-<div class="paints-header text-center mt-3 font-weight-bold">
+<div class="text-center mt-3 font-weight-bold">
   <h1>Search Results for "{{ query }}"</h1>
 </div>
 <hr class="hr--large">
@@ -39,11 +39,12 @@
         </div>
     </div>
     <!-- Pagination -->
+    <!-- Pagination -->
     <div class="mt-4">
       <ul class="pagination justify-content-center">
-        {% if itemss.has_previous %}
+        {% if results.has_previous %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ itemss.previous_page_number }}" aria-label="Previous">
+            <a class="page-link" href="?page={{ results.previous_page_number }}" aria-label="Previous">
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>
@@ -54,20 +55,20 @@
             </a>
           </li>
         {% endif %}
-        {% for num in itemss.paginator.page_range %}
-          {% if itemss.number == num %}
+        {% for num in results.paginator.page_range %}
+          {% if results.number == num %}
             <li class="page-item active">
               <a class="page-link" href="?page={{ num }}">{{ num }}</a>
             </li>
-          {% elif num > itemss.number|add:'-3' and num < itemss.number|add:'3' %}
+          {% elif num > results.number|add:'-3' and num < results.number|add:'3' %}
             <li class="page-item">
               <a class="page-link" href="?page={{ num }}">{{ num }}</a>
             </li>
           {% endif %}
         {% endfor %}
-        {% if itemss.has_next %}
+        {% if results.has_next %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ itemss.next_page_number }}" aria-label="Next">
+            <a class="page-link" href="?page={{ results.next_page_number }}" aria-label="Next">
               <span aria-hidden="true">&raquo;</span>
             </a>
           </li>

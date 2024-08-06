@@ -7,24 +7,27 @@
     <div class="search-form-container mb-4">
         <form action="{% url 'dashboard:dash_search' %}">
             <div class="input-group">
-                <input type="search" class="search_admin" placeholder="Search for products" name="query">
-                <div class="input-group-append">
-                    <button class="btn btn-secondary justify-content-end" type="submit">Search</button>
-                </div>
-                <div>
-                    <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success add_btn">Add New Listing</a>
-                </div>
-                <div>
-                    <select id="action-select" class="btn btn-secondary ml-2">
-                        <option value="">Select Action</option>
-                        <option value="Active">Active</option>
-                        <option value="DR">Draft</option>
-                        <option value="delete">Delete</option>
-                    </select>
-                    <button class="btn btn-primary ml-2" type="button" onclick="submitForm()">Apply</button>
-                </div>
+              <input type="search" class="search_admin" placeholder="Search for products" name="query">
+              <div class="input-group-append">
+                <button class="btn btn-secondary justify-content-end" type="submit">Search</button>
+              </div>
+              <div>
+                <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success add_btn">Add New Listing</a>
+              </div>
+              <br>
+              
             </div>
-        </form>
+          </form>
+          <br>
+          <div>
+          <select id="action-select" class="btn btn-secondary" >
+            <option value="">Select Action</option>
+                  <option value="Active">Active</option>
+                  <option value="DR">Draft</option>
+                  <option value="delete">Delete</option>
+              </select>
+              <button class="btn btn-primary" style="margin-left: 5px;" type="button" onclick="submitForm()">Apply</button>
+            </div>
     </div>
     <form id="items-form" method="post" action="{% url 'dashboard:items_bulk_action' %}">
         {% csrf_token %}

@@ -11,6 +11,7 @@ urlpatterns = [
     path('add/', views.add_store_item, name='add_store_item'),
     path('store_items/<int:pk>/', views.store_item_detail,
          name='store_item_detail'),
+    path('items_bulk_action/', views.items_bulk_action, name='items_bulk_action'),
     path('sections/', views.section_list, name='section_list'),
     path('sections/<int:pk>/', views.section_detail, name='section_detail'),
     path('dash_search/', views.dash_search, name='dash_search'),
@@ -23,4 +24,10 @@ urlpatterns = [
          views.edit_section, name="edit_section"),
     path('sections/delete/<int:section_id>/',
          views.delete_section, name='delete_section'),
+    path('discounts/', views.discount_list, name='discount_list'),
+    path('discount_detail/<int:pk>/', views.discount_detail, name='discount_detail'),
+    path('discounts/add/', views.add_discount, name='add_discount'),
+    path('discounts/delete/<int:pk>/',
+         views.delete_discount, name='delete_discount'),
+    path('orders/', views.order_list, name='order_list'),
 ]

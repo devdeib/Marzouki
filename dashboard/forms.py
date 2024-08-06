@@ -1,5 +1,5 @@
 from django import forms
-from TheApp.models import StoreItems, StoreItemImage, Section
+from TheApp.models import StoreItems, StoreItemImage, Section, Discount
 
 
 
@@ -25,3 +25,14 @@ class SectionForm(forms.ModelForm):
     class Meta:
         model = Section
         fields = ['name', 'items']
+
+
+class DiscountForm(forms.ModelForm):
+    class Meta:
+        model = Discount
+        fields = ['section', 'item', 'discount_type',
+                  'discount_value', 'start_date', 'end_date']
+        widgets = {
+            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }

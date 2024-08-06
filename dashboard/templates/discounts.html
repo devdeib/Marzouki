@@ -1,1 +1,84 @@
-{% extends 'admin_base.html' %}
+{% extends 'admin_base.html' %} 
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discounts List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px lightslategray;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .add-discount-btn {
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+        }
+        .add-discount-btn:hover {
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="header-container">
+            <h1>Discounts List</h1>
+            <a class="add-discount-btn btn btn-success" href="{% url 'dashboard:add_discount' %}">Add Discount</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Section</th>
+                    <th>Item</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for discount in discounts %}
+                <tr>
+                    <td>{{ discount.section }}</td>
+                    <td>{{ discount.item }}</td>
+                    <td>{{ discount.get_discount_type_display }}</td>
+                    <td>
+                        {{ discount.discount_value }}
+                        {% if discount.discount_type == 'P' %}
+                            %
+                        {% elif discount.discount_type == 'F' %}
+                            $
+                        {% endif %}
+                    </td>
+                    <td>{{ discount.start_date }}</td>
+                    <td>{{ discount.end_date }}</td>
+                    <td>
+                        <a href="{% url 'dashboard:discount_detail' discount.pk %}">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+{% endblock %}

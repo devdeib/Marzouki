@@ -15,7 +15,7 @@ from TheApp.models import StoreItems
 from .forms import *
 from django.contrib import messages
 from django.db.models import Count
-
+from orders.models import Order
 
 
 def home(request):
@@ -41,6 +41,22 @@ def store_items_list(request):
 
     return render(request, 'store_items_list.html', {'items': items, 'sections': sections, 'itemss': itemss})
 
+
+def items_bulk_action(request):
+    if request.method == 'POST':
+        action = request.GET.get('action')
+        selected_items = request.POST.getlist('items')
+
+        if selected_items:
+            items = StoreItems.objects.filter(pk__in=selected_items)
+            if action == 'Active':
+                items.update(status=StoreItems.ACTIVE)
+            elif action == 'DR':
+                items.update(status=StoreItems.DRAFT)
+            elif action == 'delete':
+                items.delete()
+
+    return redirect('dashboard:store_items_list')
 
 def dash_search(request):
     items = StoreItems.objects.all()
@@ -193,12 +209,39 @@ def discount_list(request):
 
 def discount_detail(request, pk):
     discount = get_object_or_404(Discount, pk=pk)
-    return render(request, 'dashboard/discount_detail.html', {'discount': discount})
 
+    if request.method == 'POST':
+        form = DiscountForm(request.POST, instance=discount)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard:discount_list')
+    else:
+        form = DiscountForm(instance=discount)
+
+    return render(request, 'discount_detail.html', {'form': form, 'discount': discount})
+
+
+def add_discount(request):
+    if request.method == "POST":
+        form = DiscountForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('dashboard:discount_list'))
+    else:
+        form = DiscountForm()
+    return render(request, 'add_discount.html', {'form': form})
 
 def variation_list(request):
     variations = Variation.objects.all()
     return render(request, 'variation_list.html', {'variations': variations})
+
+
+def delete_discount(request, pk):
+    discount = get_object_or_404(Discount, pk=pk)
+    discount.delete()
+    return redirect('dashboard:discount_list')
+    
+
 
 
 def variation_detail(request, pk):
@@ -232,3 +275,10 @@ def model_detail(request, model_name, pk):
         return render(request, f'dashboard/{model_name}_detail.html', {'object': model_instance})
     else:
         return render(request, 'dashboard/model_not_found.html', {'model_name': model_name})
+
+
+def order_list(request):
+    orders = Order.objects.all()
+    return render(request, 'order_list.html', {'orders': orders})
+
+

@@ -1,24 +1,14 @@
-{% extends 'admin_base.html' %} {% block content %}
+{% extends 'admin_base.html' %} {% block content %} {% load form_filters %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>Add Discount</title>
     <style>
-        
       .main-content {
         margin-left: 250px;
         width: calc(100% - 250px);
       }
 
-      .form-container {
-        width: 50%;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        background-color: #f9f9f9;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin-top: 20px;
-      }
 
       .form-field {
         margin-bottom: 15px;
@@ -27,7 +17,6 @@
       .form-field label {
         display: block;
         margin-bottom: 5px;
-        font-weight: bold;
       }
 
       .form-field input,
@@ -35,8 +24,7 @@
         width: 100%;
         padding: 10px;
         box-sizing: border-box;
-        border: 1px solid #ccc;
-        border-radius: 5px;
+        
       }
 
       .form-actions {
@@ -47,7 +35,6 @@
         padding: 10px 20px;
         color: white;
       }
-     
     </style>
   </head>
   <body>
@@ -56,12 +43,14 @@
       <form method="post">
         {% csrf_token %} {% for field in form %}
         <div class="form-field">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }} {% if field.help_text %}
-          <small style="color: #666">{{ field.help_text }}</small>
-          {% endif %} {% if field.errors %}
-          <div style="color: red">{{ field.errors }}</div>
-          {% endif %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field|add_class:"form-control" }} {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %} {% if field.errors %}
+            <div class="text-danger">{{ field.errors }}</div>
+            {% endif %}
+          </div>
         </div>
         {% endfor %}
         <div class="form-actions">

@@ -1,7 +1,4 @@
 {% extends "admin_base.html" %} {% load form_filters %} {% block content %}
-<h1 class="paints-header text-center mt-3 font-weight-bold custom-header">
-  Add New Item
-</h1>
 {% if messages %}
 <div class="messages">
   {% for message in messages %}
@@ -9,21 +6,24 @@
   {% endfor %}
 </div>
 {% endif %}
-<div class="main-content container mt-5">
-  <div class="row justify-content-center">
+<div class="main-content container">
+  <h1 class="header-container mb-3">
+    Add New Category
+  </h1>
+  <div class="row">
     <div class="col-md-6">
       <form
-        method="post"
-        enctype="multipart/form-data"
-        action="{% url 'dashboard:add_section' %}"
-        class="needs-validation"
-        novalidate
+      method="post"
+      enctype="multipart/form-data"
+      action="{% url 'dashboard:add_section' %}"
+      class="needs-validation"
+      novalidate
       >
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="id_item_description">Category name</label>
-          {{ form.name|add_class:"form-control" }}
-        </div>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_item_description">Category name</label>
+        {{ form.name|add_class:"form-control" }}
+      </div>
         <br />
     
         <button type="submit" class="btn btn-success">Create Category</button>

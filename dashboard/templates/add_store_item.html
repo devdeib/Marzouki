@@ -1,162 +1,241 @@
-{% extends "admin_base.html" %} {% load form_filters %} {% block content %}
-<h1 class="paints-header text-center mt-3 font-weight-bold custom-header">
-  Add New Item
-</h1>
-{% if messages %}
-<div class="messages">
-  {% for message in messages %}
-  <div class="alert alert-success text-center">{{ message }}</div>
-  {% endfor %}
-</div>
-{% endif %}
-<div class="main-content container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <form
-        method="post"
-        enctype="multipart/form-data"
-        action="{% url 'dashboard:add_store_item' %}"
-        class="needs-validation"
-        novalidate
-      >
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="id_item_description">Status</label>
-          {{ form.status|add_class:"form-control" }}
-        </div>
-        <br />
-        <div class="form-row">
-          <div class="form-group col-md-12">
-            <label for="id_item_name">Item Name</label>
-            {{ form.item_name|add_class:"form-control" }}
-          </div>
-          <br />
-          <div class="form-group col-md-12">
-            <label for="id_item_price">Item Price</label>
-            {{ form.item_price|add_class:"form-control" }}
-          </div>
-        </div>
-        <br />
-        <div class="form-group">
-          <label for="id_item_photo">Item Photo</label>
-          {{ form.item_photo|add_class:"form-control" }}
-        </div>
-        <br />
-        <div id="image-container" class="form-group">
-          <label for="id_images">Extra Images</label>
-          <input
-            type="file"
-            name="extra_images[]"
-            class="image-input"
-            multiple
-          />
-          <button type="button" id="add-image">+</button>
-        </div>
+{% extends 'admin_base.html' %}
+{% block content %}
+{% load form_filters %}
+{% load custom_filters %}
 
-        <br />
-        <div class="form-group">
-          <label for="id_item_description ">Item Description</label>
-          {{ form.item_description|add_class:"form-control" }}
-        </div>
-        <br />
-        <div class="form-group">
-          <label for="id_item_description">Tags</label>
-          {{ form.tags|add_class:"form-control" }}
-        </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Item</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 20px;
+        }
 
-        <div class="text-center my-4">
-          <p class="text-center custom-label">Quantity And Variations</p>
-          <hr class="hr--large" />
-        </div>
+        .form-container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-top: 20px;
+        }
 
-        <div class="form-group">
-          <label for="id_item_description">Quantity</label>
-          {{ form.item_quantity|add_class:"form-control" }}
-        </div>
-        <br />
-        <div class="form-group">
-          <label for="id_item_description">Variations</label>
-          {{ form.variations|add_class:"form-control" }}
-        </div>
+        .form-field {
+            margin-bottom: 15px;
+        }
 
-        <div class="text-center my-4">
-          <p class="text-center custom-label">Colors</p>
-          <hr class="hr--large" />
-        </div>
-        <div class="form-group">
-          <label for="id_item_description">Primary Color</label>
-          {{ form.primary_color|add_class:"form-control" }}
-        </div>
-        <br />
-        <div class="form-group">
-          <label for="id_item_description">Secondary Color</label>
-          {{ form.secondary_color|add_class:"form-control" }}
-        </div>
-        <div class="text-center my-4">
-          <p class="text-center custom-label">Video</p>
-          <hr class="hr--large" />
-        </div>
-        <div class="form-group">
-          <label for="id_item_description">Video of the product</label>
-          {{ form.video|add_class:"form-control" }}
-        </div>
-        <div class="text-center my-4">
-          <p class="text-center custom-label">Dimensions</p>
-          <hr class="hr--large" />
-        </div>
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
 
-        <div class="form-group">
-          <label for="id_item_description">Width</label>
-          {{ form.width|add_class:"form-control" }}
-        </div>
-        <br />
-        <div class="form-group">
-          <label for="id_item_description">Height</label>
-          {{ form.height|add_class:"form-control" }}
-        </div>
-        <br />
+        .form-actions {
+            text-align: right;
+        }
 
-        <button type="submit" class="btn btn-success">Add New Item</button>
-        <a
-          href="{% url 'admin:TheApp_storeitems_changelist' %}"
-          class="btn btn-secondary"
-          >Cancel</a
-        >
-      </form>
+        .form-actions .btn {
+            margin-left: 10px;
+        }
+
+        .variation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .variation-table th, .variation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top; /* Ensure vertical alignment */
+        }
+
+        .variation-table th {
+            background-color: #f2f2f2;
+        }
+
+        .form-control {
+            margin-bottom: 10px;
+        }
+
+        .add-choice-link-container {
+            margin-top: 10px;
+        }
+
+        .add-choice-link {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%; /* Ensures it uses the full height of the table cell */
+        }
+        .trash-icon {
+            position: absolute;
+            right: 10px;
+            top: 40%;
+            transform: translateY(-50%);
+            color: darkgray;
+            cursor: pointer;
+            font-size: 16px; /* Adjust size as needed */
+        }
+
+        .trash-icon:hover {
+            color: grey;
+            
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1 class="mb-4">Add New Item</h1>
+        <div class="form-container">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Form fields for Store Item -->
+                {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field|add_class:"form-control" }}
+                    {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                    <div class="text-danger">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <!-- Variations Table -->
+                <h4>Variations</h4>
+                <table class="variation-table">
+                    <thead>
+                        <tr>
+                            <th>Variation</th>
+                            <th>Choices</th>
+                            <th>Price Increment</th>
+                            <th>Visible</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variation, choices_formset in variations|zip_lists:choices_formsets %}
+                        <tr>
+                            <!-- Variation Name -->
+                            <td>{{ variation.name }}</td>
+
+                            <!-- Choices -->
+                            <td>
+                                <div id="choices-container-{{ forloop.counter0 }}">
+                                    {% for choice_form in choices_formset %}
+                                        <div class="input-group choice-input-group">
+                                            {{ choice_form.name|add_class:"form-control" }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="add-choice-link-container">
+                                    <a href="#" class="add-choice-link" data-variation="{{ forloop.counter0 }}">Add another choice</a>
+                                </div>
+                            </td>
+
+                            <!-- Price Increment -->
+                            <td>
+                                <div id="price-container-{{ forloop.counter0 }}">
+                                    {% for choice_form in choices_formset %}
+                                        <div class="input-group price-input-group">
+                                            {{ choice_form.price_increment|add_class:"form-control" }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <!-- Visibility (only one checkbox for the entire variation) -->
+                            <td style="vertical-align: middle;">
+                                <div id="visible-container-{{ forloop.counter0 }}" class="checkbox-container">
+                                    <input type="checkbox" name="visible_{{ forloop.counter0 }}" {% if variation.visible %}checked{% endif %}>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
-</div>
-<script>
-  document.getElementById("add-image").addEventListener("click", function () {
-    let input = document.createElement("input");
-    input.type = "file";
-    input.name = "extra_images[]";
-    input.className = "image-input";
-    input.multiple = true;
 
-    let container = document.getElementById("image-container");
-    container.insertBefore(input, document.getElementById("add-image"));
-  });
-</script>
-<style>
-  .custom-header {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-    text-align: center;
-  }
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.add-choice-link').forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
 
-  .messages {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-  }
+                const variationIndex = event.target.getAttribute('data-variation');
+                
+                // Get containers for this variation
+                const choicesContainer = document.getElementById('choices-container-' + variationIndex);
+                const priceContainer = document.getElementById('price-container-' + variationIndex);
 
-  .alert {
-    align-items: center;
-  }
+                // Create new input fields for name and price increment
+                const newChoiceInputGroup = document.createElement('div');
+                newChoiceInputGroup.classList.add('input-group', 'choice-input-group');
+                
+                const newPriceInputGroup = document.createElement('div');
+                newPriceInputGroup.classList.add('input-group', 'price-input-group');
 
-  .main-content {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-  }
-</style>
+                const newChoiceInput = document.createElement('input');
+                newChoiceInput.setAttribute('type', 'text');
+                newChoiceInput.setAttribute('name', 'choices_' + variationIndex + '_new_name');
+                newChoiceInput.setAttribute('class', 'form-control');
+
+                const newPriceInput = document.createElement('input');
+                newPriceInput.setAttribute('type', 'text');
+                newPriceInput.setAttribute('name', 'choices_' + variationIndex + '_new_price');
+                newPriceInput.setAttribute('class', 'form-control');
+
+                // Create trash icon
+                const trashIcon = document.createElement('i');
+                trashIcon.classList.add('fas', 'fa-trash', 'trash-icon');
+
+                // Add delete (trash) icon to choice and price input groups
+                newChoiceInputGroup.appendChild(newChoiceInput);
+                newChoiceInputGroup.appendChild(trashIcon);
+
+                newPriceInputGroup.appendChild(newPriceInput);
+
+                // Append the new inputs to their respective containers
+                choicesContainer.appendChild(newChoiceInputGroup);
+                priceContainer.appendChild(newPriceInputGroup);
+
+                // Attach delete functionality to trash icon
+                trashIcon.addEventListener('click', function() {
+                    newChoiceInputGroup.remove();
+                    newPriceInputGroup.remove();
+                });
+            });
+        });
+    });
+    </script>
+
+
+</body>
+</html>
 {% endblock %}

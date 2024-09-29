@@ -1,0 +1,25 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Add Variation</title>
+    </head>
+    <body>
+        <div class="main-content">
+            <h1>Add a new Variation</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ variation_form.as_p }}
+                {{ item_variation_form.as_p }}
+                {{ choice_formset.management_form }}
+                {% for form in choice_formset %}
+                {{ form.as_p }}
+                {% endfor %}
+                <button type="submit">Save</button>
+            </form>
+            <a href="{% url 'dashboard:variation_list' %}">Back to list</a>
+    </div>
+</body>
+</html>
+{% endblock %}

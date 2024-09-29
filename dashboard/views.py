@@ -1,3 +1,4 @@
+from django.shortcuts import render, redirect, get_object_or_404
 from TheApp.models import *
 from django.forms import formset_factory
 from django.shortcuts import render, get_object_or_404
@@ -11,12 +12,13 @@ from django.contrib import admin
 from django.apps import apps
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from TheApp.models import StoreItems
+from TheApp.models import *
 from .forms import *
+from dashboard.forms import *
 from django.contrib import messages
 from django.db.models import Count
 from orders.models import Order
-
+import logging
 
 def home(request):
     app_config = apps.get_app_config('TheApp')
@@ -87,23 +89,71 @@ def dash_search(request):
     return render(request, 'dash_search_results.html', {'results': results, 'sections': sections, 'query': query})
 
 
+logger = logging.getLogger(__name__)
+
 
 def add_store_item(request):
-    # Assuming a maximum of 3 extra images
+    variations = Variation.objects.all()  # Fetch all variations from the database
+
     if request.method == 'POST':
+        logger.debug(f"POST data: {request.POST}")  # Log POST data
+
         form = StoreItemForm(request.POST, request.FILES)
-        if form.is_valid():
-            
-            form.save()
-            
+        variation_formset = VariationFormSet(request.POST, prefix='variations')
+
+        # Create choices formsets for each variation (ensure that you use the correct instances)
+        choices_formsets = [
+            ChoicesFormSet(
+                request.POST, prefix=f'choices-{i}', instance=variation.instance)
+            for i, variation in enumerate(variation_formset.forms)
+        ]
+
+        try:
+            # Attempt to save the store item
+            store_item = form.save(commit=False)
+            store_item.save()  # Save the store item first
+
+            # Link variations to the store item and save
+            variations = variation_formset.save(commit=False)
+            for variation in variations:
+                variation.item = store_item  # Link the variation to the store item
+                variation.save()
+
+            # Save choices for each variation
+            for i, variation in enumerate(variations):
+                choices_formset = choices_formsets[i]
+                choices_formset.instance = variation  # Link choices to the correct variation
+                choices_formset.save()
+
             messages.success(request, 'New listing added successfully!')
-            # No redirect; fall through to re-render the form page
-        else:
-            print("Form is not valid")
+            return redirect('add_store_item')  # Redirect after successful save
+
+        except Exception as e:
+            logger.error(f"Error saving item: {e}")
+            messages.error(request, 'An error occurred while saving the item.')
+
     else:
-        print("GET request, not POST")
         form = StoreItemForm()
-    return render(request, 'add_store_item.html', {'form': form})
+        variation_formset = VariationFormSet(prefix='variations')
+
+        # Create choices formsets for each variation in GET request
+        choices_formsets = [
+            ChoicesFormSet(prefix=f'choices-{i}', instance=ItemVariation())
+            for i in range(len(variations))
+        ]
+
+    return render(request, 'add_store_item.html', {
+        'form': form,
+        'variation_formset': variation_formset,
+        'choices_formsets': choices_formsets,
+        'variations': variations,  # Pass variations to the template
+    })
+
+
+
+
+
+
 
 
 def store_item_detail(request, pk):
@@ -231,10 +281,6 @@ def add_discount(request):
         form = DiscountForm()
     return render(request, 'add_discount.html', {'form': form})
 
-def variation_list(request):
-    variations = Variation.objects.all()
-    return render(request, 'variation_list.html', {'variations': variations})
-
 
 def delete_discount(request, pk):
     discount = get_object_or_404(Discount, pk=pk)
@@ -271,7 +317,7 @@ def model_list(request, model_name):
 def model_detail(request, model_name, pk):
     model_admin = site._registry.get(model_name)
     if model_admin:
-        model_instance = get_object_or_404(model_admin.model, pk=pk)
+        model_instance = get_object_or_404(model_admin.model.objects.all(), pk=pk)
         return render(request, f'dashboard/{model_name}_detail.html', {'object': model_instance})
     else:
         return render(request, 'dashboard/model_not_found.html', {'model_name': model_name})
@@ -282,3 +328,32 @@ def order_list(request):
     return render(request, 'order_list.html', {'orders': orders})
 
 
+def variation_list(request):
+    variations = Variation.objects.all()
+    item_variations = ItemVariation.objects.all()
+    return render(request, 'variation_list.html', {'variations': variations, 'item_variations': item_variations})
+
+
+def add_variation(request):
+    if request.method == "POST":
+        variation_form = VariationForm(request.POST)
+        item_variation_form = ItemVariationForm(request.POST)
+        choice_formset = ChoiceFormSet(request.POST, prefix='choices')
+        if variation_form.is_valid() and item_variation_form.is_valid() and choice_formset.is_valid():
+            variation = variation_form.save()
+            item_variation = item_variation_form.save()
+            choices = choice_formset.save(commit=False)
+            for choice in choices:
+                choice.variation = item_variation
+                choice.save()
+            return redirect('variation_list')
+    else:
+        variation_form = VariationForm()
+        item_variation_form = ItemVariationForm()
+        choice_formset = ChoiceFormSet(prefix='choices')
+
+    return render(request, 'add_variation.html', {
+        'variation_form': variation_form,
+        'item_variation_form': item_variation_form,
+        'choice_formset': choice_formset
+    })

@@ -57,6 +57,8 @@ class StoreItems(models.Model):
     item_description = models.TextField(blank=True)
     item_quantity = models.IntegerField(default=0)  # Add the quantity field
     variations = models.ManyToManyField('Variation', through='ItemVariation')
+    item_variations = models.ManyToManyField('ItemVariation', blank=True, default=True)  # Add this line
+    
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField('Tag', blank=True)
@@ -73,7 +75,8 @@ class StoreItems(models.Model):
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
+    item = models.ForeignKey(
+        StoreItems, on_delete=models.CASCADE, blank=True, null=True, default=None)
     def __str__(self):
         return f"{self.user.username} - {self.item.item_name}"
 
@@ -99,7 +102,9 @@ class Choices(models.Model):
     name = models.CharField(max_length=100)
     price_increment = models.FloatField(
         blank=True, null=True, default=None)
-
+    
+    
+    
     def __str__(self):
         return self.name
 

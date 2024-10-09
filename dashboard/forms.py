@@ -15,36 +15,23 @@ class ItemVariationsForm(forms.ModelForm):
         model = ItemVariation
         fields = ['variation']
 
-
-VariationFormSet = inlineformset_factory(
-    StoreItems, ItemVariation, form=ItemVariationsForm, extra=1, can_delete=True
-)
-
-
-class ChoicesForm(forms.ModelForm):
-    # Adding the visibility field
-    visible = forms.BooleanField(required=False, initial=True)
-
+class ChoiceForm(forms.ModelForm):
     class Meta:
         model = Choices
-        fields = ['name', 'price_increment', 'visible']  # Include 'visible'
+        fields = ['name', 'price_increment']
 
-
-ChoicesFormSet = inlineformset_factory(
-    ItemVariation, Choices, form=ChoicesForm, extra=1, can_delete=True
-)
-
+ItemVariationsFormSet = inlineformset_factory(StoreItems, ItemVariation, form=ItemVariationsForm, extra=1, can_delete=True)
+ChoiceFormSet = inlineformset_factory(ItemVariation, Choices, form=ChoiceForm, extra=1, can_delete=True)
 
 class StoreItemForm(forms.ModelForm):
     class Meta:
         model = StoreItems
-        fields = ['status', 'item_name', 'item_price', 'item_photo', 'item_description', 'item_quantity',
-                  'tags', 'primary_color', 'secondary_color', 'video', 'width', 'height']
+        fields = ['item_name', 'item_price', 'item_quantity', 'item_description',
+                  'status', 'tags', 'primary_color', 'secondary_color', 'item_photo']
         widgets = {
             'status': forms.Select(choices=StoreItems.STATUS_CHOICES, attrs={'class': 'form-control'}),
             'item_photo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
             'item_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'video': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
 
 class SectionForm(forms.ModelForm):
@@ -79,7 +66,7 @@ class VariationForm(forms.ModelForm):
 class ItemVariationForm(forms.ModelForm):
     class Meta:
         model = ItemVariation
-        fields = ['item', 'variation']
+        fields = ['item','variation']
 
 
 # Create an inline formset for Choices related to an ItemVariation

@@ -57,8 +57,9 @@ class StoreItems(models.Model):
     item_description = models.TextField(blank=True)
     item_quantity = models.IntegerField(default=0)  # Add the quantity field
     variations = models.ManyToManyField('Variation', through='ItemVariation')
-    item_variations = models.ManyToManyField('ItemVariation', blank=True, default=True)  # Add this line
-    
+    item_variations = models.ManyToManyField(
+        'ItemVariation', blank=True, default=True)  # Add this line
+
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField('Tag', blank=True)
@@ -68,17 +69,18 @@ class StoreItems(models.Model):
         'Color', related_name='secondary_color_items', blank=True, null=True, on_delete=models.SET_NULL)
     video = models.FileField(upload_to='items_videos/', null=True, blank=True)
     width = models.FloatField(
-         null=True, blank=True)
+        null=True, blank=True)
     height = models.FloatField(
-         null=True, blank=True)
+        null=True, blank=True)
 
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(
         StoreItems, on_delete=models.CASCADE, blank=True, null=True, default=None)
+
     def __str__(self):
-        return f"{self.user.username} - {self.item.item_name}"
+        return f"{self.user.username} - {self.item}"
 
 
 class Tag(models.Model):
@@ -102,20 +104,17 @@ class Choices(models.Model):
     name = models.CharField(max_length=100)
     price_increment = models.FloatField(
         blank=True, null=True, default=None)
-    
-    
-    
+
     def __str__(self):
         return self.name
+
 
 class ItemVariation(models.Model):
     item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
     variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return f"{self.item.item_name} - {self.variation.name}"
-
-
 
 
 class StoreItemImage(models.Model):

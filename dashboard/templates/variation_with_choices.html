@@ -1,0 +1,31 @@
+{% load custom_filters %}
+{% load form_filters %}
+{{ variation_formset.management_form }}
+<div id="variation-container">
+  {% for variation_form in variation_formset %}
+    {{ variation_form.as_p }}
+    <table>
+      <thead>
+        <tr>
+          <th>Choice Name</th>
+          <th>Price Increment</th>
+          <th>Toggle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <div class="choice-formset">
+            {% with choices_formset=choices_formsets|get_item:forloop.counter0 %}
+              {{ choices_formset.management_form }}
+              {% for choice_form in choices_formset %}
+                <td>{{ choice_form.name }}</td>
+                <td>{{ choice_form.price_increment }}</td>
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <!-- Use the choices_formset passed from the view -->
+        </tr>
+      </tbody>
+    </table>
+  {% endfor %}
+</div>

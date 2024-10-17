@@ -1,3 +1,5 @@
+from .forms import *
+from .models import *
 from django.forms import modelformset_factory
 from .forms import *
 from .models import *
@@ -106,13 +108,12 @@ def add_store_item(request):
         if store_item_form.is_valid() and variation_formset.is_valid():
             store_item = store_item_form.save()
 
-            choices_formsets = []  # This will hold the choice formsets for each variation
+            choices_formsets = []
             for variation_form in variation_formset:
                 item_variation = variation_form.save(commit=False)
                 item_variation.item = store_item
                 item_variation.save()
 
-                # Create the choice formset for the saved variation
                 choice_formset = ChoiceFormSet(
                     request.POST, instance=item_variation)
                 if choice_formset.is_valid():
@@ -120,13 +121,13 @@ def add_store_item(request):
 
                 choices_formsets.append(choice_formset)
 
-            return redirect('home')  # Replace with your success URL
+            return redirect('home')
 
     else:
         store_item_form = StoreItemForm()
         variation_formset = ItemVariationsFormSet()
         choices_formsets = [ChoiceFormSet(instance=None) for _ in range(
-            variation_formset.total_form_count())]  # Initialize empty formsets
+            variation_formset.total_form_count())]
 
     context = {
         'store_item_form': store_item_form,
@@ -136,6 +137,43 @@ def add_store_item(request):
 
     return render(request, 'add_store_item.html', context)
 
+
+def add_variation_with_choices(request):
+    if request.method == 'POST':
+        store_item_form = StoreItemForm(request.POST, request.FILES)
+        variation_formset = ItemVariationsFormSet(request.POST)
+
+        if store_item_form.is_valid() and variation_formset.is_valid():
+            store_item = store_item_form.save()
+
+            choices_formsets = []
+            for variation_form in variation_formset:
+                item_variation = variation_form.save(commit=False)
+                item_variation.item = store_item
+                item_variation.save()
+
+                choice_formset = ChoiceFormSet(
+                    request.POST, instance=item_variation)
+                if choice_formset.is_valid():
+                    choice_formset.save()
+
+                choices_formsets.append(choice_formset)
+
+            return redirect('home')
+
+    else:
+        store_item_form = StoreItemForm()
+        variation_formset = ItemVariationsFormSet()
+        choices_formsets = [ChoiceFormSet(instance=None) for _ in range(
+            variation_formset.total_form_count())]
+
+    context = {
+        'store_item_form': store_item_form,
+        'variation_formset': variation_formset,
+        'choices_formsets': choices_formsets,
+    }
+
+    return render(request, 'variation_with_choices.html', context)
 
 
 def store_item_detail(request, pk):

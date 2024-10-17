@@ -127,7 +127,7 @@ def paint_detail(request, item_id):
             'discount': current_discount,  # Add the discount to context
             'item_images': item_images,
         }
-        
+
         return render(request, 'paint_detail.html', context)
 
     except StoreItems.DoesNotExist:

@@ -7,9 +7,13 @@
     <head>
       <title>Add New Store Item</title>
       <style>
+        input[type='checkbox'][name$='-DELETE'],
+        label[for$='-DELETE'] {
+          display: none;
+        }
+        
         .form-container {
-          background-color: #f9f9f9;
-          padding: 20px;
+          margin-top: 25px;
         }
         
         .form-group {
@@ -29,8 +33,98 @@
         .btn {
           margin-right: 10px;
         }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+        }
+        
+        th,
+        td {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+        
+        th {
+          background-color: #f2f2f2;
+        }
+        
+        .toggle-switch {
+          position: relative;
+          display: inline-block;
+          width: 40px;
+          height: 20px;
+        }
+        
+        .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: 0.4s;
+          border-radius: 34px;
+        }
+        
+        .slider:before {
+          position: absolute;
+          content: '';
+          height: 16px;
+          width: 16px;
+          left: 2px;
+          bottom: 2px;
+          background-color: white;
+          transition: 0.4s;
+          border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+          background-color: #4caf50;
+        }
+        
+        input:checked + .slider:before {
+          transform: translateX(20px);
+        }
+        .custom-select {
+          display: block;
+          width: 100%;
+          height: calc(2.25rem + 2px);
+          padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+          font-size: 1rem;
+          line-height: 1.5;
+          color: #495057;
+          background-color: #fff;
+          background-clip: padding-box;
+          border: 1px solid #ced4da;
+          border-radius: 0.25rem;
+          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .custom-select:focus {
+          border-color: #80bdff;
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .form-group {
+          margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+          font-weight: bold;
+        }
       </style>
     </head>
+
     <body>
       <div class="main-content">
         <h1>Add New Store Item</h1>
@@ -38,41 +132,47 @@
           <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ store_item_form.as_p }}
-
             {{ variation_formset.management_form }}
-            {% for variation_form in variation_formset %}
-              {{ variation_form.as_p }}
+            <div id="variation-container">
+              {% for variation_form in variation_formset %}
+                {{ variation_form.as_p }}
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Choice Name</th>
+                      <th>Price Increment</th>
+                      <th>Toggle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      {% with choices_formset=choices_formsets|get_item:forloop.counter0 %}
+                        {{ choices_formset.management_form }}
+                        {% for choice_form in choices_formset %}
+                          <td>{{ choice_form.name }}</td>
+                          <td>{{ choice_form.price_increment }}</td>
+                        {% endfor %}
+                      {% endwith %}
+                    </tr>
+                  </tbody>
+                </table>
+              {% endfor %}
+            </div>
 
-              <!-- Use the choices_formset passed from the view -->
-              {% with choices_formset=choices_formsets|get_item:forloop.counter0 %}
-                {{ choices_formset.management_form }}
-                {% for choice_form in choices_formset %}
-                  {{ choice_form.as_p }}
-                {% endfor %}
-              {% endwith %}
-            {% endfor %}
-
-            <button type="submit">Save</button>
+            <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
+            <button type="submit" class="btn btn-primary">Save</button>
           </form>
         </div>
       </div>
     </body>
+
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.add-choice').forEach((button) => {
-          button.addEventListener('click', function () {
-            const variationId = button.dataset.variationId
-            const choiceFormset = document.querySelectorAll('div')[variationId].querySelector('.choice-formset') // Adjust this selector based on your HTML structure
-      
-            // Clone the first choice form
-            const newChoiceForm = choiceFormset.children[1].cloneNode(true) // Assuming the first form is the template form
-            newChoiceForm.querySelectorAll('input').forEach((input) => {
-              input.value = '' // Clear the values for the new form
-            })
-      
-            choiceFormset.appendChild(newChoiceForm)
+      document.getElementById('add-variation').addEventListener('click', function () {
+        fetch("{% url 'dashboard:add_variation_with_choices' %}") // Update this URL according to your URL configuration
+          .then((response) => response.text())
+          .then((html) => {
+            document.getElementById('variation-container').insertAdjacentHTML('beforeend', html)
           })
-        })
       })
     </script>
   </html>

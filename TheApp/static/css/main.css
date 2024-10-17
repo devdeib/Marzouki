@@ -82,28 +82,36 @@ body {
 
 /* ------------------ Home ---------------- */
 
-
 .hero-container {
   position: relative;
-  text-align: center;
-  width: 100vw;
-  /* Set width to 100% of viewport width */
+  width: 100%;
   height: 100vh;
-  /* Set height to 100% of viewport height */
+  /* Full height of the viewport */
   overflow: hidden;
 }
 
-
 .hero-img {
+  position: absolute;
+  /* Positioning to allow centering */
+  top: 50%;
+  /* Center vertically */
+  left: 50%;
+  /* Center horizontally */
+  width: auto;
+  /* Maintain aspect ratio */
+  height: auto;
+  /* Maintain aspect ratio */
+  min-width: 100%;
+  /* Ensures the image covers the width */
+  min-height: 100%;
+  /* Ensures the image covers the height */
+  transform: translate(-50%, -50%);
+  /* Center the image */
   object-fit: cover;
-  width: 100%;
-  /* Make the image responsive to the container width */
-  height: 100%;
-  /* Make the image fill the entire container height */
-  display: block;
-  opacity: 0.8;
+  /* Cover the container while maintaining aspect ratio */
+  object-position: center;
+  /* Focus on the center of the image */
 }
-
 
 .hero-content {
   position: absolute;
@@ -112,21 +120,27 @@ body {
   transform: translate(-50%, -50%);
   z-index: 1;
   width: 100%;
+  text-align: center;
+  /* Center text within the container */
 }
-
 
 .hero-text {
-  position: absolute;
-  top: 35%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
   color: white;
+  /* Text color */
   font-size: 4em;
-  text-align: center;
+  /* Large text size */
   margin-bottom: 15px;
+  /* Spacing below text */
+  
+  text-shadow: 2px 2px 4px rgba(108, 108, 108, 0.7);
 }
 
+@media (max-width: 768px) {
+  .hero-text {
+    font-size: 2rem;
+    /* Adjust text size for mobile */
+  }
+}
 
 /* Slideshow styles */
 .slideshow-container {

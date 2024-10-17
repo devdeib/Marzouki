@@ -55,11 +55,7 @@
           class="sidebar-item {% if request.resolver_match.url_name == 'variation_list' %}active{% endif %}"
           ><i class="fas fa-layer-group"></i>Variations</a
         >
-        <a
-          href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
-          class="sidebar-item {% if request.resolver_match.url_name == 'TheApp_storeitemimage_changelist' %}active{% endif %}"
-          ><i class="fa fa-user-plus" aria-hidden="true"></i>Groups</a
-        >
+        
         <a
           href="{% url 'admin:TheApp_storeitemimage_changelist' %}"
           class="sidebar-item {% if request.resolver_match.url_name == 'TheApp_storeitemimage_changelist' %}active{% endif %}"

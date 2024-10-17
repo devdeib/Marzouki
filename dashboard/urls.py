@@ -32,4 +32,6 @@ urlpatterns = [
     path('orders/', views.order_list, name='order_list'),
     path('variations/', views.variation_list, name='variation_list'),
     path('variations/add/', views.add_variation, name='add_variation'),
+    path('add-variation-with-choices/', views.add_variation_with_choices,
+         name='add_variation_with_choices'),
 ]

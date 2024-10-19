@@ -111,6 +111,7 @@ body {
   /* Cover the container while maintaining aspect ratio */
   object-position: center;
   /* Focus on the center of the image */
+  
 }
 
 .hero-content {
@@ -132,7 +133,7 @@ body {
   margin-bottom: 15px;
   /* Spacing below text */
   
-  text-shadow: 2px 2px 4px rgba(108, 108, 108, 0.7);
+  
 }
 
 @media (max-width: 768px) {

@@ -26,9 +26,22 @@ class ChoiceForm(forms.ModelForm):
 
 
 ItemVariationsFormSet = inlineformset_factory(
-    StoreItems, ItemVariation, form=ItemVariationsForm, extra=1, can_delete=True)
+    StoreItems,
+    ItemVariation,
+    form=ItemVariationsForm,
+    extra=1,
+    can_delete=True,
+    validate_min=False
+)
+
 ChoiceFormSet = inlineformset_factory(
-    ItemVariation, Choices, form=ChoiceForm, extra=1, can_delete=True)
+    ItemVariation,
+    Choices,
+    form=ChoiceForm,
+    extra=1,
+    can_delete=True,
+    validate_min=False
+)
 
 
 class StoreItemForm(forms.ModelForm):

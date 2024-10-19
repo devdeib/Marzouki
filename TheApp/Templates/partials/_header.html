@@ -14,9 +14,11 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'paints' %}">Shop</a>
             </li>
-            {% comment %} <li class="nav-item"> {% endcomment %}
-              {% comment %} <a class="nav-link" href="{% url 'about' %}">About</a> {% endcomment %}
-            {% comment %} </li> {% endcomment %}
+            
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+            
             {% if user.is_authenticated and user.is_superuser %}
               <li>
                 <a class="nav-link" href="{% url 'dashboard:admin_home' %}">Shop Managment</a>

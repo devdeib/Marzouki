@@ -5,7 +5,6 @@
   <!DOCTYPE html>
   <html>
     <head>
-      <title>Add New Store Item</title>
       <style>
         input[type='checkbox'][name$='-DELETE'],
         label[for$='-DELETE'] {
@@ -123,39 +122,48 @@
           font-weight: bold;
         }
       </style>
+      <title>Add New Store Item</title>
+      <!-- Your existing styles remain the same -->
     </head>
 
     <body>
       <div class="main-content">
         <h1>Add New Store Item</h1>
         <div class="form-container">
-          <form method="post" enctype="multipart/form-data">
+          <form method="post" enctype="multipart/form-data" id="store-item-form">
             {% csrf_token %}
             {{ store_item_form.as_p }}
+            
+            <!-- Variation formset management form -->
             {{ variation_formset.management_form }}
+            
             <div id="variation-container">
+              <!-- Initial variation form -->
               {% for variation_form in variation_formset %}
-                {{ variation_form.as_p }}
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Choice Name</th>
-                      <th>Price Increment</th>
-                      <th>Toggle</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      {% with choices_formset=choices_formsets|get_item:forloop.counter0 %}
-                        {{ choices_formset.management_form }}
-                        {% for choice_form in choices_formset %}
-                          <td>{{ choice_form.name }}</td>
-                          <td>{{ choice_form.price_increment }}</td>
-                        {% endfor %}
-                      {% endwith %}
-                    </tr>
-                  </tbody>
-                </table>
+                <div class="variation-form" data-index="0">
+                  <div class="variation-fields">
+                    {{ variation_form.as_p }}
+                    {% with choices_formset=choices_formsets|first %}
+                      {{ choices_formset.management_form }}
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Choice Name</th>
+                            <th>Price Increment</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for choice_form in choices_formset %}
+                            <tr>
+                              <td>{{ choice_form.name }}</td>
+                              <td>{{ choice_form.price_increment }}</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    {% endwith %}
+                  </div>
+                </div>
               {% endfor %}
             </div>
 
@@ -164,16 +172,61 @@
           </form>
         </div>
       </div>
-    </body>
 
-    <script>
-      document.getElementById('add-variation').addEventListener('click', function () {
-        fetch("{% url 'dashboard:add_variation_with_choices' %}") // Update this URL according to your URL configuration
-          .then((response) => response.text())
-          .then((html) => {
-            document.getElementById('variation-container').insertAdjacentHTML('beforeend', html)
-          })
-      })
-    </script>
+      <script>
+        let variationCounter = 1;  // Start from 1 since we have the initial form
+
+        document.getElementById('add-variation').addEventListener('click', function() {
+            const nextIndex = variationCounter++;
+            
+            fetch(`{% url 'dashboard:add_variation_with_choices' %}?form_index=${nextIndex}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('variation-container').insertAdjacentHTML('beforeend', html);
+                    updateFormIndexes();
+                });
+        });
+
+        function updateFormIndexes() {
+            // Update variation management form
+            const totalFormsInput = document.querySelector('[name="variation-TOTAL_FORMS"]');
+            if (totalFormsInput) {
+                totalFormsInput.value = variationCounter;
+            }
+
+            // Update each variation form's indices
+            document.querySelectorAll('.variation-form').forEach((form, index) => {
+                // Update variation fields
+                form.querySelectorAll('[name*="variation-"]').forEach(input => {
+                    const oldName = input.name;
+                    const newName = oldName.replace(/variation-\d+/, `variation-${index}`);
+                    input.name = newName;
+                    if (input.id) {
+                        input.id = input.id.replace(/variation-\d+/, `variation-${index}`);
+                    }
+                });
+
+                // Update choices fields
+                form.querySelectorAll('[name*="choices_"]').forEach(input => {
+                    const oldName = input.name;
+                    const newName = oldName.replace(/choices_\d+/, `choices_${index}`);
+                    input.name = newName;
+                    if (input.id) {
+                        input.id = input.id.replace(/choices_\d+/, `choices_${index}`);
+                    }
+                });
+            });
+        }
+
+        // Add form submission handler for debugging
+        document.getElementById('store-item-form').addEventListener('submit', function(e) {
+            // Log form data before submission
+            const formData = new FormData(this);
+            for (let pair of formData.entries()) {
+                console.log(pair[0], pair[1]);
+            }
+        });
+      </script>
+    </body>
   </html>
 {% endblock %}

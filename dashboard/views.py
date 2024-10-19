@@ -103,78 +103,72 @@ logger = logging.getLogger(__name__)
 def add_store_item(request):
     if request.method == 'POST':
         store_item_form = StoreItemForm(request.POST, request.FILES)
-        variation_formset = ItemVariationsFormSet(request.POST)
+        variation_formset = ItemVariationsFormSet(
+            request.POST, prefix='variation')
 
-        if store_item_form.is_valid() and variation_formset.is_valid():
+        # Create a list to store all choices formsets
+        choices_formsets = []
+
+        # Get the total number of variations
+        total_variations = int(request.POST.get('variation-TOTAL_FORMS', 0))
+
+        # Collect all choices formsets
+        for i in range(total_variations):
+            choices_formset = ChoiceFormSet(
+                request.POST,
+                prefix=f'choices_{i}'
+            )
+            choices_formsets.append(choices_formset)
+
+        # Check if all forms are valid
+        choices_valid = all(formset.is_valid() for formset in choices_formsets)
+
+        if store_item_form.is_valid() and variation_formset.is_valid() and choices_valid:
+            # Save store item
             store_item = store_item_form.save()
 
-            choices_formsets = []
-            for variation_form in variation_formset:
-                item_variation = variation_form.save(commit=False)
-                item_variation.item = store_item
-                item_variation.save()
+            # Save variations
+            variations = variation_formset.save(commit=False)
+            for i, variation in enumerate(variations):
+                variation.item = store_item
+                variation.save()
 
-                choice_formset = ChoiceFormSet(
-                    request.POST, instance=item_variation)
-                if choice_formset.is_valid():
-                    choice_formset.save()
-
-                choices_formsets.append(choice_formset)
+                # Save choices for this variation
+                choices_formsets[i].instance = variation
+                choices_formsets[i].save()
 
             return redirect('home')
+        else:
+            print("Form errors:")
+            print("Store item form:", store_item_form.errors)
+            print("Variation formset:", variation_formset.errors)
+            for i, formset in enumerate(choices_formsets):
+                print(f"Choices formset {i}:", formset.errors)
 
     else:
         store_item_form = StoreItemForm()
-        variation_formset = ItemVariationsFormSet()
-        choices_formsets = [ChoiceFormSet(instance=None) for _ in range(
-            variation_formset.total_form_count())]
+        variation_formset = ItemVariationsFormSet(prefix='variation')
+        choices_formsets = [ChoiceFormSet(prefix=f'choices_0')]
 
     context = {
         'store_item_form': store_item_form,
         'variation_formset': variation_formset,
         'choices_formsets': choices_formsets,
     }
-
     return render(request, 'add_store_item.html', context)
 
 
 def add_variation_with_choices(request):
-    if request.method == 'POST':
-        store_item_form = StoreItemForm(request.POST, request.FILES)
-        variation_formset = ItemVariationsFormSet(request.POST)
-
-        if store_item_form.is_valid() and variation_formset.is_valid():
-            store_item = store_item_form.save()
-
-            choices_formsets = []
-            for variation_form in variation_formset:
-                item_variation = variation_form.save(commit=False)
-                item_variation.item = store_item
-                item_variation.save()
-
-                choice_formset = ChoiceFormSet(
-                    request.POST, instance=item_variation)
-                if choice_formset.is_valid():
-                    choice_formset.save()
-
-                choices_formsets.append(choice_formset)
-
-            return redirect('home')
-
-    else:
-        store_item_form = StoreItemForm()
-        variation_formset = ItemVariationsFormSet()
-        choices_formsets = [ChoiceFormSet(instance=None) for _ in range(
-            variation_formset.total_form_count())]
+    form_index = int(request.GET.get('form_index', 0))
+    variation_form = ItemVariationsForm(prefix=f'variation-{form_index}')
+    choices_formset = ChoiceFormSet(prefix=f'choices_{form_index}')
 
     context = {
-        'store_item_form': store_item_form,
-        'variation_formset': variation_formset,
-        'choices_formsets': choices_formsets,
+        'form_index': form_index,
+        'variation_form': variation_form,
+        'choices_formset': choices_formset,
     }
-
     return render(request, 'variation_with_choices.html', context)
-
 
 def store_item_detail(request, pk):
     store_item = get_object_or_404(StoreItems, pk=pk)

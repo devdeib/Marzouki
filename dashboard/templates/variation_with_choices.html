@@ -7,16 +7,21 @@
         <tr>
           <th>Choice Name</th>
           <th>Price Increment</th>
+          <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="choices-container">
         {% for choice_form in choices_formset %}
-          <tr>
+          <tr class="choice-row">
             <td>{{ choice_form.name }}</td>
             <td>{{ choice_form.price_increment }}</td>
+            <td>
+              <button type="button" class="btn btn-danger btn-sm remove-choice">Remove</button>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
+    <a href="#" class="add-choice-link" data-variation-index="{{ form_index }}">+ Add Choice</a>
   </div>
 </div>

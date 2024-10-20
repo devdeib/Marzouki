@@ -170,6 +170,22 @@ def add_variation_with_choices(request):
     }
     return render(request, 'variation_with_choices.html', context)
 
+
+def add_choice_field(request):
+    variation_index = request.GET.get('variation_index', 0)
+    choice_index = request.GET.get('choice_index', 0)
+
+    # Create a single choice form
+    choice_form = ChoiceForm(
+        prefix=f'choices_{variation_index}-{choice_index}')
+
+    context = {
+        'choice_form': choice_form,
+        'variation_index': variation_index,
+        'choice_index': choice_index,
+    }
+    return render(request, 'add_choice_field.html', context)
+
 def store_item_detail(request, pk):
     store_item = get_object_or_404(StoreItems, pk=pk)
     return render(request, 'store_item_detail.html', {'store_item': store_item})

@@ -1,7 +1,5 @@
-{% extends 'admin_base.html' %}
-{% block content %}
-  {% load form_filters %}
-  {% load custom_filters %}
+{% extends 'admin_base.html' %} {% block content %}
+  {% load form_filters %} {% load custom_filters %}
   <!DOCTYPE html>
   <html>
     <head>
@@ -131,36 +129,42 @@
         <h1>Add New Store Item</h1>
         <div class="form-container">
           <form method="post" enctype="multipart/form-data" id="store-item-form">
-            {% csrf_token %}
-            {{ store_item_form.as_p }}
-            
+            {% csrf_token %} {{ store_item_form.as_p }}
+
             <!-- Variation formset management form -->
             {{ variation_formset.management_form }}
-            
+
             <div id="variation-container">
               <!-- Initial variation form -->
               {% for variation_form in variation_formset %}
+                <!-- Modify this section in add_store_item.html -->
                 <div class="variation-form" data-index="0">
                   <div class="variation-fields">
-                    {{ variation_form.as_p }}
-                    {% with choices_formset=choices_formsets|first %}
+                    {{ variation_form.as_p }} {% with choices_formset=choices_formsets|first %}
                       {{ choices_formset.management_form }}
                       <table>
                         <thead>
                           <tr>
                             <th>Choice Name</th>
                             <th>Price Increment</th>
+                            <th>Actions</th>
+                            <!-- Added Actions column -->
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="choices-container">
                           {% for choice_form in choices_formset %}
-                            <tr>
+                            <tr class="choice-row">
                               <td>{{ choice_form.name }}</td>
                               <td>{{ choice_form.price_increment }}</td>
+                              <td>
+                                <button type="button" class="btn btn-danger btn-sm remove-choice">Remove</button>
+                              </td>
                             </tr>
                           {% endfor %}
                         </tbody>
                       </table>
+                      <a href="#" class="add-choice-link" data-variation-index="0">+ Add Choice</a>
+                      <!-- Added Add Choice link -->
                     {% endwith %}
                   </div>
                 </div>
@@ -174,58 +178,105 @@
       </div>
 
       <script>
-        let variationCounter = 1;  // Start from 1 since we have the initial form
-
-        document.getElementById('add-variation').addEventListener('click', function() {
-            const nextIndex = variationCounter++;
-            
-            fetch(`{% url 'dashboard:add_variation_with_choices' %}?form_index=${nextIndex}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('variation-container').insertAdjacentHTML('beforeend', html);
-                    updateFormIndexes();
-                });
-        });
-
+        let variationCounter = 1 // Start from 1 since we have the initial form
+        
+        // Add Variation button handler
+        document.getElementById('add-variation').addEventListener('click', function () {
+          const nextIndex = variationCounter++
+        
+          fetch(`{% url 'dashboard:add_variation_with_choices' %}?form_index=${nextIndex}`)
+            .then((response) => response.text())
+            .then((html) => {
+              document.getElementById('variation-container').insertAdjacentHTML('beforeend', html)
+              updateFormIndexes()
+            })
+        })
+        
+        // Add Choice and Remove Choice handlers
+        document.addEventListener('click', function (e) {
+          // Handle Add Choice
+          if (e.target.classList.contains('add-choice-link')) {
+            e.preventDefault()
+            const variationIndex = e.target.dataset.variationIndex
+            const choicesContainer = e.target.closest('.variation-fields').querySelector('.choices-container')
+            const managementForm = e.target.closest('.variation-fields').querySelector('[name$="-TOTAL_FORMS"]')
+            const nextIndex = parseInt(managementForm.value)
+        
+            fetch(`{% url 'dashboard:add_choice_field' %}?variation_index=${variationIndex}&choice_index=${nextIndex}`)
+              .then((response) => response.text())
+              .then((html) => {
+                choicesContainer.insertAdjacentHTML('beforeend', html)
+                managementForm.value = nextIndex + 1
+              })
+          }
+        
+          // Handle Remove Choice
+          if (e.target.classList.contains('remove-choice')) {
+            const row = e.target.closest('.choice-row')
+            const container = row.closest('.choices-container')
+            const managementForm = container.closest('.variation-fields').querySelector('[name$="-TOTAL_FORMS"]')
+        
+            row.remove()
+            managementForm.value = parseInt(managementForm.value) - 1
+        
+            // Update remaining choices' indices
+            container.querySelectorAll('.choice-row').forEach((row, index) => {
+              row.querySelectorAll('input').forEach((input) => {
+                const oldName = input.name
+                const newName = oldName.replace(/\d+/, index)
+                input.name = newName
+                if (input.id) {
+                  input.id = input.id.replace(/\d+/, index)
+                }
+              })
+            })
+          }
+        })
+        
         function updateFormIndexes() {
-            // Update variation management form
-            const totalFormsInput = document.querySelector('[name="variation-TOTAL_FORMS"]');
-            if (totalFormsInput) {
-                totalFormsInput.value = variationCounter;
+          // Update variation management form
+          const totalFormsInput = document.querySelector('[name="variation-TOTAL_FORMS"]')
+          if (totalFormsInput) {
+            totalFormsInput.value = variationCounter
+          }
+        
+          // Update each variation form's indices
+          document.querySelectorAll('.variation-form').forEach((form, index) => {
+            // Update variation fields
+            form.querySelectorAll('[name*="variation-"]').forEach((input) => {
+              const oldName = input.name
+              const newName = oldName.replace(/variation-\d+/, `variation-${index}`)
+              input.name = newName
+              if (input.id) {
+                input.id = input.id.replace(/variation-\d+/, `variation-${index}`)
+              }
+            })
+        
+            // Update choices fields
+            const choicesContainer = form.querySelector('.choices-container')
+            if (choicesContainer) {
+              choicesContainer.querySelectorAll('.choice-row').forEach((row, choiceIndex) => {
+                row.querySelectorAll('input').forEach((input) => {
+                  const oldName = input.name
+                  const newName = oldName.replace(/choices_\d+-\d+/, `choices_${index}-${choiceIndex}`)
+                  input.name = newName
+                  if (input.id) {
+                    input.id = input.id.replace(/choices_\d+-\d+/, `choices_${index}-${choiceIndex}`)
+                  }
+                })
+              })
             }
-
-            // Update each variation form's indices
-            document.querySelectorAll('.variation-form').forEach((form, index) => {
-                // Update variation fields
-                form.querySelectorAll('[name*="variation-"]').forEach(input => {
-                    const oldName = input.name;
-                    const newName = oldName.replace(/variation-\d+/, `variation-${index}`);
-                    input.name = newName;
-                    if (input.id) {
-                        input.id = input.id.replace(/variation-\d+/, `variation-${index}`);
-                    }
-                });
-
-                // Update choices fields
-                form.querySelectorAll('[name*="choices_"]').forEach(input => {
-                    const oldName = input.name;
-                    const newName = oldName.replace(/choices_\d+/, `choices_${index}`);
-                    input.name = newName;
-                    if (input.id) {
-                        input.id = input.id.replace(/choices_\d+/, `choices_${index}`);
-                    }
-                });
-            });
+          })
         }
-
+        
         // Add form submission handler for debugging
-        document.getElementById('store-item-form').addEventListener('submit', function(e) {
-            // Log form data before submission
-            const formData = new FormData(this);
-            for (let pair of formData.entries()) {
-                console.log(pair[0], pair[1]);
-            }
-        });
+        document.getElementById('store-item-form').addEventListener('submit', function (e) {
+          // Log form data before submission
+          const formData = new FormData(this)
+          for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1])
+          }
+        })
       </script>
     </body>
   </html>

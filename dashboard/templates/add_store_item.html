@@ -1,8 +1,11 @@
-{% extends 'admin_base.html' %} {% block content %}
-  {% load form_filters %} {% load custom_filters %}
+{% extends 'admin_base.html' %} 
+{% block content %}
+  {% load form_filters %} 
+  {% load custom_filters %}
   <!DOCTYPE html>
   <html>
     <head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
       <style>
         input[type='checkbox'][name$='-DELETE'],
         label[for$='-DELETE'] {
@@ -128,155 +131,228 @@
       <div class="main-content">
         <h1>Add New Store Item</h1>
         <div class="form-container">
-          <form method="post" enctype="multipart/form-data" id="store-item-form">
-            {% csrf_token %} {{ store_item_form.as_p }}
+            <form method="post" enctype="multipart/form-data" id="store-item-form">
+                {% csrf_token %}
+                {{ store_item_form.as_p }}
 
-            <!-- Variation formset management form -->
-            {{ variation_formset.management_form }}
+                <!-- Variation formset management form -->
+                {{ variation_formset.management_form }}
 
-            <div id="variation-container">
-              <!-- Initial variation form -->
-              {% for variation_form in variation_formset %}
-                <!-- Modify this section in add_store_item.html -->
-                <div class="variation-form" data-index="0">
-                  <div class="variation-fields">
-                    {{ variation_form.as_p }} {% with choices_formset=choices_formsets|first %}
-                      {{ choices_formset.management_form }}
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Choice Name</th>
-                            <th>Price Increment</th>
-                            <th>Actions</th>
-                            <!-- Added Actions column -->
-                          </tr>
-                        </thead>
-                        <tbody class="choices-container">
-                          {% for choice_form in choices_formset %}
-                            <tr class="choice-row">
-                              <td>{{ choice_form.name }}</td>
-                              <td>{{ choice_form.price_increment }}</td>
-                              <td>
-                                <button type="button" class="btn btn-danger btn-sm remove-choice">Remove</button>
-                              </td>
-                            </tr>
-                          {% endfor %}
-                        </tbody>
-                      </table>
-                      <a href="#" class="add-choice-link" data-variation-index="0">+ Add Choice</a>
-                      <!-- Added Add Choice link -->
-                    {% endwith %}
-                  </div>
+                <div id="variation-container">
+                    {% for variation_form in variation_formset %}
+                    <div class="variation-form" data-index="{{ forloop.counter0 }}">
+                        <div class="variation-fields">
+                            {{ variation_form.as_p }}
+                            {% with choices_formset=choices_formsets|index:forloop.counter0 %}
+                                {{ choices_formset.management_form }}
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Choice Name</th>
+                                            <th>Price Increment</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="choices-container">
+                                        {% for choice_form in choices_formset %}
+                                            <tr class="choice-row">
+                                                <td>
+                                                    {{ choice_form.name }}
+                                                    {% if forloop.last %}
+                                                        <a href="#" class="add-choice-link fa fa-plus" 
+                                                           style="text-decoration: none; color:#4caf50; margin-left:10px" 
+                                                           data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ choice_form.price_increment }}</td>
+                                                <td>
+                                                    
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-              {% endfor %}
-            </div>
 
-            <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
-            <button type="submit" class="btn btn-primary">Save</button>
-          </form>
+                <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
         </div>
       </div>
 
       <script>
-        let variationCounter = 1 // Start from 1 since we have the initial form
-        
-        // Add Variation button handler
-        document.getElementById('add-variation').addEventListener('click', function () {
-          const nextIndex = variationCounter++
-        
-          fetch(`{% url 'dashboard:add_variation_with_choices' %}?form_index=${nextIndex}`)
-            .then((response) => response.text())
-            .then((html) => {
-              document.getElementById('variation-container').insertAdjacentHTML('beforeend', html)
-              updateFormIndexes()
-            })
-        })
-        
-        // Add Choice and Remove Choice handlers
-        document.addEventListener('click', function (e) {
-          // Handle Add Choice
-          if (e.target.classList.contains('add-choice-link')) {
-            e.preventDefault()
-            const variationIndex = e.target.dataset.variationIndex
-            const choicesContainer = e.target.closest('.variation-fields').querySelector('.choices-container')
-            const managementForm = e.target.closest('.variation-fields').querySelector('[name$="-TOTAL_FORMS"]')
-            const nextIndex = parseInt(managementForm.value)
-        
-            fetch(`{% url 'dashboard:add_choice_field' %}?variation_index=${variationIndex}&choice_index=${nextIndex}`)
-              .then((response) => response.text())
-              .then((html) => {
-                choicesContainer.insertAdjacentHTML('beforeend', html)
-                managementForm.value = nextIndex + 1
-              })
-          }
-        
-          // Handle Remove Choice
-          if (e.target.classList.contains('remove-choice')) {
-            const row = e.target.closest('.choice-row')
-            const container = row.closest('.choices-container')
-            const managementForm = container.closest('.variation-fields').querySelector('[name$="-TOTAL_FORMS"]')
-        
-            row.remove()
-            managementForm.value = parseInt(managementForm.value) - 1
-        
-            // Update remaining choices' indices
-            container.querySelectorAll('.choice-row').forEach((row, index) => {
-              row.querySelectorAll('input').forEach((input) => {
-                const oldName = input.name
-                const newName = oldName.replace(/\d+/, index)
-                input.name = newName
-                if (input.id) {
-                  input.id = input.id.replace(/\d+/, index)
-                }
-              })
-            })
-          }
-        })
-        
-        function updateFormIndexes() {
-          // Update variation management form
-          const totalFormsInput = document.querySelector('[name="variation-TOTAL_FORMS"]')
-          if (totalFormsInput) {
-            totalFormsInput.value = variationCounter
-          }
-        
-          // Update each variation form's indices
-          document.querySelectorAll('.variation-form').forEach((form, index) => {
-            // Update variation fields
-            form.querySelectorAll('[name*="variation-"]').forEach((input) => {
-              const oldName = input.name
-              const newName = oldName.replace(/variation-\d+/, `variation-${index}`)
-              input.name = newName
-              if (input.id) {
-                input.id = input.id.replace(/variation-\d+/, `variation-${index}`)
-              }
-            })
-        
-            // Update choices fields
-            const choicesContainer = form.querySelector('.choices-container')
-            if (choicesContainer) {
-              choicesContainer.querySelectorAll('.choice-row').forEach((row, choiceIndex) => {
-                row.querySelectorAll('input').forEach((input) => {
-                  const oldName = input.name
-                  const newName = oldName.replace(/choices_\d+-\d+/, `choices_${index}-${choiceIndex}`)
-                  input.name = newName
-                  if (input.id) {
-                    input.id = input.id.replace(/choices_\d+-\d+/, `choices_${index}-${choiceIndex}`)
+        let variationCounter = 1; // Start from 1 since we have the initial form
+
+          // Add Variation button handler
+          document.getElementById('add-variation').addEventListener('click', function() {
+              const nextIndex = variationCounter++;
+              console.log('Adding variation with index:', nextIndex);
+          
+              fetch(`/dashboard/add-variation-with-choices/?form_index=${nextIndex}`)
+                  .then(response => {
+                      if (!response.ok) {
+                          throw new Error(`HTTP error! status: ${response.status}`);
+                      }
+                      return response.text();
+                  })
+                  .then(html => {
+                      document.getElementById('variation-container').insertAdjacentHTML('beforeend', html);
+                      updateFormIndexes();
+                      console.log('Successfully added new variation');
+                  })
+                  .catch(error => {
+                      console.error('Error adding variation:', error);
+                  });
+          });
+
+          // Add Choice and Remove Choice handlers
+          document.addEventListener('click', function(e) {
+              // Handle Add Choice
+              if (e.target.classList.contains('add-choice-link')) {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  const variationIndex = e.target.dataset.variationIndex;
+                  const variationForm = e.target.closest('.variation-form');
+                  const choicesContainer = variationForm.querySelector('.choices-container');
+                  const managementForm = variationForm.querySelector('[name*="TOTAL_FORMS"]');
+
+                  if (!managementForm) {
+                      console.error('Management form not found');
+                      return;
                   }
-                })
-              })
-            }
-          })
-        }
-        
-        // Add form submission handler for debugging
-        document.getElementById('store-item-form').addEventListener('submit', function (e) {
-          // Log form data before submission
-          const formData = new FormData(this)
-          for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1])
+                
+                  const nextIndex = parseInt(managementForm.value);
+                  console.log('Adding choice with variation index:', variationIndex, 'choice index:', nextIndex);
+                
+                  fetch(`/dashboard/add-choice-field/?variation_index=${variationIndex}&choice_index=${nextIndex}`)
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error(`HTTP error! status: ${response.status}`);
+                          }
+                          return response.text();
+                      })
+                      .then(html => {
+                          // Remove plus icon from current last row
+                          const currentLastRow = choicesContainer.querySelector('.choice-row:last-child .add-choice-link');
+                          if (currentLastRow) {
+                              currentLastRow.remove();
+                          }
+                        
+                          // Add new row
+                          choicesContainer.insertAdjacentHTML('beforeend', html);
+                        
+                          // Add plus icon to new last row
+                          const newLastRow = choicesContainer.querySelector('.choice-row:last-child td:first-child');
+                          if (newLastRow) {
+                              newLastRow.insertAdjacentHTML(
+                                  'beforeend',
+                                  `<a href="#" class="add-choice-link fa fa-plus" 
+                                      style="text-decoration: none; color:#4caf50; margin-left:10px" 
+                                      data-variation-index="${variationIndex}"></a>`
+                              );
+                          }
+                        
+                          // Update management form
+                          managementForm.value = nextIndex + 1;
+                          console.log('Successfully added new choice');
+                      })
+                      .catch(error => {
+                          console.error('Error adding choice:', error);
+                      });
+              }
+            
+              // Handle Remove Choice
+              if (e.target.classList.contains('remove-choice')) {
+                  const row = e.target.closest('.choice-row');
+                  const variationForm = row.closest('.variation-form');
+                  const choicesContainer = variationForm.querySelector('.choices-container');
+                  const managementForm = variationForm.querySelector('[name*="TOTAL_FORMS"]');
+                  const variationIndex = variationForm.dataset.index;
+              
+                  // If this was the last row with the plus icon, move the plus icon to the new last row
+                  const wasLastRow = !row.nextElementSibling;
+                  if (wasLastRow && row.previousElementSibling) {
+                      const plusIcon = row.querySelector('.add-choice-link');
+                      if (plusIcon) {
+                          const newLastRow = row.previousElementSibling.querySelector('td:first-child');
+                          newLastRow.appendChild(plusIcon);
+                      }
+                  }
+                
+                  row.remove();
+                  managementForm.value = parseInt(managementForm.value) - 1;
+                
+                  // Update remaining choices' indices
+                  choicesContainer.querySelectorAll('.choice-row').forEach((row, index) => {
+                      row.querySelectorAll('input').forEach((input) => {
+                          const oldName = input.name;
+                          const newName = oldName.replace(/choices_\d+-\d+/, `choices_${variationIndex}-${index}`);
+                          input.name = newName;
+                          if (input.id) {
+                              input.id = input.id.replace(/choices_\d+-\d+/, `choices_${variationIndex}-${index}`);
+                          }
+                      });
+                  });
+              }
+          });
+
+          function updateFormIndexes() {
+              // Update variation management form
+              const totalFormsInput = document.querySelector('[name="variation-TOTAL_FORMS"]');
+              if (totalFormsInput) {
+                  totalFormsInput.value = variationCounter;
+              }
+            
+              // Update each variation form's indices
+              document.querySelectorAll('.variation-form').forEach((form, index) => {
+                  form.dataset.index = index; // Update data-index attribute
+
+                  // Update variation fields
+                  form.querySelectorAll('[name*="variation-"]').forEach((input) => {
+                      const oldName = input.name;
+                      const newName = oldName.replace(/variation-\d+/, `variation-${index}`);
+                      input.name = newName;
+                      if (input.id) {
+                          input.id = input.id.replace(/variation-\d+/, `variation-${index}`);
+                      }
+                  });
+                
+                  // Update choices fields and plus icon
+                  const choicesContainer = form.querySelector('.choices-container');
+                  if (choicesContainer) {
+                      // Update data-variation-index for the plus icon
+                      const plusIcon = choicesContainer.querySelector('.add-choice-link');
+                      if (plusIcon) {
+                          plusIcon.dataset.variationIndex = index;
+                      }
+                    
+                      choicesContainer.querySelectorAll('.choice-row').forEach((row, choiceIndex) => {
+                          row.querySelectorAll('input').forEach((input) => {
+                              const oldName = input.name;
+                              const newName = oldName.replace(/choices_\d+-\d+/, `choices_${index}-${choiceIndex}`);
+                              input.name = newName;
+                              if (input.id) {
+                                  input.id = input.id.replace(/choices_\d+-\d+/, `choices_${index}-${choiceIndex}`);
+                              }
+                          });
+                      });
+                  }
+              });
           }
-        })
+
+          // Add form submission handler for debugging
+          document.getElementById('store-item-form').addEventListener('submit', function(e) {
+              // Log form data before submission
+              const formData = new FormData(this);
+              for (let pair of formData.entries()) {
+                  console.log(pair[0], pair[1]);
+              }
+          });
       </script>
     </body>
   </html>

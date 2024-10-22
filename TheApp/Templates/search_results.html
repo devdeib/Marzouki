@@ -48,6 +48,7 @@
                         src="{% static item.item_photo %}"
                         alt="Paint Photo"
                         class="img-fluid"
+                        onerror="this.src='{% static 'imgs/default.png' %}'"
                       />
                     </div>
                     <h4 class="text-center card-title">{{ item.item_name }}</h4>

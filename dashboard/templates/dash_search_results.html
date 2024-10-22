@@ -25,7 +25,7 @@
                         <a href="{% url 'paint_detail' item.pk %}" style="text-decoration: none">
                             <div class="card-body">
                                 <div class="text-center">
-                                    <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid"/>
+                                    <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'"/>
                                 </div>
                                 <h4 class="text-center card-title">{{ item.item_name }}</h4>
                                 <p class="card-text">Price: {{ item.item_price }}$</p>

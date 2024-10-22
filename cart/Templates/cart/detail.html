@@ -30,7 +30,7 @@
         <a href="{% url 'paint_detail' item_data.id %}" style="text-decoration: none;">
             <div class="list">
                 <div class="cart-img">
-                    <img src="{{ item_data.item_photo }}" alt="Item Photo" class="" />
+                    <img src="{{ item_data.item_photo }}" alt="Item Photo" class="" onerror="this.src='{% static 'imgs/default.png' %}'"/>
                 </div>
                 <div class="cart-details-responsive">
                     <h3 class="cart-title mb-2">

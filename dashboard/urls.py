@@ -36,4 +36,5 @@ urlpatterns = [
          name='add_variation_with_choices'),
     path('add-choice-field/', views.add_choice_field,
          name='add_choice_field'),  # Add this line
+    path('add-variation/', views.add_variation, name='add_variation'),
 ]

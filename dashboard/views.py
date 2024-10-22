@@ -25,6 +25,7 @@ from django.contrib import messages
 from django.db.models import Count
 from orders.models import Order
 import logging
+from django.http import JsonResponse
 
 
 def home(request):
@@ -171,6 +172,25 @@ def add_variation_with_choices(request):
     return render(request, 'variation_with_choices.html', context)
 
 
+def add_variation(request):
+    try:
+        name = request.POST.get('name')
+        if not name:
+            return JsonResponse({'success': False, 'error': 'Name is required'})
+
+        variation = Variation.objects.create(name=name)
+
+        return JsonResponse({
+            'success': True,
+            'variation': {
+                'id': variation.id,
+                'name': variation.name
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
 def add_choice_field(request):
     variation_index = request.GET.get('variation_index', 0)
     choice_index = request.GET.get('choice_index', 0)
@@ -185,6 +205,7 @@ def add_choice_field(request):
         'choice_index': choice_index,
     }
     return render(request, 'add_choice_field.html', context)
+
 
 def store_item_detail(request, pk):
     store_item = get_object_or_404(StoreItems, pk=pk)
@@ -362,28 +383,3 @@ def variation_list(request):
     variations = Variation.objects.all()
     item_variations = ItemVariation.objects.all()
     return render(request, 'variation_list.html', {'variations': variations, 'item_variations': item_variations})
-
-
-def add_variation(request):
-    if request.method == "POST":
-        variation_form = VariationForm(request.POST)
-        item_variation_form = ItemVariationForm(request.POST)
-        choice_formset = ChoiceFormSet(request.POST, prefix='choices')
-        if variation_form.is_valid() and item_variation_form.is_valid() and choice_formset.is_valid():
-            variation = variation_form.save()
-            item_variation = item_variation_form.save()
-            choices = choice_formset.save(commit=False)
-            for choice in choices:
-                choice.variation = item_variation
-                choice.save()
-            return redirect('variation_list')
-    else:
-        variation_form = VariationForm()
-        item_variation_form = ItemVariationForm()
-        choice_formset = ChoiceFormSet(prefix='choices')
-
-    return render(request, 'add_variation.html', {
-        'variation_form': variation_form,
-        'item_variation_form': item_variation_form,
-        'choice_formset': choice_formset
-    })

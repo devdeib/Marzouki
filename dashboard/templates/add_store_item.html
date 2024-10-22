@@ -7,10 +7,39 @@
     <head>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
       <style>
+        /* Original styles */
+        
         input[type='checkbox'][name$='-DELETE'],
         label[for$='-DELETE'] {
           display: none;
         }
+        
+        
+        /* Custom style for the file upload button */
+        .custom-file-input {
+          display: none;
+          }
+
+        /* Style the label to look like a button */
+        .custom-file-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        /* Optionally, style the text that shows the selected file name */
+        .file-name {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        /* Display the selected file name */
         
         .form-container {
           margin-top: 25px;
@@ -21,7 +50,7 @@
         }
         
         .form-group label {
-          display: block;
+          
           margin-bottom: 5px;
         }
         
@@ -33,14 +62,14 @@
         .btn {
           margin-right: 10px;
         }
+
         table {
           width: 100%;
           border-collapse: collapse;
           margin: 20px 0;
         }
         
-        th,
-        td {
+        th, td {
           border: 1px solid #dddddd;
           text-align: left;
           padding: 8px;
@@ -50,269 +79,489 @@
           background-color: #f2f2f2;
         }
         
-        .toggle-switch {
-          position: relative;
-          display: inline-block;
-          width: 40px;
-          height: 20px;
+        /* Variation select group styles */
+        .variation-select-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          
+          
         }
         
-        .toggle-switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-        
-        .slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          transition: 0.4s;
-          border-radius: 34px;
-        }
-        
-        .slider:before {
-          position: absolute;
-          content: '';
-          height: 16px;
-          width: 16px;
-          left: 2px;
-          bottom: 2px;
-          background-color: white;
-          transition: 0.4s;
-          border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-          background-color: #4caf50;
-        }
-        
-        input:checked + .slider:before {
-          transform: translateX(20px);
-        }
-        .custom-select {
-          display: block;
-          width: 100%;
-          height: calc(2.25rem + 2px);
-          padding: 0.375rem 1.75rem 0.375rem 0.75rem;
-          font-size: 1rem;
-          line-height: 1.5;
-          color: #495057;
-          background-color: #fff;
+        .variation-select-group select {
+          color: #45a049;
+          appearance: none;
           background-clip: padding-box;
-          border: 1px solid #ced4da;
-          border-radius: 0.25rem;
-          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+          background-color: rgb(247, 247, 249);
+          border-bottom-color: rgb(221, 221, 221);
+          border-bottom-left-radius: 0px;
+          border-bottom-right-radius: 0px;
+          border-bottom-style: solid;
+          border-bottom-width: 0.8px;
+          border-image-outset: 0;
+          border-image-repeat: stretch;
+          border-image-slice: 100%;
+          border-image-source: none;
+          border-image-width: 1;
+          border-left-color: rgb(221, 221, 221);
+          border-left-style: solid;
+          border-left-width: 0.8px;
+          border-right-color: rgb(221, 221, 221);
+          border-right-style: solid;
+          border-right-width: 0.8px;
+          border-top-color: rgb(221, 221, 221);
+          border-top-left-radius: 0px;
+          border-top-right-radius: 0px;
+          border-top-style: solid;
+          border-top-width: 0.8px;
+          box-sizing: border-box;
+          color: rgb(85, 89, 92);
+          display: block;
+          font-size: 16px;
+          font-weight: 300;
+          letter-spacing: normal;
+          line-height: 24px;
+          margin-bottom: 0px;
+          margin-left: 0px;
+          margin-right: 0px;
+          margin-top: 0px;
+          overflow-wrap: normal;
+          padding-bottom: 8px;
+          padding-left: 12px;
+          padding-right: 12px;
+          padding-top: 8px;
+          text-align: start;
+          text-transform: none;
+          transition-behavior: normal;
+          transition-delay: 0s;
+          transition-duration: 0.3s;
+          
+          transition-timing-function: ease;
+          
         }
         
-        .custom-select:focus {
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        .add-variation-btn {
+          
+          cursor: pointer;
+          padding: 5px;
+          transition: color 0.3s;
         }
-        
-        .form-group {
-          margin-bottom: 1.5rem;
+
+        .add-variation-btn:hover {
+          color: #45a049 !important;
         }
-        
-        .form-label {
+
+        /* Modal styles */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.4);
+          animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .modal-content {
+          background-color: #fefefe;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 50%;
+          max-width: 500px;
+          border-radius: 5px;
+          position: relative;
+          animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+          from { transform: translateY(-100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #ddd;
+          padding-bottom: 10px;
+        }
+
+        .close {
+          color: #aaa;
+          font-size: 28px;
           font-weight: bold;
+          cursor: pointer;
+          transition: color 0.3s;
+        }
+
+        .close:hover {
+          color: #000;
+        }
+
+        .modal-body {
+          margin-bottom: 20px;
+        }
+
+        /* Form control styles */
+        .form-control {
+          width: 100%;
+          padding: 8px 12px;
+          
         }
       </style>
       <title>Add New Store Item</title>
-      <!-- Your existing styles remain the same -->
     </head>
 
     <body>
       <div class="main-content">
         <h1>Add New Store Item</h1>
-        <div class="form-container">
-            <form method="post" enctype="multipart/form-data" id="store-item-form">
+
+        <!-- Variation Modal -->
+        <div id="variation-popup" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Add New Variation</h3>
+              <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+              <form id="variation-form" method="POST">
                 {% csrf_token %}
-                {{ store_item_form.as_p }}
-
-                <!-- Variation formset management form -->
-                {{ variation_formset.management_form }}
-
-                <div id="variation-container">
-                    {% for variation_form in variation_formset %}
-                    <div class="variation-form" data-index="{{ forloop.counter0 }}">
-                        <div class="variation-fields">
-                            {{ variation_form.as_p }}
-                            {% with choices_formset=choices_formsets|index:forloop.counter0 %}
-                                {{ choices_formset.management_form }}
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Choice Name</th>
-                                            <th>Price Increment</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="choices-container">
-                                        {% for choice_form in choices_formset %}
-                                            <tr class="choice-row">
-                                                <td>
-                                                    {{ choice_form.name }}
-                                                    {% if forloop.last %}
-                                                        <a href="#" class="add-choice-link fa fa-plus" 
-                                                           style="text-decoration: none; color:#4caf50; margin-left:10px" 
-                                                           data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ choice_form.price_increment }}</td>
-                                                <td>
-                                                    
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            {% endwith %}
-                        </div>
-                    </div>
-                    {% endfor %}
+                <div class="form-group">
+                  <label for="variation-name" class="form-label">Variation Name</label>
+                  <input type="text" id="variation-name" name="name" class="form-control" required>
                 </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Save</button>
+                  <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
-                <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </form>
+        <div class="form-container">
+          <form method="post" enctype="multipart/form-data" id="store-item-form">
+            {% csrf_token %}
+            <!-- Render the rest of the form fields -->
+            {{ store_item_form.non_field_errors }}
+            <p>Status: </p>
+            {{ store_item_form.status }}
+            <p></p>
+            <p>Listing Name: </p>
+            {{ store_item_form.item_name }}
+            <p></p>
+            <p>Description: </p>
+            {{ store_item_form.item_description }}
+            <p></p>
+            <p>Price: </p>
+            {{ store_item_form.item_price }}
+            <p></p>
+            <p>Quantity: </p>
+            {{ store_item_form.item_quantity }}
+            <p></p>
+            <p>Choose Tags: </p>
+            {{ store_item_form.tags }}
+            <p></p>
+            <p>Primary Color: </p>
+            {{ store_item_form.primary_color }}
+            <p></p>
+            <p>Secondary Color: </p>
+            {{ store_item_form.secondary_color }}
+            <p></p>
+            <p>Width: </p>
+            {{ store_item_form.width }}
+            <p></p>
+            <p>Height: </p>
+            {{ store_item_form.height }}
+            <p></p>
+            <div class="form-group">
+              <label class="custom-file-label" for="id_item_photo">Upload Image</label>
+              {{ store_item_form.item_photo }}
+              <span class="file-name">No file chosen</span>
+            </div>
+    
+            <hr class="hr--large">
+            <br>
+            <h3>Variations handling</h3>
+         
+            <!-- Variation formset management form -->
+            {{ variation_formset.management_form }}
+
+            <div id="variation-container">
+              {% for variation_form in variation_formset %}
+                <div class="variation-form" data-index="{{ forloop.counter0 }}">
+                  <div class="variation-fields">
+                    <!-- Wrap variation select in group -->
+                    
+                    {% with choices_formset=choices_formsets|index:forloop.counter0 %}
+                      {{ choices_formset.management_form }}
+                      <table>
+                        <thead>
+                          <tr>
+                            
+                            <th>Choice Name</th>
+                            <th>Price Increment</th>
+                          </tr>
+                        </thead>
+                        <tbody class="choices-container">
+                          {% for choice_form in choices_formset %}
+                                <div class="variation-select-group">
+                                  {{ variation_form.variation }}
+                                  <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+                                </div>
+                          <tr class="choice-row">
+                              
+                              <td>
+                                {{ choice_form.name }}
+                                {% if forloop.last %}
+                                  <a href="#" class="add-choice-link fa fa-plus" 
+                                     style="text-decoration: none; color:#4caf50; margin-left:10px" 
+                                     data-variation-index="{{ forloop.parentloop.counter0 }}">
+                                  </a>
+                                {% endif %}
+                              </td>
+                              <td>{{ choice_form.price_increment }}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    {% endwith %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            
+            <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </form>
         </div>
       </div>
 
       <script>
-        let variationCounter = 1; // Start from 1 since we have the initial form
+          document.querySelector('#id_item_photo').addEventListener('change', function() {
+            let fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+            document.querySelector('.file-name').textContent = fileName;
+          });
 
+          document.addEventListener('DOMContentLoaded', function () {
+              const fileInput = document.querySelector('.custom-file-input');
+              const fileNameSpan = document.querySelector('.file-name');
+              fileInput.addEventListener('change', function () {
+                  if (fileInput.files.length > 0) {
+                      fileNameSpan.textContent = fileInput.files[0].name;
+                  } else {
+                      fileNameSpan.textContent = 'No file chosen';
+                  }
+              });
+          });
+          
+          // Initialize variables
+          let variationCounter = 1;
+          
+          // Function to initialize variation buttons
+          function initializeVariationButtons() {
+              const modal = document.getElementById('variation-popup');
+              const addVariationBtns = document.querySelectorAll('.add-variation-btn');
+              const closeButtons = document.querySelectorAll('.close, .close-modal');
+          
+              // Remove existing event listeners
+              addVariationBtns.forEach(btn => {
+                  btn.replaceWith(btn.cloneNode(true));
+              });
+            
+              // Add new event listeners
+              document.querySelectorAll('.add-variation-btn').forEach(btn => {
+                  btn.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      modal.style.display = 'block';
+                  });
+              });
+            
+              // Close modal handlers
+              closeButtons.forEach(btn => {
+                  btn.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      modal.style.display = 'none';
+                  });
+              });
+          }
+          
+          // Function to add plus icon to the last choice row
+          function addPlusIconToLastRow(choicesContainer, variationIndex) {
+              const lastRow = choicesContainer.querySelector('.choice-row:last-child');
+              if (lastRow) {
+                  const firstCell = lastRow.querySelector('td:first-child');
+                  const existingPlusIcon = firstCell.querySelector('.add-choice-link');
+                  if (!existingPlusIcon) {
+                      firstCell.insertAdjacentHTML(
+                          'beforeend',
+                          `<a href="#" class="add-choice-link fa fa-plus" 
+                              style="text-decoration: none; color:#4caf50; margin-left:10px" 
+                              data-variation-index="${variationIndex}"></a>`
+                      );
+                  }
+              }
+          }
+          
           // Add Variation button handler
           document.getElementById('add-variation').addEventListener('click', function() {
               const nextIndex = variationCounter++;
-              console.log('Adding variation with index:', nextIndex);
           
               fetch(`/dashboard/add-variation-with-choices/?form_index=${nextIndex}`)
-                  .then(response => {
-                      if (!response.ok) {
-                          throw new Error(`HTTP error! status: ${response.status}`);
-                      }
-                      return response.text();
-                  })
-                  .then(html => {
-                      document.getElementById('variation-container').insertAdjacentHTML('beforeend', html);
-                      updateFormIndexes();
-                      console.log('Successfully added new variation');
-                  })
-                  .catch(error => {
-                      console.error('Error adding variation:', error);
-                  });
+              .then(response => {
+                  if (!response.ok) {
+                      throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+                  return response.text();
+              })
+              .then(html => {
+                  document.getElementById('variation-container').insertAdjacentHTML('beforeend', html);
+                  updateFormIndexes();
+                  initializeVariationButtons();
+              })
+              .catch(error => {
+                  console.error('Error adding variation:', error);
+              });
           });
-
+          
           // Add Choice and Remove Choice handlers
           document.addEventListener('click', function(e) {
-              // Handle Add Choice
+              // Add choice handler
               if (e.target.classList.contains('add-choice-link')) {
                   e.preventDefault();
                   e.stopPropagation();
-
+              
                   const variationIndex = e.target.dataset.variationIndex;
                   const variationForm = e.target.closest('.variation-form');
                   const choicesContainer = variationForm.querySelector('.choices-container');
                   const managementForm = variationForm.querySelector('[name*="TOTAL_FORMS"]');
-
+              
                   if (!managementForm) {
                       console.error('Management form not found');
                       return;
                   }
                 
                   const nextIndex = parseInt(managementForm.value);
-                  console.log('Adding choice with variation index:', variationIndex, 'choice index:', nextIndex);
                 
                   fetch(`/dashboard/add-choice-field/?variation_index=${variationIndex}&choice_index=${nextIndex}`)
-                      .then(response => {
-                          if (!response.ok) {
-                              throw new Error(`HTTP error! status: ${response.status}`);
-                          }
-                          return response.text();
-                      })
-                      .then(html => {
-                          // Remove plus icon from current last row
-                          const currentLastRow = choicesContainer.querySelector('.choice-row:last-child .add-choice-link');
-                          if (currentLastRow) {
-                              currentLastRow.remove();
-                          }
-                        
-                          // Add new row
-                          choicesContainer.insertAdjacentHTML('beforeend', html);
-                        
-                          // Add plus icon to new last row
-                          const newLastRow = choicesContainer.querySelector('.choice-row:last-child td:first-child');
-                          if (newLastRow) {
-                              newLastRow.insertAdjacentHTML(
-                                  'beforeend',
-                                  `<a href="#" class="add-choice-link fa fa-plus" 
-                                      style="text-decoration: none; color:#4caf50; margin-left:10px" 
-                                      data-variation-index="${variationIndex}"></a>`
-                              );
-                          }
-                        
-                          // Update management form
-                          managementForm.value = nextIndex + 1;
-                          console.log('Successfully added new choice');
-                      })
-                      .catch(error => {
-                          console.error('Error adding choice:', error);
-                      });
+                  .then(response => response.text())
+                  .then(html => {
+                      // Remove plus icon from current last row
+                      const currentLastRow = choicesContainer.querySelector('.choice-row:last-child .add-choice-link');
+                      if (currentLastRow) {
+                          currentLastRow.remove();
+                      }
+                    
+                      // Add new row
+                      choicesContainer.insertAdjacentHTML('beforeend', html);
+                      
+                      // Add plus icon to new last row
+                      addPlusIconToLastRow(choicesContainer, variationIndex);
+                      
+                      managementForm.value = nextIndex + 1;
+                  })
+                  .catch(error => {
+                      console.error('Error adding choice:', error);
+                  });
               }
             
-              // Handle Remove Choice
+              // Remove choice handler
               if (e.target.classList.contains('remove-choice')) {
-                  const row = e.target.closest('.choice-row');
-                  const variationForm = row.closest('.variation-form');
-                  const choicesContainer = variationForm.querySelector('.choices-container');
+                  e.preventDefault();
+                  e.stopPropagation();
+              
+                  const choiceRow = e.target.closest('.choice-row');
+                  const choicesContainer = choiceRow.closest('.choices-container');
+                  const variationForm = choicesContainer.closest('.variation-form');
                   const managementForm = variationForm.querySelector('[name*="TOTAL_FORMS"]');
                   const variationIndex = variationForm.dataset.index;
               
-                  // If this was the last row with the plus icon, move the plus icon to the new last row
-                  const wasLastRow = !row.nextElementSibling;
-                  if (wasLastRow && row.previousElementSibling) {
-                      const plusIcon = row.querySelector('.add-choice-link');
-                      if (plusIcon) {
-                          const newLastRow = row.previousElementSibling.querySelector('td:first-child');
-                          newLastRow.appendChild(plusIcon);
-                      }
+                  // Check if this row has the plus icon
+                  const hasAddButton = choiceRow.querySelector('.add-choice-link') !== null;
+                  
+                  // Remove the row
+                  choiceRow.remove();
+              
+                  // Update management form count
+                  if (managementForm) {
+                      managementForm.value = parseInt(managementForm.value) - 1;
                   }
                 
-                  row.remove();
-                  managementForm.value = parseInt(managementForm.value) - 1;
-                
-                  // Update remaining choices' indices
-                  choicesContainer.querySelectorAll('.choice-row').forEach((row, index) => {
-                      row.querySelectorAll('input').forEach((input) => {
-                          const oldName = input.name;
-                          const newName = oldName.replace(/choices_\d+-\d+/, `choices_${variationIndex}-${index}`);
-                          input.name = newName;
-                          if (input.id) {
-                              input.id = input.id.replace(/choices_\d+-\d+/, `choices_${variationIndex}-${index}`);
-                          }
-                      });
-                  });
+                  // If the removed row had the plus icon, add it to the new last row
+                  if (hasAddButton) {
+                      addPlusIconToLastRow(choicesContainer, variationIndex);
+                  }
               }
           });
-
+          
+          // Variation form submission handler
+          document.getElementById('variation-form').addEventListener('submit', function(e) {
+              e.preventDefault();
+              const formData = new FormData(this);
+          
+              fetch('/dashboard/add-variation/', {
+                  method: 'POST',
+                  headers: {
+                      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                  },
+                  body: formData
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      // Update all variation dropdowns
+                      const selects = document.querySelectorAll('select[name*="variation"]');
+                      selects.forEach(select => {
+                          const option = new Option(data.variation.name, data.variation.id);
+                          select.add(option);
+                          select.value = data.variation.id;
+                      });
+                    
+                      // Close modal and reset form
+                      document.getElementById('variation-popup').style.display = 'none';
+                      this.reset();
+                  } else {
+                      alert('Error creating variation: ' + data.error);
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  alert('Error creating variation');
+              });
+          });
+          
+          // Initialize everything on page load
+          document.addEventListener('DOMContentLoaded', function() {
+              initializeVariationButtons();
+          
+              // Close modal when clicking outside
+              window.addEventListener('click', function(e) {
+                  const modal = document.getElementById('variation-popup');
+                  if (e.target === modal) {
+                      modal.style.display = 'none';
+                  }
+              });
+          });
+          
           function updateFormIndexes() {
-              // Update variation management form
               const totalFormsInput = document.querySelector('[name="variation-TOTAL_FORMS"]');
               if (totalFormsInput) {
                   totalFormsInput.value = variationCounter;
               }
             
-              // Update each variation form's indices
               document.querySelectorAll('.variation-form').forEach((form, index) => {
-                  form.dataset.index = index; // Update data-index attribute
-
-                  // Update variation fields
+                  form.dataset.index = index;
+              
                   form.querySelectorAll('[name*="variation-"]').forEach((input) => {
                       const oldName = input.name;
                       const newName = oldName.replace(/variation-\d+/, `variation-${index}`);
@@ -322,10 +571,8 @@
                       }
                   });
                 
-                  // Update choices fields and plus icon
                   const choicesContainer = form.querySelector('.choices-container');
                   if (choicesContainer) {
-                      // Update data-variation-index for the plus icon
                       const plusIcon = choicesContainer.querySelector('.add-choice-link');
                       if (plusIcon) {
                           plusIcon.dataset.variationIndex = index;
@@ -344,16 +591,9 @@
                   }
               });
           }
-
-          // Add form submission handler for debugging
-          document.getElementById('store-item-form').addEventListener('submit', function(e) {
-              // Log form data before submission
-              const formData = new FormData(this);
-              for (let pair of formData.entries()) {
-                  console.log(pair[0], pair[1]);
-              }
-          });
       </script>
+
+
     </body>
   </html>
 {% endblock %}

@@ -53,7 +53,7 @@ class StoreItemForm(forms.ModelForm):
             'status': forms.Select(choices=StoreItems.STATUS_CHOICES, attrs={'class': 'form-control'}),
             'item_name': forms.TextInput(attrs={'class': 'form-control'}),
             'item_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'item_photo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'item_photo': forms.ClearableFileInput(attrs={'class': 'custom-file-input'}),
             'item_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'item_quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'tags': forms.SelectMultiple(attrs={'class': 'form-control'}),

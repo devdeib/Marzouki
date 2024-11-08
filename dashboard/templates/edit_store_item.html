@@ -1,0 +1,375 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+  {% load static %}
+  {% load form_filters %}
+  {% load custom_filters %}
+  <style>
+    /* Original styles */
+    
+    input[type='checkbox'][name$='-DELETE'],
+    label[for$='-DELETE'] {
+      display: none;
+    }
+    
+    /* Custom style for the file upload button */
+    .custom-file-input {
+      display: none;
+    }
+    
+    /* Style the label to look like a button */
+    .custom-file-label {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      text-align: center;
+      border-radius: 5px;
+    }
+    
+    /* Optionally, style the text that shows the selected file name */
+    .file-name {
+      margin-left: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    
+    /* Display the selected file name */
+    
+    .form-container {
+      margin-top: 25px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      margin-bottom: 5px;
+    }
+    
+    .form-actions {
+      margin-top: 20px;
+      text-align: right;
+    }
+    
+    .btn {
+      margin-right: 10px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    th,
+    td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+    
+    /* Variation select group styles */
+    .variation-select-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .variation-select-group select {
+      color: #45a049;
+      appearance: none;
+      background-clip: padding-box;
+      background-color: rgb(247, 247, 249);
+      border-bottom-color: rgb(221, 221, 221);
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+      border-bottom-style: solid;
+      border-bottom-width: 0.8px;
+      border-image-outset: 0;
+      border-image-repeat: stretch;
+      border-image-slice: 100%;
+      border-image-source: none;
+      border-image-width: 1;
+      border-left-color: rgb(221, 221, 221);
+      border-left-style: solid;
+      border-left-width: 0.8px;
+      border-right-color: rgb(221, 221, 221);
+      border-right-style: solid;
+      border-right-width: 0.8px;
+      border-top-color: rgb(221, 221, 221);
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
+      border-top-style: solid;
+      border-top-width: 0.8px;
+      box-sizing: border-box;
+      color: rgb(85, 89, 92);
+      display: block;
+      font-size: 16px;
+      font-weight: 300;
+      letter-spacing: normal;
+      line-height: 24px;
+      margin-bottom: 0px;
+      margin-left: 0px;
+      margin-right: 0px;
+      margin-top: 0px;
+      overflow-wrap: normal;
+      padding-bottom: 8px;
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-top: 8px;
+      text-align: start;
+      text-transform: none;
+      transition-behavior: normal;
+      transition-delay: 0s;
+      transition-duration: 0.3s;
+    
+      transition-timing-function: ease;
+    }
+    
+    .add-variation-btn {
+      cursor: pointer;
+      padding: 5px;
+      transition: color 0.3s;
+    }
+    
+    .add-variation-btn:hover {
+      color: #45a049 !important;
+    }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 50%;
+      max-width: 500px;
+      border-radius: 5px;
+      position: relative;
+      animation: slideIn 0.3s;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    
+    .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    
+    .close:hover {
+      color: #000;
+    }
+    
+    .modal-body {
+      margin-bottom: 20px;
+    }
+    
+    /* Form control styles */
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+    }
+    .custom-width {
+      display: table-row;
+      width: auto;
+    }
+  </style>
+  <div class="main-content">
+    <h1>Edit Store Item</h1>
+
+    <!-- Variation Popup Modal -->
+    <div id="variation-popup" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add New Variation</h3>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          {% csrf_token %}
+          <div class="form-group">
+            <input type="text" name="name" class="form-control" placeholder="Variation Name" required />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Form Container -->
+    <div class="form-container">
+      <form method="POST" enctype="multipart/form-data" id="edit-store-item-form">
+        {% csrf_token %}
+        {{ store_item_form.non_field_errors }}
+
+        <!-- Basic Fields -->
+        <div class="form-group">
+          <label>Status:</label>
+          {{ store_item_form.status }}
+        </div>
+
+        <div class="form-group">
+          <label>Listing Name:</label>
+          {{ store_item_form.item_name }}
+        </div>
+
+        <div class="form-group">
+          <label>Description:</label>
+          {{ store_item_form.item_description }}
+        </div>
+
+        <div class="form-group">
+          <label>Price:</label>
+          {{ store_item_form.item_price }}
+        </div>
+
+        <div class="form-group">
+          <label>Quantity:</label>
+          {{ store_item_form.item_quantity }}
+        </div>
+
+        <div class="form-group">
+          <label>Choose Tags:</label>
+          {{ store_item_form.tags }}
+        </div>
+
+        <div class="form-group">
+          <label>Primary Color:</label>
+          {{ store_item_form.primary_color }}
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Color:</label>
+          {{ store_item_form.secondary_color }}
+        </div>
+
+        <div class="form-group">
+          <label>Width:</label>
+          {{ store_item_form.width }}
+        </div>
+
+        <div class="form-group">
+          <label>Height:</label>
+          {{ store_item_form.height }}
+        </div>
+
+        <div class="form-group">
+          <label class="btn btn-success" for="id_item_photo">Upload Image</label>
+          {{ store_item_form.item_photo }}
+          <span class="file-name">No file chosen</span>
+        </div>
+
+        <hr class="hr--large" />
+        <br />
+
+        <!-- Variations Management Section -->
+        <h3>Variations Management</h3>
+        {{ variation_formset.management_form }}
+
+        <div id="variation-container">
+          {% for variation_form in variation_formset %}
+            {% if variation_form.instance.pk or variation_form.initial %}
+              <div class="variation-form" data-index="{{ forloop.counter0 }}" data-variation-id="{{ variation_form.instance.id|default:'' }}">
+                <div class="variation-fields">
+                  {% with choices_formset=choices_formsets|index:forloop.counter0 %}
+                    {{ choices_formset.management_form }}
+                    <div class="variation-select-group">
+                      {{ variation_form.variation }}
+                      <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+                      <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                    </div>
+
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Choice Name</th>
+                          <th>Price Increment</th>
+                        </tr>
+                      </thead>
+                      <tbody class="choices-container">
+                        {% for choice_form in choices_formset %}
+                          <tr class="choice-row" data-choice-id="{{ choice_form.instance.id|default:'' }}">
+                            <td>
+                              {{ choice_form.id }}
+                              {{ choice_form.DELETE }}
+                              {{ choice_form.name|add_class:'form-control custom-width' }}
+                              <a href="#" class="remove-choice fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px; margin-right: 10px;"></a>
+                              {% if forloop.last %}
+                                <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" variation-index="{{ forloop.parentloop.counter0 }}"></a>
+                              {% endif %}
+                            </td>
+                            <td>{{ choice_form.price_increment|add_class:'form-control custom-width' }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  {% endwith %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <button type="button" id="add-variation" class="btn btn-success mt-3">Add Variation</button>
+
+        <div class="form-actions mt-4">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% block extra_js %}
+    <script src="{% static 'js/edit-store-item.js' %}"></script>
+  {% endblock %}
+{% endblock %}

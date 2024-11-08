@@ -26,7 +26,7 @@ from django.db.models import Count
 from orders.models import Order
 import logging
 from django.http import JsonResponse
-
+from django.db import transaction
 
 def home(request):
     app_config = apps.get_app_config('TheApp')
@@ -159,37 +159,172 @@ def add_store_item(request):
     return render(request, 'add_store_item.html', context)
 
 
+def edit_store_item(request, pk):
+    store_item = get_object_or_404(StoreItems, pk=pk)
+
+    if request.method == 'POST':
+        store_item_form = StoreItemForm(
+            request.POST, request.FILES, instance=store_item)
+
+        if store_item_form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Save the main store item
+                    store_item = store_item_form.save()
+
+                    # Get total number of variations from POST data
+                    total_variations = int(
+                        request.POST.get('variation-TOTAL_FORMS', 0))
+
+                    # Get existing variations
+                    existing_variations = list(
+                        ItemVariation.objects.filter(item=store_item))
+                    existing_variation_count = len(existing_variations)
+
+                    # Process each variation
+                    for i in range(total_variations):
+                        variation_data = {
+                            'variation': request.POST.get(f'variation-{i}-variation'),
+                        }
+
+                        # Check if this is an existing variation or new one
+                        if i < existing_variation_count:
+                            # Update existing variation
+                            variation = existing_variations[i]
+                            if request.POST.get(f'variation-{i}-DELETE') == 'on':
+                                variation.delete()
+                                continue
+
+                            variation.variation_id = variation_data['variation']
+                            variation.save()
+                        else:
+                            # Create new variation if variation is selected
+                            if variation_data['variation']:
+                                variation = ItemVariation.objects.create(
+                                    item=store_item,
+                                    variation_id=variation_data['variation']
+                                )
+                            else:
+                                continue
+
+                        # Process choices for this variation
+                        total_choices = int(request.POST.get(
+                            f'choices_{i}-TOTAL_FORMS', 0))
+                        existing_choices = list(Choices.objects.filter(
+                            variation=variation)) if i < existing_variation_count else []
+                        existing_choices_count = len(existing_choices)
+
+                        for j in range(total_choices):
+                            choice_data = {
+                                'name': request.POST.get(f'choices_{i}-{j}-name'),
+                                'price_increment': request.POST.get(f'choices_{i}-{j}-price_increment') or 0
+                            }
+
+                            # Skip if no name provided
+                            if not choice_data['name']:
+                                continue
+
+                            if j < existing_choices_count:
+                                # Update existing choice
+                                choice = existing_choices[j]
+                                if request.POST.get(f'choices_{i}-{j}-DELETE') == 'on':
+                                    choice.delete()
+                                    continue
+
+                                choice.name = choice_data['name']
+                                choice.price_increment = choice_data['price_increment']
+                                choice.save()
+                            else:
+                                # Create new choice
+                                Choices.objects.create(
+                                    variation=variation,
+                                    name=choice_data['name'],
+                                    price_increment=choice_data['price_increment']
+                                )
+
+                    messages.success(request, 'Item updated successfully!')
+                    return redirect('dashboard:store_items_list')
+
+            except Exception as e:
+                messages.error(request, f'Error saving item: {str(e)}')
+                print(f"Error details: {str(e)}")
+
+        else:
+            messages.error(request, 'Please correct the errors below.')
+            print("Store item form errors:", store_item_form.errors)
+
+    else:
+        store_item_form = StoreItemForm(instance=store_item)
+
+        # Get existing variations and choices
+        variations = ItemVariation.objects.filter(item=store_item)
+
+        # Initialize formsets
+        variation_formset = ItemVariationsFormSet(
+            instance=store_item,
+            prefix='variation',
+            queryset=variations
+        )
+
+        choices_formsets = []
+        for i, variation in enumerate(variations):
+            choices_formset = ChoiceFormSet(
+                prefix=f'choices_{i}',
+                instance=variation,
+                queryset=Choices.objects.filter(variation=variation)
+            )
+            choices_formsets.append(choices_formset)
+
+        # Add empty choices formset if no variations exist
+        if not choices_formsets:
+            choices_formsets = [ChoiceFormSet(prefix='choices_0')]
+
+    context = {
+        'store_item_form': store_item_form,
+        'variation_formset': variation_formset if 'variation_formset' in locals() else None,
+        'choices_formsets': choices_formsets,
+        'store_item': store_item,
+        'is_edit': True
+    }
+
+    return render(request, 'edit_store_item.html', context)
+
+
+def delete_choice(request, choice_id):
+    """Delete a specific choice."""
+    if request.method == 'POST':
+        try:
+            choice = get_object_or_404(Choices, id=choice_id)
+            choice.delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def delete_variation(request, variation_id):
+    """Delete a variation and all its associated choices."""
+    if request.method == 'POST':
+        try:
+            variation = get_object_or_404(ItemVariation, id=variation_id)
+            # This will automatically delete associated choices due to CASCADE
+            variation.delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
 def add_variation_with_choices(request):
     form_index = int(request.GET.get('form_index', 0))
     variation_form = ItemVariationsForm(prefix=f'variation-{form_index}')
     choices_formset = ChoiceFormSet(prefix=f'choices_{form_index}')
-
     context = {
         'form_index': form_index,
         'variation_form': variation_form,
         'choices_formset': choices_formset,
     }
     return render(request, 'variation_with_choices.html', context)
-
-
-def add_variation(request):
-    try:
-        name = request.POST.get('name')
-        if not name:
-            return JsonResponse({'success': False, 'error': 'Name is required'})
-
-        variation = Variation.objects.create(name=name)
-
-        return JsonResponse({
-            'success': True,
-            'variation': {
-                'id': variation.id,
-                'name': variation.name
-            }
-        })
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
 
 def add_choice_field(request):
     variation_index = request.GET.get('variation_index', 0)

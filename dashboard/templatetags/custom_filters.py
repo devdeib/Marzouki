@@ -19,6 +19,12 @@ def get_item(lst, index):
 
 @register.filter
 def index(sequence, position):
-    return sequence[position]
+    try:
+        return sequence[position]
+    except (IndexError, TypeError):
+        return None
 
 
+@register.filter
+def is_empty(value):
+    return value is None or value == ''

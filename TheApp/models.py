@@ -57,8 +57,7 @@ class StoreItems(models.Model):
     item_description = models.TextField(blank=True)
     item_quantity = models.IntegerField(default=0)  # Add the quantity field
     variations = models.ManyToManyField('Variation', through='ItemVariation')
-    item_variations = models.ManyToManyField(
-        'ItemVariation', blank=True, default=True)  # Add this line
+    
 
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now=True)
@@ -72,6 +71,9 @@ class StoreItems(models.Model):
         null=True, blank=True)
     height = models.FloatField(
         null=True, blank=True)
+    
+    class Meta:
+        verbose_name_plural = "Store Items"
 
 
 class Cart(models.Model):
@@ -110,11 +112,18 @@ class Choices(models.Model):
 
 
 class ItemVariation(models.Model):
-    item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
+    item = models.ForeignKey(
+        StoreItems,
+        on_delete=models.CASCADE,
+        related_name='item_variations'  # Add this explicit related_name
+    )
     variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.item.item_name} - {self.variation.name}"
+
+    class Meta:
+        verbose_name_plural = "Item Variations"
 
 
 class StoreItemImage(models.Model):

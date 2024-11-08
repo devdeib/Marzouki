@@ -11,36 +11,45 @@ class StoreItemImageForm(forms.ModelForm):
 
 
 class ItemVariationsForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = ItemVariation
-        fields = ['variation']
-    widgets = {
-        'variation': forms.Select(attrs={'class': 'form-control'})
-    }
+        fields = ['id', 'variation']
+        widgets = {
+            'variation': forms.Select(attrs={'class': 'form-control'})
+        }
 
 
 class ChoiceForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = Choices
-        fields = ['name', 'price_increment']
+        fields = ['id', 'name', 'price_increment']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'price_increment': forms.NumberInput(attrs={'class': 'form-control'})
+        }
 
 
+# Update formset definitions
 ItemVariationsFormSet = inlineformset_factory(
     StoreItems,
     ItemVariation,
     form=ItemVariationsForm,
+    fields=['id', 'variation'],
     extra=1,
-    can_delete=True,
-    validate_min=False
+    can_delete=True
 )
 
 ChoiceFormSet = inlineformset_factory(
     ItemVariation,
     Choices,
     form=ChoiceForm,
+    fields=['id', 'name', 'price_increment'],
     extra=1,
-    can_delete=True,
-    validate_min=False
+    can_delete=True
 )
 
 
@@ -98,6 +107,14 @@ class VariationForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control'})
 
+
+class VariationCreateForm(forms.ModelForm):
+    class Meta:
+        model = Variation
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
+        }
 
 class ItemVariationForm(forms.ModelForm):
     class Meta:

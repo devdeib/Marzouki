@@ -31,10 +31,17 @@ urlpatterns = [
          views.delete_discount, name='delete_discount'),
     path('orders/', views.order_list, name='order_list'),
     path('variations/', views.variation_list, name='variation_list'),
-    path('variations/add/', views.add_variation, name='add_variation'),
+   
     path('add-variation-with-choices/', views.add_variation_with_choices,
          name='add_variation_with_choices'),
     path('add-choice-field/', views.add_choice_field,
          name='add_choice_field'),  # Add this line
-    path('add-variation/', views.add_variation, name='add_variation'),
+    path('store_items/<int:pk>/edit/',
+         views.edit_store_item, name='edit_store_item'),
+    path('delete-choice/<int:choice_id>/',
+         views.delete_choice, name='delete_choice'),
+    path('delete-variation/<int:variation_id>/',
+         views.delete_variation, name='delete_variation'),
+
+    
 ]

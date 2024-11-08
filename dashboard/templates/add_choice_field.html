@@ -1,5 +1,7 @@
+{% load custom_filters %}
+{% load form_filters %}
 <tr class="choice-row">
    
-    <td>{{ choice_form.name }} <a class="remove-choice fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px; margin-right: 10px;"></a></td>
-    <td>{{ choice_form.price_increment }}</td>
+    <td>{{ choice_form.name|add_class:"form-control custom-width" }}<a class="remove-choice fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px; margin-right: 10px;"></a></td>
+    <td>{{ choice_form.price_increment|add_class:"form-control custom-width" }}</td>
 </tr>

@@ -36,7 +36,7 @@
                 {% for item in itemss %}
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card bg-light">
-                            <a href="{% url 'paint_detail' item.pk %}" style="text-decoration: none">
+                            <a href="{% url 'dashboard:edit_store_item' item.pk %}" style="text-decoration: none">
                                 <div class="card-body">
                                     <div class="text-center">
                                         <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'"/>

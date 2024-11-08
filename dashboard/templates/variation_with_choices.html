@@ -1,4 +1,6 @@
 {% load static %}
+{% load custom_filters %}
+{% load form_filters %}
 <div class="variation-form" data-index="{{ form_index }}">
   <div class="variation-fields">
     <div class="variation-select-group">
@@ -18,14 +20,14 @@
         {% for choice_form in choices_formset %}
           <tr class="choice-row">
             <td>
-              {{ choice_form.name }}
+              {{ choice_form.name|add_class:"form-control custom-width" }}
               {% if forloop.last %}
                 <a href="#" class="add-choice-link fa fa-plus" 
                    style="text-decoration: none; color:#4caf50; margin-left:10px" 
                    data-variation-index="{{ form_index }}"></a>
               {% endif %}
             </td>
-            <td>{{ choice_form.price_increment }}</td>
+            <td>{{ choice_form.price_increment|add_class:"form-control custom-width" }}</td>
             
           </tr>
         {% endfor %}

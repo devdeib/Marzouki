@@ -326,7 +326,7 @@
                     <div class="variation-select-group">
                       {{ variation_form.variation }}
                       <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
-                      <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                      <a href="#" class="remove-choice fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
                     </div>
 
                     <table>
@@ -345,7 +345,7 @@
                               {{ choice_form.name|add_class:'form-control custom-width' }}
                               <a href="#" class="remove-choice fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px; margin-right: 10px;"></a>
                               {% if forloop.last %}
-                                <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" variation-index="{{ forloop.parentloop.counter0 }}"></a>
+                                <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
                               {% endif %}
                             </td>
                             <td>{{ choice_form.price_increment|add_class:'form-control custom-width' }}</td>
@@ -370,6 +370,7 @@
   </div>
 
   {% block extra_js %}
+    <script src="{% static 'js/store-item-form.js' %}"></script>
     <script src="{% static 'js/edit-store-item.js' %}"></script>
   {% endblock %}
 {% endblock %}

@@ -19,12 +19,13 @@
       <!-- Header content -->
       {% include 'partials/_header.html' %}
     </div>
-
+  <div class="dashboard-wrapper">  
     <div class="sidebar">
       <div class="sidebar-content">
         <h1 class="sidebar-header text-center" style="margin-top: -10px">
           Shop Manager
         </h1>
+        <hr class="hr--large">
         <a
           href="{% url 'dashboard:admin_home' %}"
           class="sidebar-item {% if request.resolver_match.url_name == 'admin_home' %}active{% endif %}"
@@ -63,16 +64,83 @@
         >
       </div>
     </div>
-
-    <main>{% block content %}{% endblock %}</main>
+    <div role="main">
+        {% block content %}{% endblock %}
+    </div>
+  </div>
+    
 
     <!-- Footer content -->
     {% include 'partials/_footer.html' %}
   </body>
   <style>
-    .sidebar-item.active {
-      background-color: #e4e4e4; /* Highlight color */
-      /* Text color */
+    /* Basic reset */
+    body {
+        margin: 0;
+        padding: 0;
     }
-  </style>
+
+    /* Header stays at top */
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px; /* Adjust to your header height */
+        background: white;
+        z-index: 1000;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 60px; /* Match header height */
+        left: 0;
+        width: 250px;
+        height: calc(100vh - 60px); /* Viewport height minus header height */
+        background: #f7f7f7;
+        border-right: 1px solid #e5e7eb;
+        overflow-y: auto;
+        z-index: 100;
+    }
+
+    /* Main content container */
+    .dashboard-wrapper {
+        padding-top: 60px; /* Match header height */
+    }
+
+    /* Main content area */
+    [role="main"] {
+        
+        padding: 20px;
+    }
+
+    /* Sidebar styling */
+    .sidebar-content {
+        padding: 20px;
+    }
+    .sidebar-header {
+      display: block ruby;
+    }
+    .sidebar-item {
+        display: block;
+        padding: 10px 15px;
+        color: #333;
+        text-decoration: none;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+
+    .sidebar-item:hover {
+        background-color:rgb(234, 234, 234);
+    }
+
+    .sidebar-item.active {
+        background-color: rgb(231, 231, 231);
+    }
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+</style>
 </html>

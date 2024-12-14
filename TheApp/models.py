@@ -76,6 +76,27 @@ class StoreItems(models.Model):
         verbose_name_plural = "Store Items"
 
 
+class StoreItemImage(models.Model):
+    item = models.ForeignKey(
+        StoreItems, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='items_media/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.item.item_name} Image"
+
+
+class StoreItemVideo(models.Model):
+    item = models.ForeignKey(
+        StoreItems, related_name='videos', on_delete=models.CASCADE)
+    video_file = models.FileField(upload_to='items_videos/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.item.item_name} Video"
+
+
+
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(
@@ -126,12 +147,7 @@ class ItemVariation(models.Model):
         verbose_name_plural = "Item Variations"
 
 
-class StoreItemImage(models.Model):
-    item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='items_media/')
 
-    def __str__(self):
-        return f"{self.item.item_name} Image"
 
 
 class Discount(models.Model):

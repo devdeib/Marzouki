@@ -222,11 +222,10 @@
           width: 100%;
           padding: 8px 12px;
         }
-        .custom-width{
+        .custom-width {
           display: table-row;
           width: auto;
         }
-        
       </style>
       <title>Add New Store Item</title>
     </head>
@@ -293,25 +292,79 @@
             <p>Height:</p>
             {{ store_item_form.height }}
             <p></p>
-            <div class="form-group">
-              <label class="custom-file-label" for="id_item_photo">Upload Image</label>
-              {{ store_item_form.item_photo }}
-              <span class="file-name">No file chosen</span>
+            <p>Photos:</p>
+            <div class="main-photo-section">
+              <div class="form-group">
+                {{ store_item_form.item_photo }}
+                {% if store_item.item_photo %}
+                  <p class="mt-2">Current: {{ store_item.item_photo.name }}</p>
+                {% endif %}
+              </div>
             </div>
+            <!-- Additional Photos Section -->
+            <div class="additional-photos-section">
+              {{ image_formset.management_form }}
 
-              <hr class="hr--large" />
-              <br />
-              <h3>Variations Managment</h3>
+              <ul class="image-list" id="image-list">
+                {% for form in image_formset %}
+                  {% if form.instance.pk and form.instance.image %}
+                    <li>
+                      {{ form.id }}
+                      <span class="file-name">{{ form.instance.image.name }}</span>
+                      <button type="button" class="remove-image" title="Remove image"><i class="fa fa-times"></i></button>
+                      {{ form.DELETE.as_hidden }}
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
 
-              <!-- Variation formset management form -->
-              {{ variation_formset.management_form }}
+              <div id="images-container" style="display: none;">
+                {% for form in image_formset %}
+                  <div class="image-form">{{ form.image }}</div>
+                {% endfor %}
+              </div>
+              <!-- Empty form template -->
+              <div class="empty-form image-form" style="display: none;">{{ image_formset.empty_form }}</div>
+              <button type="button" class="btn btn-success btn-sm add-image-btn">Add Image</button>
+            </div>
+            <br />
 
-            <div id="variation-container">
+            <!-- Videos Section -->
+            <p>Video of the product:</p>
+            <div class="media-upload-section media-section">
+              {{ video_formset.management_form }}
+
+              <ul class="video-list" id="video-list">
+                {% for form in video_formset %}
+                  {% if form.instance.pk and form.instance.video_file %}
+                    <li>
+                      {{ form.id }}
+                      <i class="fa fa-video-camera mr-2"></i>
+                      <span class="file-name">{{ form.instance.video_file.name }}</span>
+                      <button type="button" class="remove-video" title="Remove video"><i class="fa fa-times"></i></button>
+                      {{ form.DELETE.as_hidden }}
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              <div id="videos-container" style="display: none;">
+                {% for form in video_formset %}
+                  <div class="video-form">{{ form.video_file }}</div>
+                {% endfor %}
+              </div>
+              <button type="button" class="btn btn-success btn-sm add-video-btn">ADD VIDEO</button>
+            </div>
+            <hr class="hr--large" />
+            <br />
+            <h3>Variations Managment</h3>
+
+            <!-- Variation formset management form -->
+            {{ variation_formset.management_form }}
+
+            <div id="variation-container" index="{{ form_index }}">
               {% for variation_form in variation_formset %}
                 <div class="variation-form" data-index="{{ forloop.counter0 }}">
                   <div class="variation-fields">
-                    <!-- Wrap variation select in group -->
-
                     {% with choices_formset=choices_formsets|index:forloop.counter0 %}
                       {{ choices_formset.management_form }}
                       <table>
@@ -326,17 +379,18 @@
                             <div class="variation-select-group">
                               {{ variation_form.variation }}
                               <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+                              <!-- Added trash icon for variation -->
+                              <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                              
                             </div>
-                            
                             <tr class="choice-row">
                               <td>
-                                {{ choice_form.name|add_class:"form-control custom-width" }}
-                                
+                                {{ choice_form.name|add_class:'form-control custom-width' }}
                                 {% if forloop.last %}
                                   <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
                                 {% endif %}
                               </td>
-                              <td>{{ choice_form.price_increment|add_class:"form-control custom-width" }}</td>
+                              <td>{{ choice_form.price_increment|add_class:'form-control custom-width' }}</td>
                             </tr>
                           {% endfor %}
                         </tbody>
@@ -353,6 +407,7 @@
         </div>
       </div>
       <script src="{% static 'js/store-item-form.js' %}"></script>
+      <script src="{% static 'js/image-upload.js.js' %}"></script>
     </body>
   </html>
 {% endblock %}

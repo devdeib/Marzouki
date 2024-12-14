@@ -102,62 +102,110 @@ logger = logging.getLogger(__name__)
 
 
 def add_store_item(request):
+    # Handle AJAX video upload
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
+        try:
+            # Get the video file from request.FILES
+            video_file = next(iter(request.FILES.values()))
+
+            # Process the video file if needed
+            # For now, just return success to show progress
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+    # Regular form submission handling
     if request.method == 'POST':
         store_item_form = StoreItemForm(request.POST, request.FILES)
+        image_formset = StoreItemImageFormSet(
+            request.POST, request.FILES, prefix='images')
+        video_formset = StoreItemVideoFormSet(
+            request.POST, request.FILES, prefix='videos')
         variation_formset = ItemVariationsFormSet(
             request.POST, prefix='variation')
-
         # Create a list to store all choices formsets
         choices_formsets = []
-
-        # Get the total number of variations
         total_variations = int(request.POST.get('variation-TOTAL_FORMS', 0))
-
-        # Collect all choices formsets
         for i in range(total_variations):
             choices_formset = ChoiceFormSet(
                 request.POST,
                 prefix=f'choices_{i}'
             )
             choices_formsets.append(choices_formset)
-
-        # Check if all forms are valid
         choices_valid = all(formset.is_valid() for formset in choices_formsets)
-
-        if store_item_form.is_valid() and variation_formset.is_valid() and choices_valid:
-            # Save store item
-            store_item = store_item_form.save()
-
-            # Save variations
-            variations = variation_formset.save(commit=False)
-            for i, variation in enumerate(variations):
-                variation.item = store_item
-                variation.save()
-
-                # Save choices for this variation
-                choices_formsets[i].instance = variation
-                choices_formsets[i].save()
-
-            return redirect('home')
+        if (store_item_form.is_valid() and image_formset.is_valid() and
+            video_formset.is_valid() and variation_formset.is_valid() and
+                choices_valid):
+            try:
+                with transaction.atomic():
+                    # Save store item
+                    store_item = store_item_form.save()
+                    # Save images
+                    image_formset.instance = store_item
+                    image_formset.save()
+                    # Save videos
+                    video_formset.instance = store_item
+                    video_formset.save()
+                    # Save variations
+                    variations = variation_formset.save(commit=False)
+                    for i, variation in enumerate(variations):
+                        variation.item = store_item
+                        variation.save()
+                        # Save choices for this variation
+                        choices_formsets[i].instance = variation
+                        choices_formsets[i].save()
+                    messages.success(
+                        request, 'Store item created successfully!')
+                    return redirect('dashboard:store_items_list')
+            except Exception as e:
+                messages.error(request, f'Error saving item: {str(e)}')
         else:
-            print("Form errors:")
-            print("Store item form:", store_item_form.errors)
-            print("Variation formset:", variation_formset.errors)
-            for i, formset in enumerate(choices_formsets):
-                print(f"Choices formset {i}:", formset.errors)
-
+            messages.error(request, 'Please correct the errors below.')
     else:
         store_item_form = StoreItemForm()
+        image_formset = StoreItemImageFormSet(prefix='images')
+        video_formset = StoreItemVideoFormSet(prefix='videos')
         variation_formset = ItemVariationsFormSet(prefix='variation')
         choices_formsets = [ChoiceFormSet(prefix=f'choices_0')]
 
     context = {
         'store_item_form': store_item_form,
+        'image_formset': image_formset,
+        'video_formset': video_formset,
         'variation_formset': variation_formset,
         'choices_formsets': choices_formsets,
+        'is_edit': False
     }
     return render(request, 'add_store_item.html', context)
 
+
+def add_variation(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            if name:
+                variation = Variation.objects.create(name=name)
+                return JsonResponse({
+                    'success': True,
+                    'variation': {
+                        'id': variation.id,
+                        'name': variation.name
+                    }
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Variation name is required'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
 
 def edit_store_item(request, pk):
     store_item = get_object_or_404(StoreItems, pk=pk)
@@ -165,123 +213,84 @@ def edit_store_item(request, pk):
     if request.method == 'POST':
         store_item_form = StoreItemForm(
             request.POST, request.FILES, instance=store_item)
+        image_formset = StoreItemImageFormSet(request.POST, request.FILES,
+                                              instance=store_item, prefix='images')
+        video_formset = StoreItemVideoFormSet(request.POST, request.FILES,
+                                              instance=store_item, prefix='videos')
+        variation_formset = ItemVariationsFormSet(
+            request.POST, prefix='variation')
 
-        if store_item_form.is_valid():
+        # Handle choices formsets
+        total_variations = int(request.POST.get('variation-TOTAL_FORMS', 0))
+        choices_formsets = []
+        for i in range(total_variations):
+            choices_formset = ChoiceFormSet(
+                request.POST,
+                prefix=f'choices_{i}'
+            )
+            choices_formsets.append(choices_formset)
+
+        choices_valid = all(formset.is_valid() for formset in choices_formsets)
+
+        if (store_item_form.is_valid() and image_formset.is_valid() and
+            video_formset.is_valid() and variation_formset.is_valid() and
+                choices_valid):
             try:
                 with transaction.atomic():
-                    # Save the main store item
+                    # Save main form
                     store_item = store_item_form.save()
 
-                    # Get total number of variations from POST data
-                    total_variations = int(
-                        request.POST.get('variation-TOTAL_FORMS', 0))
+                    # Save images
+                    image_formset.save()
 
-                    # Get existing variations
-                    existing_variations = list(
-                        ItemVariation.objects.filter(item=store_item))
-                    existing_variation_count = len(existing_variations)
+                    # Save videos
+                    video_formset.save()
 
-                    # Process each variation
-                    for i in range(total_variations):
-                        variation_data = {
-                            'variation': request.POST.get(f'variation-{i}-variation'),
-                        }
+                    # Save variations and choices
+                    variations = variation_formset.save(commit=False)
+                    for i, variation in enumerate(variations):
+                        variation.item = store_item
+                        variation.save()
+                        choices_formsets[i].instance = variation
+                        choices_formsets[i].save()
 
-                        # Check if this is an existing variation or new one
-                        if i < existing_variation_count:
-                            # Update existing variation
-                            variation = existing_variations[i]
-                            if request.POST.get(f'variation-{i}-DELETE') == 'on':
-                                variation.delete()
-                                continue
-
-                            variation.variation_id = variation_data['variation']
-                            variation.save()
-                        else:
-                            # Create new variation if variation is selected
-                            if variation_data['variation']:
-                                variation = ItemVariation.objects.create(
-                                    item=store_item,
-                                    variation_id=variation_data['variation']
-                                )
-                            else:
-                                continue
-
-                        # Process choices for this variation
-                        total_choices = int(request.POST.get(
-                            f'choices_{i}-TOTAL_FORMS', 0))
-                        existing_choices = list(Choices.objects.filter(
-                            variation=variation)) if i < existing_variation_count else []
-                        existing_choices_count = len(existing_choices)
-
-                        for j in range(total_choices):
-                            choice_data = {
-                                'name': request.POST.get(f'choices_{i}-{j}-name'),
-                                'price_increment': request.POST.get(f'choices_{i}-{j}-price_increment') or 0
-                            }
-
-                            # Skip if no name provided
-                            if not choice_data['name']:
-                                continue
-
-                            if j < existing_choices_count:
-                                # Update existing choice
-                                choice = existing_choices[j]
-                                if request.POST.get(f'choices_{i}-{j}-DELETE') == 'on':
-                                    choice.delete()
-                                    continue
-
-                                choice.name = choice_data['name']
-                                choice.price_increment = choice_data['price_increment']
-                                choice.save()
-                            else:
-                                # Create new choice
-                                Choices.objects.create(
-                                    variation=variation,
-                                    name=choice_data['name'],
-                                    price_increment=choice_data['price_increment']
-                                )
-
-                    messages.success(request, 'Item updated successfully!')
+                    messages.success(
+                        request, 'Store item updated successfully!')
                     return redirect('dashboard:store_items_list')
-
             except Exception as e:
-                messages.error(request, f'Error saving item: {str(e)}')
-                print(f"Error details: {str(e)}")
-
-        else:
-            messages.error(request, 'Please correct the errors below.')
-            print("Store item form errors:", store_item_form.errors)
-
+                messages.error(request, f'Error updating item: {str(e)}')
     else:
         store_item_form = StoreItemForm(instance=store_item)
+        image_formset = StoreItemImageFormSet(
+            instance=store_item, prefix='images')
+        video_formset = StoreItemVideoFormSet(
+            instance=store_item, prefix='videos')
 
-        # Get existing variations and choices
-        variations = ItemVariation.objects.filter(item=store_item)
-
-        # Initialize formsets
+        # Get existing variations
+        variations = store_item.item_variations.all()
         variation_formset = ItemVariationsFormSet(
             instance=store_item,
             prefix='variation',
             queryset=variations
         )
 
+        # Create choices formsets
         choices_formsets = []
         for i, variation in enumerate(variations):
             choices_formset = ChoiceFormSet(
                 prefix=f'choices_{i}',
                 instance=variation,
-                queryset=Choices.objects.filter(variation=variation)
             )
             choices_formsets.append(choices_formset)
 
-        # Add empty choices formset if no variations exist
         if not choices_formsets:
             choices_formsets = [ChoiceFormSet(prefix='choices_0')]
 
     context = {
         'store_item_form': store_item_form,
-        'variation_formset': variation_formset if 'variation_formset' in locals() else None,
+        'image_formset': image_formset,
+        'video_formset': video_formset,
+        'variation_formset': variation_formset,
         'choices_formsets': choices_formsets,
         'store_item': store_item,
         'is_edit': True

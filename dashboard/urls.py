@@ -31,7 +31,7 @@ urlpatterns = [
          views.delete_discount, name='delete_discount'),
     path('orders/', views.order_list, name='order_list'),
     path('variations/', views.variation_list, name='variation_list'),
-   
+    path('add-variation/', views.add_variation, name='add_variation'),
     path('add-variation-with-choices/', views.add_variation_with_choices,
          name='add_variation_with_choices'),
     path('add-choice-field/', views.add_choice_field,

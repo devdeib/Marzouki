@@ -6,6 +6,7 @@
     <div class="variation-select-group">
       {{ variation_form.variation }}
       <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+      <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a> 
     </div>
     {{ choices_formset.management_form }}
     <table>
@@ -35,4 +36,4 @@
     </table>
   </div>
 </div>
-<script src="{% static 'js/variation-form.js' %}"></script>
+

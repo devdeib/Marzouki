@@ -4,12 +4,6 @@ from django.forms.models import inlineformset_factory
 from django.forms import inlineformset_factory
 
 
-class StoreItemImageForm(forms.ModelForm):
-    class Meta:
-        model = StoreItemImage
-        fields = ['image']  # Specify the field you want to appear in the form
-
-
 class ItemVariationsForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
@@ -62,7 +56,7 @@ class StoreItemForm(forms.ModelForm):
             'status': forms.Select(choices=StoreItems.STATUS_CHOICES, attrs={'class': 'form-control'}),
             'item_name': forms.TextInput(attrs={'class': 'form-control'}),
             'item_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'item_photo': forms.ClearableFileInput(attrs={'class': 'custom-file-input'}),
+            'item_photo': forms.FileInput(attrs={'class': 'form-control'}),
             'item_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'item_quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'tags': forms.SelectMultiple(attrs={'class': 'form-control'}),
@@ -71,6 +65,43 @@ class StoreItemForm(forms.ModelForm):
             'width': forms.NumberInput(attrs={'class': 'form-control'}),
             'height': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
+class StoreItemImageForm(forms.ModelForm):
+    class Meta:
+        model = StoreItemImage
+        fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control'})
+        }
+
+
+class StoreItemVideoForm(forms.ModelForm):
+    class Meta:
+        model = StoreItemVideo
+        fields = ['video_file']
+        widgets = {
+            'video_file': forms.FileInput(attrs={'class': 'form-control'})
+        }
+
+
+# Create formsets for multiple images and videos
+StoreItemImageFormSet = inlineformset_factory(
+    StoreItems,
+    StoreItemImage,
+    form=StoreItemImageForm,
+    extra=1,
+    can_delete=True
+)
+
+StoreItemVideoFormSet = inlineformset_factory(
+    StoreItems,
+    StoreItemVideo,
+    form=StoreItemVideoForm,
+    extra=1,
+    can_delete=True
+)
+
 
 
 class SectionForm(forms.ModelForm):

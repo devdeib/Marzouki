@@ -57,6 +57,8 @@ class StoreItems(models.Model):
     item_description = models.TextField(blank=True)
     item_quantity = models.IntegerField(default=0)  # Add the quantity field
     variations = models.ManyToManyField('Variation', through='ItemVariation')
+    
+
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField('Tag', blank=True)
@@ -66,16 +68,42 @@ class StoreItems(models.Model):
         'Color', related_name='secondary_color_items', blank=True, null=True, on_delete=models.SET_NULL)
     video = models.FileField(upload_to='items_videos/', null=True, blank=True)
     width = models.FloatField(
-         null=True, blank=True)
+        null=True, blank=True)
     height = models.FloatField(
-         null=True, blank=True)
+        null=True, blank=True)
+    
+    class Meta:
+        verbose_name_plural = "Store Items"
+
+
+class StoreItemImage(models.Model):
+    item = models.ForeignKey(
+        StoreItems, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='items_media/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.item.item_name} Image"
+
+
+class StoreItemVideo(models.Model):
+    item = models.ForeignKey(
+        StoreItems, related_name='videos', on_delete=models.CASCADE)
+    video_file = models.FileField(upload_to='items_videos/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.item.item_name} Video"
+
 
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(
+        StoreItems, on_delete=models.CASCADE, blank=True, null=True, default=None)
 
     def __str__(self):
-        return f"{self.user.username} - {self.item.item_name}"
+        return f"{self.user.username} - {self.item}"
 
 
 class Tag(models.Model):
@@ -103,22 +131,23 @@ class Choices(models.Model):
     def __str__(self):
         return self.name
 
+
 class ItemVariation(models.Model):
-    item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
+    item = models.ForeignKey(
+        StoreItems,
+        on_delete=models.CASCADE,
+        related_name='item_variations'  # Add this explicit related_name
+    )
     variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return f"{self.item.item_name} - {self.variation.name}"
 
+    class Meta:
+        verbose_name_plural = "Item Variations"
 
 
 
-class StoreItemImage(models.Model):
-    item = models.ForeignKey(StoreItems, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='items_media/')
-
-    def __str__(self):
-        return f"{self.item.item_name} Image"
 
 
 class Discount(models.Model):

@@ -1,0 +1,119 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% block title %}Store Items List{% endblock %}
+{% block content %}
+
+<div class="main-content">
+    <div class="search-form-container mb-4">
+        <form action="{% url 'dashboard:dash_search' %}">
+            <div class="input-group">
+              <input type="search" class="search_admin" placeholder="Search for products" name="query">
+              <div class="input-group-append">
+                <button class="btn btn-secondary justify-content-end" type="submit">Search</button>
+              </div>
+              <div>
+                <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success add_btn">Add New Listing</a>
+              </div>
+              <br>
+              
+            </div>
+          </form>
+          <br>
+          <div>
+          <select id="action-select" class="btn btn-secondary" >
+            <option value="">Select Action</option>
+                  <option value="Active">Active</option>
+                  <option value="DR">Draft</option>
+                  <option value="delete">Delete</option>
+              </select>
+              <button class="btn btn-primary" style="margin-left: 5px;" type="button" onclick="submitForm()">Apply</button>
+            </div>
+    </div>
+    <form id="items-form" method="post" action="{% url 'dashboard:items_bulk_action' %}">
+        {% csrf_token %}
+        <div class="listing_container mt-3">
+            <div class="row">
+                {% for item in itemss %}
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card bg-light">
+                            <a href="{% url 'admin:TheApp_storeitems_change' item.pk %}" style="text-decoration: none">
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'"/>
+                                    </div>
+                                    <h4 class="text-center card-title">{{ item.item_name }}</h4>
+                                    <p class="card-text">Price: {{ item.item_price }}$</p>
+                                </div>
+                            </a>
+                            <div class="text-center" style="background-color: #f7f7f7;">
+                                <input class="form-check-input mycheck" type="checkbox" name="items" value="{{ item.pk }}" id="item{{ item.pk }}">
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No items available.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Pagination -->
+        <div class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if itemss.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ itemss.previous_page_number }}" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% endif %}
+            {% for num in itemss.paginator.page_range %}
+              {% if itemss.number == num %}
+                <li class="page-item active">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+              {% elif num > itemss.number|add:'-3' and num < itemss.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+            {% if itemss.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ itemss.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+    </form>
+</div>
+<script>
+    function submitForm() {
+        const form = document.getElementById('items-form');
+        const actionSelect = document.getElementById('action-select');
+        if (actionSelect.value) {
+            form.action = "{% url 'dashboard:items_bulk_action' %}" + '?action=' + actionSelect.value;
+            form.submit();
+        } else {
+            alert('Please select an action.');
+        }
+    }
+</script>
+<style>
+  .add_btn {
+    left: 430px;
+  }
+</style>
+{% endblock %}

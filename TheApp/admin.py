@@ -1,15 +1,13 @@
 from django.contrib import admin
-from .models import *
 from nested_admin import NestedTabularInline, NestedModelAdmin
+from .models import StoreItems, Section, Color, Tag, Discount, Variation, ItemVariation, StoreItemImage, Choices
 
 # Inlines
 
 
 class ItemImageInline(NestedTabularInline):
     model = StoreItemImage
-    extra = 1  # Number of empty extra forms
-    # This should be the name of the field used to order the images
-    
+    extra = 1
 
 
 class ItemDiscountInLine(admin.TabularInline):
@@ -18,27 +16,25 @@ class ItemDiscountInLine(admin.TabularInline):
 
 class ChoiceInline(NestedTabularInline):
     model = Choices
-    extra = 0  # No extra rows by default
-    # Add 'fk_name' if 'Choice' has multiple foreign keys to 'Variation'
+    extra = 0
 
 
 class ItemVariationInline(NestedTabularInline):
     model = ItemVariation
     inlines = [ChoiceInline, ]
-    extra = 0  # No extra rows by default
-
+    extra = 0
 
 # Admin configurations
+
+
 class StoreItemAdmin(NestedModelAdmin):
     list_display = ['item_name', 'item_price',
                     'item_status', 'item_quantity', 'created', 'updated']
     inlines = [ItemImageInline, ItemVariationInline]
 
 
-
 class SectionAdmin(admin.ModelAdmin):
     list_display = ['name']
-    # If you want to show items from a section, you can use inlines, but since it's a ForeignKey relation in StoreItems, it's not required here
 
 
 class VariationAdmin(admin.ModelAdmin):
@@ -64,9 +60,7 @@ class DiscountAdmin(admin.ModelAdmin):
 
 
 class StoreItemImageAdmin(admin.ModelAdmin):
-    inlines = [
-        ItemImageInline,
-    ]
+    list_display = ['item']
 
 
 # Registering models with their admins
@@ -75,6 +69,6 @@ admin.site.register(Section, SectionAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Discount, DiscountAdmin)
-# Assuming you don't need a custom admin for this model
 admin.site.register(Variation, VariationAdmin)
 admin.site.register(ItemVariation, ItemVariationAdmin)
+admin.site.register(StoreItemImage, StoreItemImageAdmin)

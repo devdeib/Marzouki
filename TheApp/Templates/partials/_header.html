@@ -1,5 +1,5 @@
 {% load static %}
-<header>
+<header style="position: sticky;">
   <div class="bs-component">
     <nav class="navbar navbar-expand-lg bg-primary navbar sticky-top px-3 py-3" data-bs-theme="dark">
       <div class="container-fluid mx-5">
@@ -14,17 +14,18 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'paints' %}">Shop</a>
             </li>
-            {% comment %} <li class="nav-item"> {% endcomment %}
-              {% comment %} <a class="nav-link" href="{% url 'about' %}">About</a> {% endcomment %}
-            {% comment %} </li> {% endcomment %}
+            
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+            
             {% if user.is_authenticated and user.is_superuser %}
               <li>
-                <a class="nav-link" href="{% url 'admin:index' %}">Dashboard</a>
+                <a class="nav-link" href="{% url 'dashboard:admin_home' %}">Shop Managment</a>
               </li>
             {% endif %}
           </ul>
         </div>
-        
       </div>
       <div class="header-icon d-flex justify-content-end mx-5">
         <a href="{% url 'login' %}" class="btn-sm">

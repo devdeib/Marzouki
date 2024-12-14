@@ -1,0 +1,126 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<head>
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+</head>
+
+<div class="etsy-shop-manager">
+  <div class="container">
+    <aside class="sidebar">
+      <h3>Shop Manager</h3>
+      <nav>
+        <ul>
+          <li>
+            <a href="#dashboard"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="{% url 'dashboard:users' %}"><i class="fas fa-users"></i> Users</a>
+          </li>
+          <li>
+            <a href="#listings"><i class="fas fa-list"></i> Listings</a>
+          </li>
+          <li>
+            <a href="#categories"><i class="fas fa-tags"></i> Categories</a>
+          </li>
+          <li>
+            <a href="#orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+          </li>
+          <li>
+            <a href="#finances"><i class="fas fa-dollar-sign"></i> Finances</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <section id="dashboard">
+        <h2>Dashboard</h2>
+        <div class="card">
+          <h3>Sales</h3>
+          <p>$1,234.56</p>
+        </div>
+        <div class="card">
+          <h3>Orders</h3>
+          <p>12</p>
+        </div>
+        <div class="card">
+          <h3>Visitors</h3>
+          <p>456</p>
+        </div>
+      </section>
+
+      <section id="listings">
+        <h2>Listings</h2>
+        <div class="listings">
+          <div class="listing">
+            <img src="{% static 'placeholder.png' %}" alt="Listing Image" />
+            <div class="listing-info">
+              <h3>Product Title</h3>
+              <p>$19.99</p>
+            </div>
+          </div>
+          <div class="listing">
+            <img src="{% static 'placeholder.png' %}" alt="Listing Image" />
+            <div class="listing-info">
+              <h3>Product Title</h3>
+              <p>$29.99</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="orders">
+        <h2>Orders</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#1234</td>
+              <td>2024-07-15</td>
+              <td>John Doe</td>
+              <td>$49.99</td>
+              <td>Shipped</td>
+            </tr>
+            <tr>
+              <td>#1235</td>
+              <td>2024-07-16</td>
+              <td>Jane Smith</td>
+              <td>$24.99</td>
+              <td>Processing</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="stats">
+        <h2>Stats</h2>
+        <p>
+          Graphical representation of sales, orders, and visitors would be here.
+        </p>
+      </section>
+
+      <section id="settings">
+        <h2>Settings</h2>
+        <p>Settings options for the shop.</p>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Etsy Shop Manager</p>
+    </footer>
+  </div>
+</div>
+{% endblock %}

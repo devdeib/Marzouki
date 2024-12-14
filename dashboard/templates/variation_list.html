@@ -1,0 +1,27 @@
+{% extends 'admin_base.html' %} {% load static %} {% block content %}
+<!DOCTYPE html>
+<html>
+    
+  <head>
+    <title>Variations</title>
+  </head>
+  <body>
+    <div class="main-content">
+    <h1>Variations</h1>
+    <ul>
+      {% for variation in variations %}
+      <li>
+        {{ variation.name }}
+        <ul>
+          {% for choice in variation.choices.all %}
+          <li>{{ choice.name }} - {{ choice.price_increment }}</li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ul>
+    
+    </div>
+  </body>
+</html>
+{% endblock %}

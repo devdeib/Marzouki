@@ -1,0 +1,73 @@
+{% extends 'admin_base.html' %}
+{% load form_filters %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Discount</title>
+    <style>
+        .container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            
+        }
+        
+        .form-field {
+            width: auto;
+            margin-bottom: 15px;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-field input, .form-field select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .form-actions {
+            text-align: right;
+        }
+        .form-actions button {
+            padding: 10px 20px;
+        
+            color: white;
+          
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1 class="mb-4">Edit Discount</h1>
+        
+            
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-field">
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field|add_class:"form-control" }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="form-actions">
+                        <button class="btn btn-success" type="submit">Save</button>
+                        <button class="btn btn-danger"><a style="text-decoration: none; color: white;" href="{% url 'dashboard:delete_discount' discount.pk %}" onclick="return confirm('Are you sure you want to delete this discount?');">Delete</a></button>
+                    </div>
+                </form>
+            
+   
+    </div>
+</body>
+</html>
+{% endblock %}

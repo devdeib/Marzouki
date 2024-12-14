@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Store Item Detail{% endblock %}
+{% block content %}
+<h1>{{ store_item.item_name }}</h1>
+<p>Price: ${{ store_item.item_price }}</p>
+<p>Status: {{ store_item.item_status }}</p>
+<!-- Additional details as needed -->
+{% endblock %}

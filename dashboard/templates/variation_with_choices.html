@@ -1,0 +1,39 @@
+{% load static %}
+{% load custom_filters %}
+{% load form_filters %}
+<div class="variation-form" data-index="{{ form_index }}">
+  <div class="variation-fields">
+    <div class="variation-select-group">
+      {{ variation_form.variation }}
+      <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+      <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a> 
+    </div>
+    {{ choices_formset.management_form }}
+    <table>
+      <thead>
+        <tr>
+          <th>Choice Name</th>
+          <th>Price Increment</th>
+         
+        </tr>
+      </thead>
+      <tbody class="choices-container">
+        {% for choice_form in choices_formset %}
+          <tr class="choice-row">
+            <td>
+              {{ choice_form.name|add_class:"form-control custom-width" }}
+              {% if forloop.last %}
+                <a href="#" class="add-choice-link fa fa-plus" 
+                   style="text-decoration: none; color:#4caf50; margin-left:10px" 
+                   data-variation-index="{{ form_index }}"></a>
+              {% endif %}
+            </td>
+            <td>{{ choice_form.price_increment|add_class:"form-control custom-width" }}</td>
+            
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+

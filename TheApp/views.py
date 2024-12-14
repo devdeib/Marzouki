@@ -127,7 +127,7 @@ def paint_detail(request, item_id):
             'discount': current_discount,  # Add the discount to context
             'item_images': item_images,
         }
-        
+
         return render(request, 'paint_detail.html', context)
 
     except StoreItems.DoesNotExist:
@@ -183,3 +183,7 @@ def search(request):
         results = StoreItems.objects.none()
 
     return render(request, 'search_results.html', {'results': results, 'sections': sections, 'query': query})
+
+
+def admin(request):
+    return render(request, 'base_admin.html')

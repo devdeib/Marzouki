@@ -29,17 +29,18 @@
     </style>
 </head>
 <body>
+    <hr class="hr--large">
     <div class="paint-detail-header text-center mt-1 font-weight-bold"></div>
     <div class="details-container px-4">
         <br />
         <div class="paint-img-container">
             <div class="paint-img">
-                <img id="mainImage" src="{% static item.item_photo %}" alt="{{ item.item_name }}" class="img-fluid" />
+                <img id="mainImage" src="{% static item.item_photo %}" alt="{{ item.item_name }}" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'" />
             </div>
             <div class="image-thumbnails-slider">
                 <div class="image-thumbnails" id="thumbnailsContainer">
                     {% for image in item_images %}
-                        <img class="thumbnail" src="{{ image.image.url }}" alt="Thumbnail" onclick="changeMainImage('{{ image.image.url }}');">
+                        <img class="thumbnail" src="{{ image.image.url }}" alt="Thumbnail"  onclick="changeMainImage('{{ image.image.url }}');">
                     {% endfor %}
                 </div>
             </div>

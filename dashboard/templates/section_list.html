@@ -1,0 +1,83 @@
+{% extends 'admin_base.html' %} 
+{% block title %}Sections List{% endblock %} 
+{% block content %}
+
+<div class="main-content">
+  <div class="header-container">
+    <h1>Select category to change:</h1>
+    <a
+      href="{% url 'dashboard:add_section' %}"
+      class="addlink btn btn-success add_btn"
+      >Add New category</a
+    >
+  </div>
+  <br>
+  <div class="listing_container">
+    <div class="row">
+      {% for section in sections %}
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card-body">
+            <div class="card-content">
+              <div>
+                <h5>{{ section.name }}</h5>
+                <p style="text-align: left;">Items: {{ section.item_count }}</p>
+              </div>
+              <a
+                href="{% url 'dashboard:section_detail' section.pk %}"
+                class="btn btn-primary btn-sm"
+              >
+                View
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<style>
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .addlink.add_btn {
+    margin-left: auto; /* Ensure the button is pushed to the right */
+  }
+
+  .listing_container .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .listing_container .col-lg-4 {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+  }
+
+  .card-body {
+    width: 100%;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f1f0f0;
+    text-align: left;
+  }
+
+  .card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-content h5 {
+    margin-bottom: 10px;
+  }
+
+  .card-content p {
+    margin: 0;
+  }
+</style>
+
+{% endblock %}

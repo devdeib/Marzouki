@@ -47,10 +47,10 @@
     </div>
 
     <!-- Right column for Items -->
-    <div class="col-md-8">
+    <div class="col-md-9">
       <div class="row">
         {% for item in items %}
-        <div class="col-lg-4 col-md-6 mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
           <div class="card bg-light">
             <a
               href="{% url 'paint_detail' item.pk %}"
@@ -62,6 +62,7 @@
                     src="{% static item.item_photo %}"
                     alt="Paint Photo"
                     class="img-fluid"
+                    onerror="this.src='{% static 'imgs/default.png' %}'"
                   />
                 </div>
                 <h4 class="text-center card-title">{{ item.item_name }}</h4>

@@ -1,7 +1,7 @@
 <!-- search_results.html -->
 {% extends 'base.html' %} {% load static %} {% block content %}
 <div class="paints-header text-center mt-3 font-weight-bold">
-  <h1>Search Results for "{{ query }}"</h1>
+  <h2>Search Results for "{{ query }}"</h2>
 </div>
 <body>
     <div class="container-fluid px-4 mt-3">
@@ -48,6 +48,7 @@
                         src="{% static item.item_photo %}"
                         alt="Paint Photo"
                         class="img-fluid"
+                        onerror="this.src='{% static 'imgs/default.png' %}'"
                       />
                     </div>
                     <h4 class="text-center card-title">{{ item.item_name }}</h4>

@@ -1,0 +1,72 @@
+{% extends "admin_base.html" %} {% load form_filters %} {% block content %}
+{% if messages %}
+<div class="messages">
+  {% for message in messages %}
+  <div class="alert alert-success text-center">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="main-content container">
+  <h1 class="header-container mb-3">
+    Add New Category
+  </h1>
+  <div class="row">
+    <div class="col-md-6">
+      <form
+      method="post"
+      enctype="multipart/form-data"
+      action="{% url 'dashboard:add_section' %}"
+      class="needs-validation"
+      novalidate
+      >
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_item_description">Category name</label>
+        {{ form.name|add_class:"form-control" }}
+      </div>
+        <br />
+    
+        <button type="submit" class="btn btn-success">Create Category</button>
+        <a
+          href="{% url 'admin:TheApp_storeitems_changelist' %}"
+          class="btn btn-secondary"
+          >Cancel</a
+        >
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById("add-image").addEventListener("click", function () {
+    let input = document.createElement("input");
+    input.type = "file";
+    input.name = "extra_images[]";
+    input.className = "image-input";
+    input.multiple = true;
+
+    let container = document.getElementById("image-container");
+    container.insertBefore(input, document.getElementById("add-image"));
+  });
+</script>
+<style>
+  .custom-header {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    text-align: center;
+  }
+
+  .messages {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+  }
+
+  .alert {
+    align-items: center;
+  }
+
+  .main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+  }
+</style>
+{% endblock %}

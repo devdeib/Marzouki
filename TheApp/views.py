@@ -55,83 +55,81 @@ def home(request):
 
 def paints(request):
     items = StoreItems.objects.all()
-    paginator = Paginator(items, 12)  # Show 12 items per page
+    paginator = Paginator(items, 12)
     sections = Section.objects.all()
-
-    page = request.GET.get('page')  # Get the page number from the request
+    page = request.GET.get('page')
     try:
-        itemss = paginator.page(page)  # Get the items for the requested page
+        itemss = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         itemss = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         itemss = paginator.page(paginator.num_pages)
-
     return render(request, 'paints.html', {'items': items, 'sections': sections, 'itemss': itemss})
 
 
 def about(request):
-    return render(request, 'about.html')
+    artist = ArtistProfile.get_solo()
+    bio_form = ArtistBioForm(instance=artist)
+    photo_form = ArtistPhotoForm(instance=artist)
+
+    if request.method == 'POST':
+        if 'bio_submit' in request.POST and request.user.is_superuser:
+            bio_form = ArtistBioForm(request.POST, instance=artist)
+            if bio_form.is_valid():
+                bio_form.save()
+                return redirect('about')
+        elif 'photo_submit' in request.POST and request.user.is_superuser:
+            photo_form = ArtistPhotoForm(
+                request.POST, request.FILES, instance=artist)
+            if photo_form.is_valid():
+                photo_form.save()
+                return redirect('about')
+
+    return render(request, 'about.html', {
+        'artist': artist,
+        'bio_form': bio_form,
+        'photo_form': photo_form,
+    })
+
+# Optional: Restrict to superusers if you add separate edit views
+
+
+def superuser_required(user):
+    return user.is_superuser
 
 
 def paint_detail(request, item_id):
-    try:
-        store_item = StoreItems.objects.get(pk=item_id)
-        tags_of_item = store_item.tags.all()
-        related_items = StoreItems.objects.filter(
-            tags__in=tags_of_item).exclude(id=store_item.id).distinct()
-        item_variations = ItemVariation.objects.filter(item=store_item)
-        item_choices = Choices.objects.filter(id=store_item.id)
-        variations_and_percentage = store_item.variations.through.objects.filter(
-            item=store_item).select_related('variation').all()
-        current_discount = store_item.discount_set.filter(
-            start_date__lte=timezone.now(), end_date__gte=timezone.now()
-        ).first()
-        item_images = StoreItemImage.objects.filter(item=store_item)
+    store_item = get_object_or_404(StoreItems, pk=item_id)
+    tags_of_item = store_item.tags.all()
+    related_items = StoreItems.objects.filter(
+        tags__in=tags_of_item).exclude(id=store_item.id).distinct()
+    item_variations = ItemVariation.objects.filter(item=store_item)
+    variations_and_percentage = store_item.variations.through.objects.filter(
+        item=store_item).select_related('variation').all()
+    item_images = StoreItemImage.objects.filter(item=store_item)
 
-        # By default, the new price is the same as the item price
-        new_price = store_item.item_price
+    variations_with_choices = []
+    for item_variation in item_variations:
+        choices = Choices.objects.filter(variation=item_variation)
+        variations_with_choices.append({
+            'variation': item_variation.variation,
+            'choices': choices,
+        })
 
-        if current_discount:
-            new_price = current_discount.calculate_new_price(
-                store_item.item_price)
+    cart_product_form = CartAddProductForm(item=store_item)
 
-        variations_with_choices = []
-
-        variation_percentage_info = [
-            {
-                'variation_id': variation_pair.variation.id,
-                'variation_name': variation_pair.variation.name,
-                # 'price_increase_percentage': variation_pair.price_increase_percentage
-            }
-            for variation_pair in variations_and_percentage
-        ]
-
-        cart_product_form = CartAddProductForm(item=store_item)
-
-        for item_variation in item_variations:
-            choices = Choices.objects.filter(variation=item_variation)
-            variations_with_choices.append({
-                'variation': item_variation.variation,
-                'choices': choices,
-            })
-
-        context = {
-            'item': store_item,
-            'variations_with_choices': variations_with_choices,
-            'variation_percentage_info': variation_percentage_info,
-            'cart_product_form': cart_product_form,
-            'related_items': related_items,
-            'new_price': new_price,  # Add the new_price to context
-            'discount': current_discount,  # Add the discount to context
-            'item_images': item_images,
-        }
-
-        return render(request, 'paint_detail.html', context)
-
-    except StoreItems.DoesNotExist:
-        return render(request, '404.html', {})
+    context = {
+        'item': store_item,
+        'variations_with_choices': variations_with_choices,
+        'variation_percentage_info': [
+            {'variation_id': vp.variation.id, 'variation_name': vp.variation.name}
+            for vp in variations_and_percentage
+        ],
+        'cart_product_form': cart_product_form,
+        'related_items': related_items,
+        'item_images': item_images,
+    }
+    return render(request, 'paint_detail.html', context)
 
 
 # Make sure the argument here is 'section_id'

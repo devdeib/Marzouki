@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'payment',
     'nested_admin',
     'dashboard',
+  
 
 ]
 
@@ -156,7 +157,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Qatar'
 
 USE_I18N = True
 
@@ -184,3 +185,4 @@ CART_SESSION_ID = 'cart'
 stripe.api_key = STRIPE_SECRET_KEY = 'sk_test_51OZyQpGMLzi3uEVViwOcib3y0fxO3R2OKexZvdyNPUgc8nLjHkeOHHzJjqXHqkel0UJFJICJ8KafxymyY7FVdccA00Ithv6G9P' 
 STRIPE_SECRET_KEY = 'sk_test_51OZyQpGMLzi3uEVViwOcib3y0fxO3R2OKexZvdyNPUgc8nLjHkeOHHzJjqXHqkel0UJFJICJ8KafxymyY7FVdccA00Ithv6G9P'  # Secret key
 STRIPE_API_VERSION = '2024-04-10'
+

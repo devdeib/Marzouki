@@ -23,19 +23,17 @@ def order_create(request):
                     order=order,
                     storeitem=storeitem,
                     item_price=item['item_price'],
-                    quantity=item['quantity']
+                    quantity=item['quantity'],
+                    variation_name=item['variation'],           # Add variation
+                    choice_name=item['choice'],                 # Add choice
+                    choice_increment=item['choice_increment']   # Add increment
                 )
 
-            
-            # clear the cart
             cart.clear()
-            print("cleard")
+            print("cleared")
             request.session.save()
-            # set the order in the session
             request.session['order_id'] = order.id
-            # redirect for payment
             return redirect(reverse('payment:process'))
-
     else:
         form = OrderCreateForm()
     return render(request, 'create.html', {'cart': cart, 'form': form})
@@ -43,7 +41,5 @@ def order_create(request):
 
 @staff_member_required
 def admin_order_detail(request, order_id):
- order = get_object_or_404(Order, id=order_id)
- return render(request,
-               'admin/orders/order/detail.html',
-               {'order': order})
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'admin/orders/order/detail.html', {'order': order})

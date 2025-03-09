@@ -1,3 +1,4 @@
+from .models import ArtistProfile
 from django import forms
 from TheApp.models import *
 from django.contrib.auth.forms import UserCreationForm
@@ -25,3 +26,21 @@ class SignupForm(UserCreationForm):
 
 class SearchForm(forms.Form):
     query = forms.CharField(label='Search', max_length=200, required=False)
+
+
+class ArtistBioForm(forms.ModelForm):
+    class Meta:
+        model = ArtistProfile
+        fields = ['bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
+        }
+
+
+class ArtistPhotoForm(forms.ModelForm):
+    class Meta:
+        model = ArtistProfile
+        fields = ['photo']
+        widgets = {
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

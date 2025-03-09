@@ -8,24 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-        .image-thumbnails-slider {
-            align-items: center;
-            justify-content: center;
-            margin-top: 10px;
-            position: relative;
-            width: 600px;
-        }
-        .image-thumbnails {
-            overflow: hidden;
-            width: 500px;
-        }
-        .thumbnail {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            margin: 5px;
-            cursor: pointer;
-        }
+        .image-thumbnails-slider { align-items: center; justify-content: center; margin-top: 10px; position: relative; width: 600px; }
+        .image-thumbnails { overflow: hidden; width: 500px; }
+        .thumbnail { width: 80px; height: 80px; object-fit: cover; margin: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -40,23 +25,21 @@
             <div class="image-thumbnails-slider">
                 <div class="image-thumbnails" id="thumbnailsContainer">
                     {% for image in item_images %}
-                        <img class="thumbnail" src="{{ image.image.url }}" alt="Thumbnail"  onclick="changeMainImage('{{ image.image.url }}');">
+                        <img class="thumbnail" src="{{ image.image.url }}" alt="Thumbnail" onclick="changeMainImage('{{ image.image.url }}');">
                     {% endfor %}
                 </div>
             </div>
         </div>
         <div class="details">
             <h4 class="text-center title mb-2 mt-3">{{ item.item_name }}</h4>
-            {% with discount=item.discount_set.first %}
-                <div class="price" id="price-section">
-                    {% if discount %}
-                        <span id="discounted-price" style="color: green; font-weight: bold; font-size: 30px; margin-bottom: -10px;">${{ new_price }}</span>
-                        <span id="original-price" style="text-decoration: line-through; font-size: 20px; margin-bottom: -10px;">${{ item.item_price }}</span>
-                    {% else %}
-                        <span id="original-price" style="font-weight: bolder; font-size: 30px; margin-bottom: -10px; color: #2a2a2a;">${{ item.item_price }}.00</span>
-                    {% endif %}
-                </div>
-            {% endwith %}
+            <div class="price" id="price-section">
+                {% if item.get_final_price < item.item_price %}
+                    <span id="discounted-price" style="color: green; font-weight: bold; font-size: 30px; margin-bottom: -10px;">${{ item.get_final_price|floatformat:2 }}</span>
+                    <span id="original-price" style="text-decoration: line-through; font-size: 20px; margin-bottom: -10px;">${{ item.item_price|floatformat:2 }}</span>
+                {% else %}
+                    <span id="original-price" style="font-weight: bolder; font-size: 30px; margin-bottom: -10px; color: #2a2a2a;">${{ item.item_price|floatformat:2 }}</span>
+                {% endif %}
+            </div>
             <div class="tags mb-2">
                 {% for tag in item.tags.all %}
                     <span class="tag badge bg-light">{{ tag.name }}</span>
@@ -70,14 +53,15 @@
                 {% for variation in variations_with_choices %}
                     <div>
                         <p><strong class="personalize">{{ variation.variation.name }}:</strong></p>
-                        <select class="vdropbtn variation-selector mb-4" id="variation{{ variation.variation.id }}" name="variation{{ variation.variation.id }}" required>
+                        <select class="vdropbtn variation-selector mb-4" name="choice" required>
                             <option value="" disabled selected>Choose {{ variation.variation.name }}</option>
                             {% for choice in variation.choices %}
-                                <option value="{{ choice.value }}" data-price-increment="{{ choice.price_increment }}">
-                                    {{ choice.name }}{% if choice.price_increment %}(+{{ choice.price_increment }} $){% endif %}
+                                <option value="{{ choice.name }}" data-price-increment="{{ choice.price_increment }}">
+                                    {{ choice.name }}{% if choice.price_increment %}(+${{ choice.price_increment|floatformat:2 }}){% endif %}
                                 </option>
                             {% endfor %}
                         </select>
+                        <input type="hidden" name="variation" value="{{ variation.variation.name }}">
                     </div>
                 {% endfor %}
                 {% csrf_token %}
@@ -85,7 +69,7 @@
                 <div class="quantitys">
                     <select class="qdropbtn mb-3" name="quantity">
                         {% for value, label in cart_product_form.fields.quantity.choices %}
-                            <option value="{{ value }}" {% if cart_product_form.quantity.value == value %}selected{% endif %} >
+                            <option value="{{ value }}" {% if cart_product_form.quantity.value == value %}selected{% endif %}>
                                 {{ label }}
                             </option>
                         {% endfor %}
@@ -109,43 +93,34 @@
             function moveSlide(direction) {
                 var totalThumbnails = thumbnails.length;
                 var maxStartIndex = totalThumbnails - maxVisibleThumbnails;
-
                 currentStartIndex += direction;
-
-                if (currentStartIndex < 0) {
-                    currentStartIndex = 0;
-                } else if (currentStartIndex > maxStartIndex) {
-                    currentStartIndex = maxStartIndex;
-                }
-
-                var thumbnailWidth = thumbnails[0].clientWidth + 10; // include margin
+                if (currentStartIndex < 0) { currentStartIndex = 0; }
+                else if (currentStartIndex > maxStartIndex) { currentStartIndex = maxStartIndex; }
+                var thumbnailWidth = thumbnails[0].clientWidth + 10;
                 thumbnailsContainer.scrollLeft = currentStartIndex * thumbnailWidth;
             }
 
-            // Attach moveSlide to window for global access in inline HTML
             window.moveSlide = moveSlide;
 
             var basePrice = parseFloat('{{ item.item_price }}');
-            var isDiscounted = {% if discount %}true{% else %}false{% endif %};
-            var discountAmount = isDiscounted ? basePrice - parseFloat('{{ new_price }}') : 0;
+            var finalPrice = parseFloat('{{ item.get_final_price }}');
+            var isDiscounted = finalPrice < basePrice;
+            var discountAmount = isDiscounted ? basePrice - finalPrice : 0;
 
             var variationSelects = document.querySelectorAll('.vdropbtn');
 
             variationSelects.forEach(function(select) {
                 select.addEventListener('change', function() {
                     var priceAdditions = 0;
-
-                    variationSelects.forEach(function(select) {
-                        var option = select.options[select.selectedIndex];
+                    variationSelects.forEach(function(sel) {
+                        var option = sel.options[sel.selectedIndex];
                         var additionalCost = option.getAttribute('data-price-increment');
                         if (additionalCost && !isNaN(additionalCost)) {
                             priceAdditions += parseFloat(additionalCost);
                         }
                     });
-
                     var newPrice = basePrice + priceAdditions;
                     var newDiscountedPrice = newPrice - discountAmount;
-
                     if (isDiscounted) {
                         document.getElementById('discounted-price').textContent = '$' + newDiscountedPrice.toFixed(2);
                     }

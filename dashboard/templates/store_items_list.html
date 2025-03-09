@@ -15,17 +15,17 @@
                 <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success add_btn">Add New Listing</a>
               </div>
               <br>
-              
             </div>
           </form>
           <br>
           <div>
           <select id="action-select" class="btn btn-secondary" >
-            <option value="">Select Action</option>
-                  <option value="Active">Active</option>
+                  <option value="">------</option>
+                  <option value="AC">Active</option>
                   <option value="DR">Draft</option>
+                  <option value="IN">Inactive</option>
                   <option value="delete">Delete</option>
-              </select>
+          </select>
               <button class="btn btn-primary" style="margin-left: 5px;" type="button" onclick="submitForm()">Apply</button>
             </div>
     </div>
@@ -36,13 +36,23 @@
                 {% for item in itemss %}
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card bg-light">
-                            <a href="{% url 'dashboard:edit_store_item' item.pk %}" style="text-decoration: none">
+                            <a href="{% url 'admin:TheApp_storeitems_change' item.pk %}" style="text-decoration: none">
                                 <div class="card-body">
                                     <div class="text-center">
                                         <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'"/>
                                     </div>
                                     <h4 class="text-center card-title">{{ item.item_name }}</h4>
                                     <p class="card-text">Price: {{ item.item_price }}$</p>
+                                    <!-- Status Badge -->
+                                    <div class="text-center">
+                                        {% if item.status == 'AC' %}
+                                            <span class="badge rounded-pill bg-success">ACTIVE</span>
+                                        {% elif item.status == 'DR' %}
+                                            <span class="badge rounded-pill bg-info">DRAFT</span>
+                                        {% elif item.status == 'IN' %}
+                                            <span class="badge rounded-pill bg-danger">INACTIVE</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </a>
                             <div class="text-center" style="background-color: #f7f7f7;">
@@ -115,5 +125,6 @@
   .add_btn {
     left: 430px;
   }
+  
 </style>
 {% endblock %}

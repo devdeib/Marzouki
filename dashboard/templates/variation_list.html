@@ -1,27 +1,34 @@
 {% extends 'admin_base.html' %} {% load static %} {% block content %}
-<!DOCTYPE html>
-<html>
-    
-  <head>
-    <title>Variations</title>
-  </head>
-  <body>
-    <div class="main-content">
-    <h1>Variations</h1>
-    <ul>
-      {% for variation in variations %}
-      <li>
-        {{ variation.name }}
-        <ul>
-          {% for choice in variation.choices.all %}
-          <li>{{ choice.name }} - {{ choice.price_increment }}</li>
-          {% endfor %}
-        </ul>
-      </li>
-      {% endfor %}
-    </ul>
-    
-    </div>
-  </body>
-</html>
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Variations</title>
+    </head>
+    <body>
+      <div class="main-content">
+        <h1>Variations</h1>
+        <br />
+        <div class="variations_list">
+          <ul>
+            {% for variation in variations %}
+              <li>
+                <span>{{ variation.name }}</span>
+                <ul>
+                  {% for choice in variation.choices.all %}
+                    <p>{{ choice.name }} - {{ choice.price_increment }}</p>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </body>
+  </html>
+  <style>
+    .variations_list{
+      line-height: 2;
+      font-size: 16px;
+    }
+  </style>
 {% endblock %}

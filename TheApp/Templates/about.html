@@ -1,1 +1,155 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  About the Artist
+{% endblock %}
+
+{% block content %}
+  <div class="about-container">
+    <div class="about-bio">
+      <h1>About the Artist</h1>
+      <div class="bio-content">
+        <p>{{ artist.bio|default:"The artist has not yet provided a bio."|linebreaks }}</p>
+        {% if user.is_superuser %}
+          <button class="edit-btn" data-toggle="modal" data-target="#bioModal">Edit Bio</button>
+        {% endif %}
+      </div>
+    </div>
+    <div class="about-photo">
+      {% if artist.photo %}
+        <img src="{{ artist.photo.url }}" alt="Artist Photo" class="artist-img">
+      {% else %}
+        <img src="{% static 'imgs/default_artist.png' %}" alt="Default Artist Photo" class="artist-img">
+      {% endif %}
+      {% if user.is_superuser %}
+        <button class="edit-btn" data-toggle="modal" data-target="#photoModal">Change Photo</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Bio Modal -->
+  {% if user.is_superuser %}
+    <div class="modal fade" id="bioModal" tabindex="-1" role="dialog" aria-labelledby="bioModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="bioModalLabel">Edit Bio</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <form method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              {% csrf_token %}
+              {{ bio_form.as_p }}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" name="bio_submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="photoModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="photoModalLabel">Change Photo</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <form method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              {% csrf_token %}
+              {{ photo_form.as_p }}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" name="photo_submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <style>
+    .about-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .about-bio {
+      margin-bottom: 40px;
+    }
+    .bio-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .about-photo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .artist-img {
+      width: 500px; /* Fixed width */
+      height: 500px; /* Fixed height */
+      object-fit: cover; /* Crops image to fit, maintaining aspect ratio */
+      
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #666;
+      max-width: 800px; /* Limits bio width for readability */
+      margin: 0 auto;
+    }
+    .edit-btn {
+      padding: 8px 16px;
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .edit-btn:hover {
+      background-color: #e68900;
+    }
+    @media (max-width: 768px) {
+      .about-container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      p {
+        font-size: 1rem;
+      }
+      .artist-img {
+        width: 300px; /* Smaller fixed size on mobile */
+        height: 300px;
+      }
+    }
+  </style>
+
+  <!-- Bootstrap JS for modals -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}

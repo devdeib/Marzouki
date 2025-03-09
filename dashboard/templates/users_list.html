@@ -1,0 +1,129 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}
+  Dashboard Home
+{% endblock %}
+
+{% block content %}
+  <div class="main-content">
+    <h1>Users:</h1>
+    <br />
+    
+    <!-- Display users as numbered items -->
+    <div class="user-list">
+      {% for user in users %}
+        <span class="user-number" data-id="{{ user.id }}" data-username="{{ user.username }}" data-name="{{ user.name }}" data-email="{{ user.email }}">
+          {{ forloop.counter }}. {{ user.username }}
+        </span>
+        
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="user-modal" class="modal">
+      <div class="modal-content">
+          <span class="close-btn">&times;</span> <!-- Close icon is here -->
+          <h2>User Info</h2>
+          <p><strong>Username:</strong> <span id="modal-username"></span></p>
+          <p><strong>Email:</strong> <span id="modal-email"></span></p>
+      </div>
+  </div>
+
+  <script>
+    // Get the modal
+    var modal = document.getElementById('user-modal')
+    var closeBtn = document.getElementsByClassName('close-btn')[0]
+    
+    // When the user clicks on a username
+    document.querySelectorAll('.user-number').forEach(function (user) {
+      user.addEventListener('click', function (event) {
+        event.preventDefault()
+        var userId = user.getAttribute('data-id')
+        var username = user.getAttribute('data-username')
+        var name = user.getAttribute('data-name')
+        var email = user.getAttribute('data-email')
+    
+        // Populate the modal with user details
+        document.getElementById('modal-username').textContent = username
+        document.getElementById('modal-email').textContent = email
+    
+        // Show the modal
+        modal.style.display = 'block'
+      })
+    })
+    
+    // When the user clicks on the close button, close the modal
+    closeBtn.onclick = function () {
+      modal.style.display = 'none'
+    }
+    
+    // When the user clicks anywhere outside the modal, close it
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = 'none'
+      }
+    }
+  </script>
+
+  <style>
+    /* Modal styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000; /* Make sure the modal is on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4); /* Black background with transparency */
+      padding-top: 60px;
+    }
+
+    /* Center modal content */
+    .modal-content {
+      background-color: #fff;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 70%; /* Adjust width if necessary */
+      max-width: 500px;
+      position: relative; /* Needed for positioning the close button */
+      top: 40%; /* Center vertically */
+      transform: translateY(-50%); /* Adjust vertical position */
+    }
+    
+    .close-btn {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: 10px; /* This positions the "X" in the top-right corner */
+      cursor: pointer;
+    }
+    
+    .close-btn:hover,
+    .close-btn:focus {
+      color: black;
+      text-decoration: none;
+    }
+
+    /* Style for the user number list */
+    .user-list {
+      font-size: 16px;
+      line-height: 2;
+    }
+
+    .user-number {
+      cursor: pointer;
+      display: block;
+      padding: 5px;
+    }
+
+    .user-number:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+{% endblock %}

@@ -1,3 +1,4 @@
+from .models import ArtistProfile
 from django.contrib import admin
 from nested_admin import NestedTabularInline, NestedModelAdmin
 from .models import StoreItems, Section, Color, Tag, Discount, Variation, ItemVariation, StoreItemImage, Choices
@@ -62,6 +63,23 @@ class DiscountAdmin(admin.ModelAdmin):
 class StoreItemImageAdmin(admin.ModelAdmin):
     list_display = ['item']
 
+
+@admin.register(ArtistProfile)
+class ArtistProfileAdmin(admin.ModelAdmin):
+    list_display = ('id', 'updated_at')
+    fieldsets = (
+        (None, {
+            'fields': ('bio', 'photo'),
+        }),
+    )
+
+    def has_add_permission(self, request):
+        # Prevent adding more than one instance
+        return not ArtistProfile.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion of the singleton instance
+        return False
 
 # Registering models with their admins
 admin.site.register(StoreItems, StoreItemAdmin)

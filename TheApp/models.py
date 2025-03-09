@@ -97,6 +97,7 @@ class StoreItems(models.Model):
         # No active discount, return original price
         return self.item_price
 
+
 class StoreItemImage(models.Model):
     item = models.ForeignKey(
         StoreItems, related_name='images', on_delete=models.CASCADE)
@@ -115,6 +116,7 @@ class StoreItemVideo(models.Model):
 
     def __str__(self):
         return f"{self.item.item_name} Video"
+
 
 
 class Cart(models.Model):

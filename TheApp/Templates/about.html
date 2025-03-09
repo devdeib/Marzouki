@@ -3,12 +3,14 @@
 
 {% block title %}
   About the Artist
+  
 {% endblock %}
 
 {% block content %}
   <div class="about-container">
     <div class="about-bio">
       <h1>About the Artist</h1>
+      <hr class="hr--large">
       <div class="bio-content">
         <p>{{ artist.bio|default:"The artist has not yet provided a bio."|linebreaks }}</p>
         {% if user.is_superuser %}
@@ -18,9 +20,9 @@
     </div>
     <div class="about-photo">
       {% if artist.photo %}
-        <img src="{{ artist.photo.url }}" alt="Artist Photo" class="artist-img">
+        <img src="{{ artist.photo.url }}" alt="Artist Photo" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
       {% else %}
-        <img src="{% static 'imgs/default_artist.png' %}" alt="Default Artist Photo" class="artist-img">
+        <img src="{% static 'imgs/default_artist.png' %}" alt="Default Artist Photo" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
       {% endif %}
       {% if user.is_superuser %}
         <button class="edit-btn" data-toggle="modal" data-target="#photoModal">Change Photo</button>

@@ -48,10 +48,18 @@ ChoiceFormSet = inlineformset_factory(
 
 
 class StoreItemForm(forms.ModelForm):
+    # Add a section field to link the item to an existing section (optional)
+    section = forms.ModelChoiceField(
+        queryset=Section.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Section"
+    )
+
     class Meta:
         model = StoreItems
         fields = ['status', 'item_name', 'item_description', 'item_photo', 'item_price', 'item_quantity',
-                  'tags', 'primary_color', 'secondary_color', 'width', 'height']
+                  'tags', 'primary_color', 'secondary_color', 'width', 'height', 'section']
         widgets = {
             'status': forms.Select(choices=StoreItems.STATUS_CHOICES, attrs={'class': 'form-control'}),
             'item_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -74,6 +82,8 @@ class StoreItemImageForm(forms.ModelForm):
         widgets = {
             'image': forms.FileInput(attrs={'class': 'form-control'})
         }
+
+
 
 
 class StoreItemVideoForm(forms.ModelForm):
@@ -115,6 +125,20 @@ class SectionForm(forms.ModelForm):
         model = Section
         fields = ['name', 'items']
 
+
+class NewsletterForm(forms.Form):
+    from_email = 'Waseem Marzouki'  # Update in send_newsletter
+    subject = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Enter subject'}),
+        label="Subject"
+    )
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+                              'class': 'form-control', 'rows': 5, 'placeholder': 'Write your newsletter here'}),
+        label="Message"
+    )
 
 class DiscountForm(forms.ModelForm):
     class Meta:

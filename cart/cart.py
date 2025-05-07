@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
-from TheApp.models import StoreItems, Choices  # Add Choices here
+from TheApp.models import StoreItems, Choices
 
 
 class Cart:
@@ -14,31 +14,32 @@ class Cart:
     def save(self):
         self.session.modified = True
 
-    def add(self, item, quantity=1, variation=None, choice=None, personalization=None, price=None, override_quantity=False):
-        variation_part = f'-{str(variation.id)}' if variation else ''
-        choice_part = f'-{str(choice.id)}' if choice else ''
-        cart_item_id = f'{item.id}{variation_part}{choice_part}'
-        variation_name = variation.name if variation else None
-        choice_name = choice.name if choice else None
+    def add(self, item, quantity=1, variation_choice_list=None, personalization=None, override_quantity=False, variation_key=None, variation_keys=None):
+        variation_choice_list = variation_choice_list or []
+
+        # Generate unique cart item ID based on item + choices
+        variation_key = "-".join(
+            [f"{c['variation_name']}:{c['choice_name']}" for c in variation_choice_list])
+        cart_item_id = f"{item.id}--{variation_key}" if variation_key else str(
+            item.id)
 
         base_price = float(item.get_final_price())
-        final_price = base_price
-        if choice and choice.price_increment:
-            final_price += float(choice.price_increment)
+        extra_price = sum(float(c.get('price_increment', 0))
+                          for c in variation_choice_list)
+        final_price = base_price + extra_price
 
         if cart_item_id not in self.cart:
             self.cart[cart_item_id] = {
                 'item_id': item.id,
                 'quantity': 0,
                 'item_price': str(item.item_price),
-                'final_price': str(final_price),
                 'item_name': item.item_name,
                 'item_description': item.item_description,
-                'item_photo': item.item_photo.url if item.item_photo else None,
-                'variation': variation_name,
-                'choice': choice_name,
+                'item_photo': item.item_photo.url if item.item_photo else '',
                 'personalization': personalization,
-                'choice_increment': str(choice.price_increment) if choice and choice.price_increment else '0',
+                'variation_choices': variation_choice_list,
+                'variation_key': variation_keys if variation_keys else None,
+
             }
 
         if override_quantity:
@@ -48,27 +49,46 @@ class Cart:
 
         self.save()
 
-    def remove(self, item, variation=None):
-        variation_part = f'-{str(variation.id)}' if variation else ''
-        cart_item_id = f'{item.id}{variation_part}'
-        if cart_item_id in self.cart:
-            del self.cart[cart_item_id]
-            self.save()
+    def remove(self, item_id):
+        item_id = str(item_id)
+    
+        for key in list(self.cart.keys()):
+            if key.startswith(item_id):
+                del self.cart[key]
+                self.save()
+                break
+
+
+
+
 
     def __iter__(self):
         cart_items_to_remove = []
-        for cart_item_id, item_data in self.cart.items():
+        for cart_item_id, data in self.cart.items():
             try:
-                item = StoreItems.objects.get(id=item_data['item_id'])
-                final_price = float(item.get_final_price())
-                if item_data['choice']:
-                    choice = Choices.objects.filter(
-                        variation__item=item, name=item_data['choice']).first()
-                    if choice and choice.price_increment:
-                        final_price += float(choice.price_increment)
-                item_data['final_price'] = final_price
-                item_data['total_price'] = final_price * item_data['quantity']
-                yield item_data
+                item = StoreItems.objects.get(id=data['item_id'])
+                quantity = data['quantity']
+                base_price = float(item.get_final_price())
+
+                variation_choices = data.get('variation_choices', [])
+                extra_price = sum(float(vc.get('price_increment', 0))
+                                  for vc in variation_choices)
+
+                final_price = base_price + extra_price
+                total_price = final_price * quantity
+
+                yield {
+                    'item_id': item.id,
+                    'item_name': item.item_name,
+                    'item_photo': item.item_photo.url if item.item_photo else '',
+                    'quantity': quantity,
+                    'item_price': base_price,
+                    'final_price': final_price,  # ← THIS LINE FIXES YOUR ISSUE
+                    'discount_percent': item.get_discount_percent() if hasattr(item, 'get_discount_percent') else 0,
+                    'total_price': total_price,
+                    'variation_choices': variation_choices,
+                    'personalization': data.get('personalization', ''),
+                }
             except StoreItems.DoesNotExist:
                 cart_items_to_remove.append(cart_item_id)
 
@@ -77,40 +97,23 @@ class Cart:
         if cart_items_to_remove:
             self.save()
 
+
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
 
     def get_total_price(self):
         total = 0
-        cart_items_to_remove = []
-        for item_data in self.cart.values():
+        for data in self.cart.values():
             try:
-                item = StoreItems.objects.get(id=item_data['item_id'])
-                final_price = float(item.get_final_price())
-                if item_data['choice']:
-                    choice = Choices.objects.filter(
-                        variation__item=item, name=item_data['choice']).first()
-                    if choice and choice.price_increment:
-                        final_price += float(choice.price_increment)
-                total += final_price * item_data['quantity']
+                item = StoreItems.objects.get(id=data['item_id'])
+                base_price = float(item.get_final_price())
+                extra_price = sum(float(vc.get('price_increment', 0))
+                                  for vc in data.get('variation_choices', []))
+                total += (base_price + extra_price) * data['quantity']
             except StoreItems.DoesNotExist:
-                cart_items_to_remove.append(item_data['item_id'])
-
-        for item_id in cart_items_to_remove:
-            cart_item_id = next(
-                (key for key, value in self.cart.items() if value['item_id'] == item_id), None)
-            if cart_item_id:
-                del self.cart[cart_item_id]
-        if cart_items_to_remove:
-            self.save()
-
+                continue
         return total
 
     def clear(self):
-        del self.session[settings.CART_SESSION_ID]
+        self.session[settings.CART_SESSION_ID] = {}
         self.save()
-
-    def update_item(self, item_id, item_data):
-        if item_id in self.cart:
-            self.cart[item_id].update(item_data)
-            self.save()

@@ -1,4 +1,4 @@
-{% extends 'admin_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}Section Detail{% endblock %}
 {% block content %}
@@ -15,12 +15,10 @@
         cursor: pointer;
     }
 
-    /* Style for checked state */
     .form-check-input.mycheck:checked {
         background-color: #000000;
     }
 
-    /* Checkmark for checked state */
     .form-check-input.mycheck:checked::before {
         position: absolute;
         top: 50%;
@@ -45,49 +43,67 @@
         background-color: #c82333;
     }
 </style>
-<div class="main-content">
-    <div class="header-container">
-        <h1>Change section "{{ section.name }}"</h1>
-        <button class="delete-btn btn btn-danger" onclick="confirmDelete()">Delete Section</button>
-    </div>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        <div class="form-group">
-            <label for="name" class="form-label mt-2">Category name:</label>
-            <!-- Set the value to the current section name -->
-            <input type="text" name="name" id="name" class="form-control" style="width: 290px;" value="{{ section.name }}">
-        </div>
-        <div class="listing_container mt-3">
-            <div class="row">
-                {% for item in items %}
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="card">
-                            <a href="{% url 'paint_detail' item.pk %}" style="text-decoration: none">
-                                <div class="card-body">
-                                    <div class="text-center">
-                                        <img src="{% static item.item_photo %}" alt="Item Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'"/>
+<div class="container-fluid px-4 mt-3">
+    <div class="row">
+        <!-- Sidebar -->
+        {% if on_dashboard_page %}
+          <div class="col-md-2 mt-3 d-none d-lg-block">
+            <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+            <hr class="hr--large" />
+            <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+            <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+            <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+            <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+            <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+            <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+          </div>
+        {% else %}
+          <!-- Debugging: Show if on_dashboard_page is False -->
+          <div class="col-md-2 mt-3 d-none d-lg-block">
+            <p>Sidebar not shown: on_dashboard_page is False</p>
+          </div>
+        {% endif %}
+        <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
+            <h1>Change Category "{{ section.name }}"</h1>
+            <button class="delete-btn btn btn-danger" onclick="confirmDelete()">Delete Category</button>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="form-group">
+                    <label for="name" class="form-label mt-2">Category name:</label>
+                    <input type="text" name="name" id="name" class="form-control" style="width: 290px;" value="{{ section.name }}">
+                </div>
+                <br>
+                <div class="row">
+                    {% for item in items %}
+                        <div class="col-lg-3 col-md-6 mb-4 d-flex">
+                            <div class="w-100" style="border-color: #e5e5e5 !important; border: 1px solid #c8c8c8;">
+                                <a href="{% url 'paint_detail' item.pk %}" style="text-decoration: none">
+                                    <div class="card-body d-flex flex-column align-items-center product-card">
+                                        <div class="image-container mb-2">
+                                            <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'" />
+                                        </div>
+                                        <h5 class="card-title text-center product-title">{{ item.item_name }}</h5>
+                                        <p class="card-text text-center product-price">Price: ${{ item.item_price|floatformat:2 }}</p>
                                     </div>
-                                    <h4 class="text-center card-title">{{ item.item_name }}</h4>
-                                    <p class="card-text">Price: {{ item.item_price }}$</p>
+                                </a>
+                                <div class="text-center py-2" style="background-color: #f7f7f7;">
+                                    <input class="form-check-input mycheck" type="checkbox" name="items" value="{{ item.pk }}" id="item{{ item.pk }}" {% if item in section.items.all %}checked{% endif %}>
+                                    <label class="form-check-label mb-3" for="item{{ item.pk }}">
+                                        Include in Category
+                                    </label>
                                 </div>
-                            </a>
-                            <div class="text-center" style="background-color: #f7f7f7;">
-                                <input class="form-check-input mycheck" type="checkbox" name="items" value="{{ item.pk }}" id="item{{ item.pk }}" {% if item in section.items.all %}checked{% endif %}>
-                                <label class="form-check-label mb-3" for="item{{ item.pk }}">
-                                    Include in section
-                                </label>
                             </div>
                         </div>
-                    </div>
-                {% empty %}
-                    <p>No items available.</p>
-                {% endfor %}
-            </div>
+                    {% empty %}
+                        <p>No items available.</p>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-success mb-2" type="submit">Save Changes</button>
+                <a class="btn btn-danger mb-2" style="text-decoration: none; color: white;" href="{% url 'dashboard:section_list' %}">Cancel</a>
+            </form>
         </div>
-        <button class="btn btn-primary" type="submit">Save Changes</button>
-        <a class="btn btn-danger" style="text-decoration: none; color: white;" href="{% url 'dashboard:section_list' %}">Cancel</a>
-    </form>
+    </div>
 </div>
 
 <!-- Confirmation Popup Script -->
@@ -98,5 +114,22 @@
         }
     }
 </script>
+<style>
+.image-container {
+    width: 90%;
+    aspect-ratio: 1 / 1; /* Make all images square */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.image-container img {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+}
+
+
+</style>
 {% endblock %}

@@ -1,41 +1,55 @@
-{% extends 'admin_base.html' %} 
+{% extends 'base.html' %} 
 {% block title %}Sections List{% endblock %} 
 {% block content %}
 
-<div class="main-content">
-  <div class="header-container">
+<div class="container-fluid px-4 mt-3">
+  <div class="row">
+    <!-- Sidebar -->
+      {% if on_dashboard_page %}
+        <div class="col-md-2 mt-3 d-none d-lg-block">
+          <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+          <hr class="hr--large" />
+          <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+          <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+          <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+          <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+          <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+          <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+        </div>
+      {% endif %}
+    <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
     <h1>Select category to change:</h1>
+    <br>
     <a
       href="{% url 'dashboard:add_section' %}"
       class="addlink btn btn-success add_btn"
       >Add New category</a
     >
-  </div>
-  <br>
-  <div class="listing_container">
+    <p></p>
     <div class="row">
       {% for section in sections %}
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card-body">
-            <div class="card-content">
-              <div>
-                <h5>{{ section.name }}</h5>
-                <p style="text-align: left;">Items: {{ section.item_count }}</p>
-              </div>
-              <a
-                href="{% url 'dashboard:section_detail' section.pk %}"
-                class="btn btn-primary btn-sm"
-              >
-                View
-              </a>
+          <div class="col-lg-3 col-md-6 mb-4"style="display: inline-block; ">
+            <div class="card-body d-flex flex-column  product-card" style="align-items: baseline;" >
+
+                <div>
+                  <h5>{{ section.name }}</h5>
+                  <p style="text-align: left;">Items: {{ section.item_count }}</p>
+                </div>
+                <a
+                  href="{% url 'dashboard:section_detail' section.pk %}"
+                  class="btn btn-primary btn-sm"
+                >
+                  View
+                </a>
+              
             </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
     </div>
-  </div>
+  </div>    
 </div>
 <style>
+  
   .header-container {
     display: flex;
     justify-content: space-between;
@@ -78,6 +92,29 @@
   .card-content p {
     margin: 0;
   }
+  /* Responsive adjustments */
+    @media (max-width: 767px) {
+      .d-flex.flex-column.flex-md-row {
+        width: 100%;
+      }
+
+      .form-select {
+        width: 60%;
+      }
+
+      .btn-primary {
+        width: 35%;
+      }
+
+      .add_btn {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .card-body{
+        width: 100%;
+      }
+    }
 </style>
 
 {% endblock %}

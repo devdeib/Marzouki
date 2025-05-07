@@ -119,7 +119,38 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        # Update with external Redis URL if needed
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+
 WSGI_APPLICATION = 'TheProject.wsgi.application'
+
+# Default social media settings
+SOCIAL_PROFILES = {
+    'twitter': {'url': '', 'show': True},
+    'instagram': {'url': '', 'show': True},
+    'facebook': {'url': '', 'show': True},
+}
+
+# Tells Django to use SMTP for sending emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # The SMTP server address (Gmail in this case)
+EMAIL_PORT = 587  # The port Gmail uses for TLS (secure email)
+EMAIL_USE_TLS = True  # Enables TLS security for email transmission
+# Your Gmail address (replace with your actual email)
+EMAIL_HOST_USER = 'adeeb.b5000@gmail.com'
+# A special password for apps (not your regular Gmail password)
+EMAIL_HOST_PASSWORD = 'nfjo bble qxpv hxfn '
+# The "from" address shown in emails
+DEFAULT_FROM_EMAIL = 'adeeb.b5000@gmail.com'
 
 
 # Database

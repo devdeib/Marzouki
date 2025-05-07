@@ -1,17 +1,25 @@
-{% extends "admin_base.html" %} {% load form_filters %} {% block content %}
-{% if messages %}
-<div class="messages">
-  {% for message in messages %}
-  <div class="alert alert-success text-center">{{ message }}</div>
-  {% endfor %}
-</div>
-{% endif %}
-<div class="main-content container">
+{% extends "base.html" %} {% load form_filters %} {% block content %}
+
+<div class="container-fluid px-4 mt-3">
+  <div class="row">
+  {% if on_dashboard_page %}
+        <div class="col-md-2 mt-3 d-none d-lg-block">
+          <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+          <hr class="hr--large" />
+          <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+          <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+          <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+          <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+          <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+          <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+        </div>
+  {% endif %}
+  <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
   <h1 class="header-container mb-3">
     Add New Category
   </h1>
-  <div class="row">
-    <div class="col-md-6">
+  
+    
       <form
       method="post"
       enctype="multipart/form-data"
@@ -28,13 +36,13 @@
     
         <button type="submit" class="btn btn-success">Create Category</button>
         <a
-          href="{% url 'admin:TheApp_storeitems_changelist' %}"
+          href="{% url 'dashboard:store_items_list' %}"
           class="btn btn-secondary"
           >Cancel</a
         >
       </form>
-    </div>
-  </div>
+  </div> 
+  
 </div>
 <script>
   document.getElementById("add-image").addEventListener("click", function () {

@@ -43,4 +43,8 @@ urlpatterns = [
     path('delete-variation/<int:variation_id>/',
          views.delete_variation, name='delete_variation'),
     path('users/', views.users_list, name='users_list'),
+    path('add_tag/', views.add_tag, name='add_tag'),  # New path
+    path('add_section_ajax/', views.add_section_ajax, name='add_section_ajax'),
+    path('newsletter_list/', views.newsletter_list, name='newsletter_list'),
+    path('send_newsletter/', views.send_newsletter, name='send_newsletter'),
 ]

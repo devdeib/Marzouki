@@ -1,7 +1,8 @@
+from decimal import Decimal
 from django.db import models
 from TheApp.models import *
 from django.conf import settings
-
+from django.db.models import JSONField
 
 class Order(models.Model):
     first_name = models.CharField(max_length=50)
@@ -42,13 +43,37 @@ class OrderItem(models.Model):
         StoreItems, related_name='order_items', on_delete=models.CASCADE)
     item_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
-    variation_name = models.CharField(max_length=100, blank=True, null=True)
-    choice_name = models.CharField(max_length=100, blank=True, null=True)
-    choice_increment = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00)
 
-    def __str__(self):
-        return str(self.id)
+    # <-- holds list of variation dicts
+    variations = JSONField(blank=True, null=True)
+    # <-- holds list of choice dicts
+    choices = models.JSONField(default=list, blank=True)
+
+    @property
+    def choice_increment(self):
+        # assuming only one choice per item
+        if self.choices and isinstance(self.choices, list):
+            return self.choices[0].get("price", 0)
+        return 0
+
 
     def get_cost(self):
-        return (self.item_price + self.choice_increment) * self.quantity
+        base = self.item_price
+        choice_total = sum(Decimal(str(c.get('increment', 0)))
+                           for c in self.choices or [])
+        return (base + choice_total) * self.quantity
+
+    @property
+    def choices_list(self):
+        try:
+            return self.choices if isinstance(self.choices, list) else []
+        except:
+            return []
+    
+    
+    @property
+    def variations_list(self):
+        try:
+            return self.variations if isinstance(self.variations, list) else []
+        except:
+            return []

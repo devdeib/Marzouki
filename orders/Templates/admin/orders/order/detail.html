@@ -5,64 +5,106 @@
 {% block breadcrumbs %}
   <div class="breadcrumbs text-center">
     <a href="{% url 'admin:index' %}">Home</a> ›
-    <a href="{% url 'admin:orders_order_changelist' %}">Orders</a>
-    ›
-    <a href="{% url 'admin:orders_order_change' order.id %}">Order {{ order.id }}</a>
-    › Detail
+    <a href="{% url 'admin:orders_order_changelist' %}">Orders</a> ›
+    <a href="{% url 'admin:orders_order_change' order.id %}">Order {{ order.id }}</a> › Detail
   </div>
 {% endblock %}
+
 {% block content %}
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="row w-100 justify-content-center">
-      <div class="col-md-5">
-        <div class="module">
+  <div class="container py-4">
+    <div class="row gy-4 justify-content-center">
+      <!-- Order Info Table -->
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="module h-100">
           <h2 class="text-center">Order {{ order.id }}</h2>
-          <table class="table table-bordered mt-3">
-            <tr><th>Created</th><td>{{ order.created }}</td></tr>
-            <tr><th>Customer</th><td>{{ order.first_name }} {{ order.last_name }}</td></tr>
-            <tr><th>E-mail</th><td><a href="mailto:{{ order.email }}">{{ order.email }}</a></td></tr>
-            <tr><th>Address</th><td>{{ order.address }}, {{ order.postal_code }} {{ order.city }}</td></tr>
-            <tr><th>Total amount</th><td>${{ order.get_total_cost }}</td></tr>
-            <tr><th>Status</th><td>{% if order.paid %}Paid{% else %}Pending payment{% endif %}</td></tr>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-bordered mt-3 mb-0">
+              <tr>
+                <th>Created</th>
+                <td>{{ order.created }}</td>
+              </tr>
+              <tr>
+                <th>Customer</th>
+                <td>{{ order.first_name }} {{ order.last_name }}</td>
+              </tr>
+              <tr>
+                <th>E-mail</th>
+                <td>
+                  <a href="mailto:{{ order.email }}">{{ order.email }}</a>
+                </td>
+              </tr>
+              <tr>
+                <th>Address</th>
+                <td>{{ order.address }}, {{ order.postal_code }} {{ order.city }}</td>
+              </tr>
+              <tr>
+                <th>Total amount</th>
+                <td>${{ order.get_total_cost }}</td>
+              </tr>
+              <tr>
+                <th>Status</th>
+                <td>
+                  {% if order.paid %}
+                    Paid
+                  {% else %}
+                    Pending payment
+                  {% endif %}
+                </td>
+              </tr>
+            </table>
+          </div>
         </div>
       </div>
-      <div class="col-md-5">
-        <div class="module">
+
+      <!-- Items Bought Table -->
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="module h-100">
           <h2 class="text-center">Items bought</h2>
-          <table class="table table-bordered mt-3" style="width:100%">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Variation</th>
-                <th>Choice</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in order.items.all %}
-                <tr class="row{% cycle '1' '2' %}">
+          <div class="table-responsive">
+            {% for item in order.items.all %}
+              <table class="table table-bordered mt-3 mb-0">
+                <tr>
+                  <th style="min-width: 120px;">Product</th>
                   <td>{{ item.storeitem.item_name }}</td>
-                  <td>{{ item.variation_name|default:"N/A" }}</td>
+                </tr>
+
+                <tr>
+                  <th>Variations</th>
                   <td>
-                    {{ item.choice_name|default:"N/A" }}
-                    {% if item.choice_increment > 0 %}
-                      (+${{ item.choice_increment|floatformat:2 }})
+                    {% if item.variations %}
+                      {% for var in item.variations_list %}
+                        <div>{{ var.name|default_if_none:'' }}: {{ var.value|default_if_none:'' }}</div>
+                      {% endfor %}
+                    {% else %}
+                      N/A
                     {% endif %}
                   </td>
+                </tr>
+
+                
+                  
+
+                <tr>
+                  <th style="min-width: 80px;">Price</th>
                   <td class="num">${{ item.item_price|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                  <th style="min-width: 80px;">Quantity</th>
                   <td class="num">{{ item.quantity }}</td>
+                </tr>
+                <tr>
+                  <th style="min-width: 100px;">Total</th>
                   <td class="num">${{ item.get_cost|floatformat:2 }}</td>
                 </tr>
-              {% endfor %}
-              <tr class="total">
-                <td colspan="5">Total Cost</td>
+              </table>
+            {% endfor %}
+            <table class="table table-bordered mt-3 mb-0">
+              <tr class="total fw-bold">
+                <th>Total Cost</th>
                 <td class="num">${{ order.get_total_cost|floatformat:2 }}</td>
               </tr>
-            </tbody>
-          </table>
+            </table>
+          </div>
           <div class="text-center mt-4">
             <a href="#" onclick="window.print();" class="btn btn-warning">Print order</a>
           </div>
@@ -72,13 +114,36 @@
   </div>
 
   <style>
-    .breadcrumbs { margin-bottom: 1rem; }
-    .table { margin-bottom: 1rem; background-color: transparent; }
-    .table-bordered { border: 1px solid #dee2e6; }
-    .table-bordered th, .table-bordered td { border: 1px solid #dee2e6; }
-    .module { margin-bottom: 1rem; }
-    .btn-warning { background-color: #ff9800; border-color: #ff9800; }
-    .btn-warning:hover { background-color: #e68900; border-color: #e68900; }
-    @media print { header, footer, .breadcrumbs, .text-center a, .card form { display: none !important; } }
+    .breadcrumbs {
+      margin-bottom: 1rem;
+    }
+    .table td,
+    .table th {
+      white-space: nowrap;
+    }
+    .table-bordered {
+      border: 1px solid #dee2e6;
+    }
+    .table-bordered th,
+    .table-bordered td {
+      border: 1px solid #dee2e6;
+    }
+    .btn-warning {
+      background-color: #ff9800;
+      border-color: #ff9800;
+    }
+    .btn-warning:hover {
+      background-color: #e68900;
+      border-color: #e68900;
+    }
+    @media print {
+      header,
+
+      .breadcrumbs,
+      .text-center a,
+      .card form {
+        display: none !important;
+      }
+    }
   </style>
 {% endblock %}

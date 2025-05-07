@@ -1,4 +1,4 @@
-{% extends 'admin_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}
@@ -6,31 +6,48 @@
 {% endblock %}
 
 {% block content %}
-  <div class="main-content">
-    <h1>Users:</h1>
-    <br />
-    
-    <!-- Display users as numbered items -->
-    <div class="user-list">
-      {% for user in users %}
-        <span class="user-number" data-id="{{ user.id }}" data-username="{{ user.username }}" data-name="{{ user.name }}" data-email="{{ user.email }}">
-          {{ forloop.counter }}. {{ user.username }}
-        </span>
-        
-      {% endfor %}
+  <div class="container-fluid px-4 mt-3">
+    <div class="row"> 
+            <!-- Sidebar -->
+            {% if on_dashboard_page %}
+            <div class="col-md-2 mt-3 d-none d-lg-block">
+                <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+                <hr class="hr--large" />
+                <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+                <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+                <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+                <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+                <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+                <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+            </div>
+            {% endif %}
+          <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
+              <h1>Users:</h1>
+              <br />
+
+              <!-- Display users as numbered items -->
+              <div class="user-list">
+                {% for user in users %}
+                  <span class="user-number" data-id="{{ user.id }}" data-username="{{ user.username }}" data-name="{{ user.name }}" data-email="{{ user.email }}">
+                    {{ forloop.counter }}. {{ user.username }}
+                  </span>
+
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Popup Modal -->
+            <div id="user-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span> <!-- Close icon is here -->
+                    <h2>User Info</h2>
+                    <p><strong>Username:</strong> <span id="modal-username"></span></p>
+                    <p><strong>Email:</strong> <span id="modal-email"></span></p>
+                </div>
+            </div>
+          </div>
     </div>
-  </div>
-
-  <!-- Popup Modal -->
-  <div id="user-modal" class="modal">
-      <div class="modal-content">
-          <span class="close-btn">&times;</span> <!-- Close icon is here -->
-          <h2>User Info</h2>
-          <p><strong>Username:</strong> <span id="modal-username"></span></p>
-          <p><strong>Email:</strong> <span id="modal-email"></span></p>
-      </div>
-  </div>
-
+  </div>        
   <script>
     // Get the modal
     var modal = document.getElementById('user-modal')

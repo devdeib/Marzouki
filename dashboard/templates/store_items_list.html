@@ -1,90 +1,102 @@
-{% extends 'admin_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
-{% block title %}Store Items List{% endblock %}
 {% block content %}
-
-<div class="main-content">
-    <div class="search-form-container mb-4">
-        <form action="{% url 'dashboard:dash_search' %}">
+  <div class="container-fluid px-4 mt-3">
+    <div class="row">
+      <!-- Sidebar -->
+      {% if on_dashboard_page %}
+        <div class="col-md-2 mt-3 d-none d-lg-block">
+          <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+          <hr class="hr--large" />
+          <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+          <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+          <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+          <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+          <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+          <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+        </div>
+      {% endif %}
+      <!-- Main Content -->
+      <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
+        <!-- Search Bar -->
+        <div class="d-flex justify-content-end mb-4">
+          <form class="d-flex w-100" action="{% url 'search' %}">
             <div class="input-group">
-              <input type="search" class="search_admin" placeholder="Search for products" name="query">
-              <div class="input-group-append">
-                <button class="btn btn-secondary justify-content-end" type="submit">Search</button>
-              </div>
-              <div>
-                <a href="{% url 'dashboard:add_store_item' %}" class="addlink btn btn-success add_btn">Add New Listing</a>
-              </div>
-              <br>
+              <input class="form-control me-2" type="search" placeholder="Search for products" name="query" />
+              <button class="btn btn-secondary" type="submit">Search</button>
             </div>
           </form>
-          <br>
-          <div>
-          <select id="action-select" class="btn btn-secondary" >
+        </div>
+
+        <!-- Actions and Add Button -->
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3">
+          <a href="{% url 'dashboard:add_store_item' %}" class="btn btn-success add_btn">Add New Listing</a>
+          <div class="d-flex align-items-center mb-2 mb-md-0">
+            <select id="action-select" class=" form-select me-2">
                   <option value="">------</option>
                   <option value="AC">Active</option>
                   <option value="DR">Draft</option>
                   <option value="IN">Inactive</option>
                   <option value="delete">Delete</option>
-          </select>
-              <button class="btn btn-primary" style="margin-left: 5px;" type="button" onclick="submitForm()">Apply</button>
-            </div>
-    </div>
-    <form id="items-form" method="post" action="{% url 'dashboard:items_bulk_action' %}">
-        {% csrf_token %}
-        <div class="listing_container mt-3">
-            <div class="row">
-                {% for item in itemss %}
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="card bg-light">
-                            <a href="{% url 'admin:TheApp_storeitems_change' item.pk %}" style="text-decoration: none">
-                                <div class="card-body">
-                                    <div class="text-center">
-                                        <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'"/>
-                                    </div>
-                                    <h4 class="text-center card-title">{{ item.item_name }}</h4>
-                                    <p class="card-text">Price: {{ item.item_price }}$</p>
-                                    <!-- Status Badge -->
-                                    <div class="text-center">
-                                        {% if item.status == 'AC' %}
-                                            <span class="badge rounded-pill bg-success">ACTIVE</span>
-                                        {% elif item.status == 'DR' %}
-                                            <span class="badge rounded-pill bg-info">DRAFT</span>
-                                        {% elif item.status == 'IN' %}
-                                            <span class="badge rounded-pill bg-danger">INACTIVE</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="text-center" style="background-color: #f7f7f7;">
-                                <input class="form-check-input mycheck" type="checkbox" name="items" value="{{ item.pk }}" id="item{{ item.pk }}">
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <p>No items available.</p>
-                {% endfor %}
-            </div>
+            </select>
+            <button class="btn btn-primary" style="margin-left: 5px;" type="button" onclick="submitForm()">Apply</button>
+          </div>
         </div>
+
+        <!-- Items Grid -->
+        <form id="items-form" method="post" action="{% url 'dashboard:items_bulk_action' %}">
+          {% csrf_token %}
+          <div class="row">
+            {% for item in itemss %}
+              
+                <div class="col-lg-3 col-md-6 mb-4 d-flex">
+                  <div class="w-100" style="border-color: #e5e5e5 !important; border: 1px solid #c8c8c8;">
+                    <a href="{% url 'admin:TheApp_storeitems_change' item.pk %}" class="text-decoration-none">
+                      <div class="card-body d-flex flex-column align-items-center product-card">
+                        <div class="image-container mb-2">
+                          <img src="{% static item.item_photo %}" alt="Paint Photo" class="img-fluid" onerror="this.src='{% static 'imgs/default.png' %}'" />
+                        </div>
+                        <h5 class="card-title text-center product-title">{{ item.item_name }}</h5>
+                        <p class="card-text text-center product-price">Price: ${{ item.item_price|floatformat:2 }}</p>
+                        <div class="text-center">
+                          {% if item.status == 'AC' %}
+                            <span class="badge rounded-pill bg-success">ACTIVE</span>
+                          {% elif item.status == 'DR' %}
+                            <span class="badge rounded-pill bg-info">DRAFT</span>
+                          {% elif item.status == 'IN' %}
+                            <span class="badge rounded-pill bg-danger">INACTIVE</span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </a>
+                    <div class="text-center py-2" style="background-color: #f7f7f7;">
+                      <input class="form-check-input mycheck" type="checkbox" name="items" value="{{ item.pk }}" id="item{{ item.pk }}" />
+                    </div>
+                  </div>
+                </div>
+           
+            {% empty %}
+              <p>No items available.</p>
+            {% endfor %}
+          </div>
+        </form>  
         <!-- Pagination -->
         <div class="mt-4">
           <ul class="pagination justify-content-center">
             {% if itemss.has_previous %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ itemss.previous_page_number }}" aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
+                <a class="page-link" href="?page={{ itemss.previous_page_number }}" aria-label="Previous">«</a>
               </li>
             {% else %}
               <li class="page-item disabled">
-                <a class="page-link" href="#" aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
+                <span class="page-link">«</span>
               </li>
             {% endif %}
+
             {% for num in itemss.paginator.page_range %}
               {% if itemss.number == num %}
                 <li class="page-item active">
-                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                  <span class="page-link">{{ num }}</span>
                 </li>
               {% elif num > itemss.number|add:'-3' and num < itemss.number|add:'3' %}
                 <li class="page-item">
@@ -92,24 +104,60 @@
                 </li>
               {% endif %}
             {% endfor %}
+
             {% if itemss.has_next %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ itemss.next_page_number }}" aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
+                <a class="page-link" href="?page={{ itemss.next_page_number }}" aria-label="Next">»</a>
               </li>
             {% else %}
               <li class="page-item disabled">
-                <a class="page-link" href="#" aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
+                <span class="page-link">»</span>
               </li>
             {% endif %}
           </ul>
         </div>
-    </form>
-</div>
-<script>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .image-container {
+      width: 90%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .image-container img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 767px) {
+      .d-flex.flex-column.flex-md-row {
+        width: 100%;
+      }
+
+      .form-select {
+        width: 60%;
+      }
+
+      .btn-primary {
+        width: 35%;
+      }
+
+      .add_btn {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+  <script>
     function submitForm() {
         const form = document.getElementById('items-form');
         const actionSelect = document.getElementById('action-select');
@@ -120,11 +168,5 @@
             alert('Please select an action.');
         }
     }
-</script>
-<style>
-  .add_btn {
-    left: 430px;
-  }
-  
-</style>
+  </script>
 {% endblock %}

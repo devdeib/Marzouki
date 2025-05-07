@@ -91,7 +91,7 @@ def home(request):
                             error_message = f"Email error: {str(error)}"
                 return JsonResponse({'success': False, 'message': error_message}, status=400)
 
-    return render(request, 'home', {
+    return render(request, 'home.html', {
         'subscription_form': subscription_form,
         'hero_image_url': hero_image_url
     })

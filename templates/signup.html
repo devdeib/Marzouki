@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <style>
+    /* Responsive Adjustments */
+    .signupform {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh; /* Ensure form is vertically centered on taller screens */
+      padding: 20px; /* Add padding for small screens */
+    }
+
+    .signupcard-body {
+      width: 100%; /* Full width by default */
+      max-width: 320px; /* Cap at 320px for larger screens */
+      background-color: #f7f7f7;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .paints-header h1 {
+      font-size: 60px; /* Default for desktop */
+    }
+
+    .hr--large {
+      border: none;
+      height: 1.5px;
+      background-color: #5e5e5e;
+      margin: 20px auto;
+      width: 5%; /* Default for desktop */
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+      .paints-header h1 {
+        font-size: 40px; /* Reduce header size on tablets */
+      }
+      .hr--large {
+        width: 10%; /* Slightly wider on smaller screens for visibility */
+      }
+      .signupcard-body {
+        padding: 15px; /* Reduce padding on smaller screens */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .paints-header h1 {
+        font-size: 30px; /* Further reduce for mobile */
+      }
+      .hr--large {
+        width: 15%; /* Adjust width for mobile */
+      }
+      .form-label {
+        font-size: 14px; /* Slightly smaller labels */
+      }
+      .btn-warning {
+        width: 100%; /* Ensure button spans full width on mobile */
+      }
+    }
+  </style>
+
+  <div class="paints-header text-center mt-3 font-weight-bold">
+    <h1>Sign Up</h1>
+    <hr class="hr--large" />
+  </div>
+  <form class="signupform" method="POST" action="{% url 'signup' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card bg-secondary mb-1">
+      <div class="signupcard-body">
+        <div class="formgroup mb-1">
+          <label for="{{ form.username.id_for_label }}" class="form-label mt-3">Username</label>
+          <input type="text" class="form-control" id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}" placeholder="Username" required />
+          {% if form.username.errors %}
+            <div class="invalid-feedback d-block text-sm-danger">
+              {% for error in form.username.errors %}
+                <small class="text-danger">{{ error }}</small>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if form.username.value in user.username_set.all %}
+            <div class="alert-danger mt-1" role="alert">
+              <small class="text-sm-danger">This username is already taken.</small>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="formgroup mb-1">
+          <label for="{{ form.email.id_for_label }}" class="form-label mt-3">Email address</label>
+          <input type="email" class="form-control" id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" placeholder="email@example.com" required />
+          {% if form.email.errors %}
+            <div class="invalid-feedback text-sm-danger">
+              {% for error in form.email.errors %}
+                <small class="text-danger">{{ error }}</small>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if user_exists %}
+            <div class="alert-danger mt-1" role="alert">
+              <small class="text-sm-danger text-danger">This email is already taken.</small>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="formgroup mb-1">
+          <label for="{{ form.password1.id_for_label }}" class="form-label mt-3">Password</label>
+          <input type="password" class="form-control" id="{{ form.password1.id_for_label }}" name="{{ form.password1.html_name }}" placeholder="••••••••••" required />
+          {% if form.password1.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in form.password1.errors %}
+                <small class="text-danger">{{ error }}</small>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="form-group mb-1">
+          <label for="{{ form.password2.id_for_label }}" class="form-label mt-3">Password Confirmation</label>
+          <input type="password" class="form-control" id="{{ form.password2.id_for_label }}" name="{{ form.password2.html_name }}" placeholder="••••••••••" required />
+          {% if form.password2.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in form.password2.errors %}
+                <small class="text-sms-danger">{{ error }}</small>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger mt-1" role="alert">
+              {% for error in form.non_field_errors %}
+                <small class="text-danger">{{ error }}</small>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <button type="submit" class="btn btn-warning mt-3" value="Register">Register</button>
+          <p class="mt-3 mb-2 text-secondary-emphasis">Already have an account? <a class="text-warning" href="{% url 'login' %}">Login</a></p>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

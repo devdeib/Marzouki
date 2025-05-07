@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      
+      <style>
+        /* Modal styles similar to your existing popups */
+        
+      
+        
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+          background-color: white;
+          margin: 15% auto;
+          padding: 20px;
+          border-radius: 5px;
+          width: 90%;
+          max-width: 400px;
+          text-align: center;
+        }
+        .close {
+          text-align: right;
+          float: right;
+          font-size: 24px;
+          cursor: pointer;
+        }
+        .form-group {
+          margin-bottom: 15px;
+        }
+        #form-message {
+          margin-top: 10px;
+          font-size: 14px;
+        }
+        .error {
+          color: red;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div id="newsletter-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">×</span>
+          <h2>Welcome!</h2>
+          <p>Subscribe to our newsletter for weekly updates and exclusive offers!</p>
+          <form id="newsletter-form" method="POST">
+            {% csrf_token %}
+            <div class="form-group">{{ subscription_form.email }}</div>
+            <button type="submit" class="btn btn-outline-dark">Subscribe</button>
+          </form>
+          <p id="form-message"></p>
+        </div>
+      </div>
+
+      <div class="hero-container mb-5 slideshow-container">
+        <div>
+          <img class="hero-img" src="{{ hero_image_url }}" onerror="this.src='{% static 'imgs/heroimg2.jpg' %}'" alt="Hero Image" />
+        </div>
+
+        <div class="hero-content">
+          <h1 class="hero-text">Waseem Marzouki Art</h1>
+
+          <a href="{% url 'paints' %}" style="text-decoration: none;"><button class="btn btn-outline-light">Gallery</button></a>
+          
+          
+          {% if request.user.is_authenticated and request.user.is_staff %}
+            <form method="POST" enctype="multipart/form-data" id="hero-image-form" style="display: inline;">
+              {% csrf_token %}
+              <input type="file" id="hero-image-input" name="image" accept="image/*" style="display: none;" onchange="document.getElementById('hero-image-form').submit();" />
+              <button type="button" class="btn btn-outline-light" onclick="document.getElementById('hero-image-input').click();">Change Hero Image</button>
+            </form>
+          {% endif %}
+
+
+        </div>
+
+        {% if request.user.is_authenticated and request.user.is_staff %}
+          <form method="POST" enctype="multipart/form-data" class="mt-3 text-center">
+            {% csrf_token %}
+            <input type="file" name="image" accept="image/*" required />
+            <button type="submit" class="btn btn-outline-light mt-2">Change Hero Image</button>
+          </form>
+        {% endif %}
+      </div>
+      
+      <script>
+        // Show popup when page loads
+        window.onload = function () {
+          document.getElementById('newsletter-modal').style.display = 'block'
+        }
+        
+        // Close popup
+        document.querySelector('.close').addEventListener('click', function () {
+          document.getElementById('newsletter-modal').style.display = 'none'
+        })
+        
+        // Handle form submission via AJAX
+        document.getElementById('newsletter-form').addEventListener('submit', function (e) {
+          e.preventDefault()
+          const formData = new FormData(this)
+          fetch("{% url 'home' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const messageDiv = document.getElementById('form-message')
+              if (data.success) {
+                messageDiv.className = 'success'
+                messageDiv.textContent = data.message
+                setTimeout(() => {
+                  document.getElementById('newsletter-modal').style.display = 'none'
+                }, 1000) // Close after 2 seconds
+              } else {
+                messageDiv.className = 'error'
+                messageDiv.textContent = data.message // Display the custom message directly
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error)
+              const messageDiv = document.getElementById('form-message')
+              messageDiv.className = 'error'
+              messageDiv.textContent = 'An unexpected error occurred. Please try again.'
+            })
+        })
+        if (data.success) {
+          messageDiv.className = 'success'
+          messageDiv.textContent = data.message
+          setTimeout(() => {
+            const modal = document.getElementById('newsletter-modal')
+            modal.style.transition = 'opacity 0.5s'
+            modal.style.opacity = '0'
+            setTimeout(() => (modal.style.display = 'none'), 500)
+          }, 2000)
+        }
+        // Close modal if clicking outside
+        window.addEventListener('click', function (event) {
+          const modal = document.getElementById('newsletter-modal')
+          if (event.target == modal) {
+            modal.style.display = 'none'
+          }
+        })
+      </script>
+      
+    </body>
+  </html>
+{% endblock %}

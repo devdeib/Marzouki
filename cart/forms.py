@@ -1,5 +1,5 @@
 from django import forms
-from TheApp.models import Size, Variation, Choices
+from TheApp.models import Size, Variation, Choices, ItemVariation
 
 
 class CartAddProductForm(forms.Form):
@@ -14,9 +14,16 @@ class CartAddProductForm(forms.Form):
         item = kwargs.pop('item', None)
         super().__init__(*args, **kwargs)
 
-        if item is not None and item.item_quantity > 0:
-            quantity_choices = [(i, str(i))
-                                for i in range(1, item.item_quantity + 1)]
+        if item is not None:
+            item_variations = ItemVariation.objects.filter(item=item)
+            variation_names = [iv.variation.name for iv in item_variations]
+            # You could use this list in custom logic if needed
+
+            if item.item_quantity > 0:
+                quantity_choices = [(i, str(i))
+                                    for i in range(1, item.item_quantity + 1)]
+            else:
+                quantity_choices = [(0, '0')]
         else:
             quantity_choices = [(0, '0')]
 

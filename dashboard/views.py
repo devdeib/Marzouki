@@ -1,8 +1,6 @@
-from .forms import *
+from TheApp.forms import *
 from .models import *
 from django.forms import modelformset_factory
-from .forms import *
-from .models import *
 from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404
 from TheApp.models import *
@@ -27,6 +25,11 @@ from orders.models import Order
 import logging
 from django.http import JsonResponse
 from django.db import transaction
+from django.db.models import Min, Max
+from django.conf import settings
+from django.core.mail import send_mass_mail
+from django.core.mail import EmailMultiAlternatives
+
 
 def home(request):
     app_config = apps.get_app_config('TheApp')
@@ -49,7 +52,7 @@ def store_items_list(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         itemss = paginator.page(paginator.num_pages)
 
-    return render(request, 'store_items_list.html', {'items': items, 'sections': sections, 'itemss': itemss})
+    return render(request, 'store_items_list.html', {'items': items, 'sections': sections, 'itemss': itemss, 'on_dashboard_page': True, })
 
 
 def items_bulk_action(request):
@@ -97,26 +100,21 @@ def dash_search(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         results = paginator.page(paginator.num_pages)
 
-    return render(request, 'dash_search_results.html', {'results': results, 'sections': sections, 'query': query})
+    return render(request, 'dash_search_results.html', {'results': results, 'sections': sections, 'query': query, 'on_dashboard_page': True,})
 
 
 logger = logging.getLogger(__name__)
 
 
 def add_store_item(request):
-    # Handle AJAX video upload
+    # Handle AJAX video upload (unchanged)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
         try:
-            # Get the video file from request.FILES
             video_file = next(iter(request.FILES.values()))
-
-            # Process the video file if needed
-            # For now, just return success to show progress
             return JsonResponse({'status': 'success'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
-    # Regular form submission handling
     if request.method == 'POST':
         store_item_form = StoreItemForm(request.POST, request.FILES)
         image_formset = StoreItemImageFormSet(
@@ -125,23 +123,27 @@ def add_store_item(request):
             request.POST, request.FILES, prefix='videos')
         variation_formset = ItemVariationsFormSet(
             request.POST, prefix='variation')
-        # Create a list to store all choices formsets
+
         choices_formsets = []
         total_variations = int(request.POST.get('variation-TOTAL_FORMS', 0))
         for i in range(total_variations):
             choices_formset = ChoiceFormSet(
-                request.POST,
-                prefix=f'choices_{i}'
-            )
+                request.POST, prefix=f'choices_{i}')
             choices_formsets.append(choices_formset)
         choices_valid = all(formset.is_valid() for formset in choices_formsets)
+
         if (store_item_form.is_valid() and image_formset.is_valid() and
-            video_formset.is_valid() and variation_formset.is_valid() and
-                choices_valid):
+                video_formset.is_valid() and variation_formset.is_valid() and choices_valid):
             try:
                 with transaction.atomic():
                     # Save store item
                     store_item = store_item_form.save()
+                    # Link the selected section (if any)
+                    selected_section = store_item_form.cleaned_data.get(
+                        'section')
+                    if selected_section:
+                        selected_section.items.add(store_item)
+
                     # Save images
                     image_formset.instance = store_item
                     image_formset.save()
@@ -153,7 +155,6 @@ def add_store_item(request):
                     for i, variation in enumerate(variations):
                         variation.item = store_item
                         variation.save()
-                        # Save choices for this variation
                         choices_formsets[i].instance = variation
                         choices_formsets[i].save()
                     messages.success(
@@ -168,7 +169,7 @@ def add_store_item(request):
         image_formset = StoreItemImageFormSet(prefix='images')
         video_formset = StoreItemVideoFormSet(prefix='videos')
         variation_formset = ItemVariationsFormSet(prefix='variation')
-        choices_formsets = [ChoiceFormSet(prefix=f'choices_0')]
+        choices_formsets = [ChoiceFormSet(prefix='choices_0')]
 
     context = {
         'store_item_form': store_item_form,
@@ -176,10 +177,84 @@ def add_store_item(request):
         'video_formset': video_formset,
         'variation_formset': variation_formset,
         'choices_formsets': choices_formsets,
-        'is_edit': False
+        'is_edit': False,
+        'on_dashboard_page': True,
     }
     return render(request, 'add_store_item.html', context)
 
+# New AJAX view to create a section
+
+
+def newsletter_list(request):
+    subscribers = NewsletterSubscriber.objects.all()
+    return render(request, 'newsletter_list.html', {'subscribers': subscribers, 'on_dashboard_page':True})
+
+
+def send_newsletter(request):
+    if request.method == 'POST':
+        form = NewsletterForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            from_email = 'Paint Store <myartstore@gmail.com>'
+            subscribers = NewsletterSubscriber.objects.filter(is_active=True)
+
+            if not subscribers:
+                messages.error(request, "No active subscribers found.")
+                return redirect('dashboard:newsletter_list')
+
+            for subscriber in subscribers:
+                html_content = f"""
+                <html>
+                    <body>
+                        <h2>{subject}</h2>
+                        <p>{message}</p>
+                        <p><small>To unsubscribe, <a href="#">click here</a>.</small></p>
+                    </body>
+                </html>
+                """
+                email = EmailMultiAlternatives(
+                    subject, message, from_email, [subscriber.email])
+                email.attach_alternative(html_content, "text/html")
+                email.send(fail_silently=False)
+
+            messages.success(
+                request, f"Newsletter sent to {subscribers.count()} subscribers!")
+            return redirect('dashboard:newsletter_list')
+        else:
+            messages.error(request, "Please correct the form errors.")
+    else:
+        form = NewsletterForm()
+    return render(request, 'send_newsletter.html', {'form': form, 'on_dashboard_page': True})
+
+
+def add_section_ajax(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            if name:
+                section = Section.objects.create(name=name)
+                return JsonResponse({
+                    'success': True,
+                    'section': {
+                        'id': section.id,
+                        'name': section.name
+                    }
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Section name is required'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
 
 def add_variation(request):
     if request.method == 'POST':
@@ -313,6 +388,35 @@ def delete_choice(request, choice_id):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
+def add_tag(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            if name:
+                tag, created = Tag.objects.get_or_create(name=name)
+                return JsonResponse({
+                    'success': True,
+                    'tag': {
+                        'id': tag.id,
+                        'name': tag.name
+                    }
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Tag name is required'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
+
+
 def delete_variation(request, variation_id):
     """Delete a variation and all its associated choices."""
     if request.method == 'POST':
@@ -360,7 +464,7 @@ def store_item_detail(request, pk):
 
 def section_list(request):
     sections = Section.objects.annotate(item_count=Count('items'))
-    return render(request, 'section_list.html', {'sections': sections})
+    return render(request, 'section_list.html', {'sections': sections, 'on_dashboard_page': True, })
 
 
 def add_section(request):
@@ -373,12 +477,13 @@ def add_section(request):
 
             messages.success(request, 'New Category added successfully!')
             # No redirect; fall through to re-render the form page
+            return redirect('dashboard:section_list')
         else:
             print("Form is not valid")
     else:
         print("GET request, not POST")
         form = SectionForm()
-    return render(request, 'add_section.html', {'form': form})
+    return render(request, 'add_section.html', {'form': form, 'on_dashboard_page':True})
 
 
 def edit_section(request, section_id):
@@ -416,7 +521,7 @@ def edit_section(request, section_id):
 
     sorted_items = checked_items + unchecked_items
 
-    return render(request, 'section_detail.html', {'form': form, 'section': section, 'items': sorted_items})
+    return render(request, 'section_detail.html', {'form': form, 'section': section, 'items': sorted_items, 'on_dashboard_page': True})
 
 
 def delete_section(request, section_id):
@@ -427,7 +532,7 @@ def delete_section(request, section_id):
 
 def section_detail(request, pk):
     section = get_object_or_404(Section, pk=pk)
-    return render(request, 'section_detail.html', {'section': section})
+    return render(request, 'section_detail.html', {'section': section, 'on_section_page': True})
 
 
 def color_list(request):
@@ -452,7 +557,7 @@ def tag_detail(request, pk):
 
 def discount_list(request):
     discounts = Discount.objects.all()
-    return render(request, 'discounts.html', {'discounts': discounts})
+    return render(request, 'discounts.html', {'discounts': discounts, 'on_dashboard_page': True})
 
 
 def discount_detail(request, pk):
@@ -466,7 +571,7 @@ def discount_detail(request, pk):
     else:
         form = DiscountForm(instance=discount)
 
-    return render(request, 'discount_detail.html', {'form': form, 'discount': discount})
+    return render(request, 'discount_detail.html', {'form': form, 'discount': discount, 'on_dashboard_page': True})
 
 
 def add_discount(request):
@@ -477,7 +582,7 @@ def add_discount(request):
             return redirect('dashboard:discount_list')
     else:
         form = DiscountForm()
-    return render(request, 'add_discount.html', {'form': form})
+    return render(request, 'add_discount.html', {'form': form, 'on_dashboard_page': True})
 
 
 def delete_discount(request, pk):
@@ -522,7 +627,38 @@ def model_detail(request, model_name, pk):
 
 def order_list(request):
     orders = Order.objects.all()
-    return render(request, 'order_list.html', {'orders': orders})
+
+    selected_year = request.GET.get('year', '')
+    selected_month = request.GET.get('month', '')
+
+    if selected_year:
+        try:
+            orders = orders.filter(created__year=int(selected_year))
+        except ValueError:
+            orders = Order.objects.none()  # Invalid year, show no results
+
+    if selected_month:
+        try:
+            orders = orders.filter(created__month=int(selected_month))
+        except ValueError:
+            orders = Order.objects.none()  # Invalid month, show no results
+
+    # Get year range safely
+    year_range = orders.aggregate(min_year=Min(
+        'created__year'), max_year=Max('created__year'))
+    min_year = year_range['min_year'] or 2020
+    max_year = year_range['max_year'] or 2025
+    years = range(min_year, max_year +
+                  1) if min_year and max_year else range(2020, 2026)
+
+    context = {
+        'orders': orders,
+        'years': years,
+        'selected_year': selected_year,
+        'selected_month': selected_month,
+        'on_dashboard_page': True,
+    }
+    return render(request, 'order_list.html', context)
 
 
 def variation_list(request):
@@ -532,4 +668,4 @@ def variation_list(request):
 
 def users_list(request):
     users = User.objects.all()
-    return render(request, 'users_list.html', {'users': users})
+    return render(request, 'users_list.html', {'users': users, 'on_dashboard_page': True})

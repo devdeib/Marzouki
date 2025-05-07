@@ -36,7 +36,7 @@ class Section(models.Model):
     items = models.ManyToManyField(
         'StoreItems', related_name='section', blank=True)
 
-    def str(self):
+    def __str__(self):  # Changed from str to __str__
         return self.name
 
 
@@ -49,7 +49,7 @@ class StoreItems(models.Model):
         (ACTIVE, 'Active'),
         (INACTIVE, 'Inactive'),
     ]
-
+    
     status = models.CharField(
         max_length=2, choices=STATUS_CHOICES, default=DRAFT)
     item_name = models.CharField(max_length=200)
@@ -97,6 +97,8 @@ class StoreItems(models.Model):
         # No active discount, return original price
         return self.item_price
 
+    def __str__(self):  # Changed from str to __str__
+        return self.item_name
 
 class StoreItemImage(models.Model):
     item = models.ForeignKey(
@@ -118,6 +120,18 @@ class StoreItemVideo(models.Model):
         return f"{self.item.item_name} Video"
 
 
+class NewsletterSubscriber(models.Model):
+    email = models.EmailField(unique=True)  # Ensure no duplicate subscriptions
+    subscribed_at = models.DateTimeField(
+        auto_now_add=True)  # Timestamp of subscription
+    is_active = models.BooleanField(default=True)  # Allow unsubscribing
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        verbose_name = "Newsletter Subscriber"
+        verbose_name_plural = "Newsletter Subscribers"
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -206,17 +220,24 @@ class Discount(models.Model):
 
 
 class ArtistProfile(models.Model):
-    bio = models.TextField(blank=True, help_text="Enter your bio here.")
+    bio = models.TextField(blank=True, )
     photo = models.ImageField(
         upload_to='artist_photos/',
         blank=True,
         null=True,
         validators=[FileExtensionValidator(
             allowed_extensions=['jpg', 'jpeg', 'png'])],
-        help_text="Upload a photo of yourself (JPG/PNG)."
+    
+    
     )
     updated_at = models.DateTimeField(auto_now=True)
-
+    # Social profile fields
+    twitter_url = models.URLField(blank=True, default='')
+    twitter_show = models.BooleanField(default=False)
+    instagram_url = models.URLField(blank=True, default='')
+    instagram_show = models.BooleanField(default=False)
+    facebook_url = models.URLField(blank=True, default='')
+    facebook_show = models.BooleanField(default=False)
     class Meta:
         verbose_name = "Artist Profile"
         verbose_name_plural = "Artist Profile"

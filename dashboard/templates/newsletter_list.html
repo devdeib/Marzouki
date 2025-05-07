@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Newsletter Subscribers</title>
+    <style>
+        .main-content {
+            padding: 20px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .add-newsletter-btn {
+            color: white;
+            text-decoration: none;
+        }
+        .add-newsletter-btn:hover {
+            /* You can add hover styles here if desired, e.g., */
+            /* background-color: #45a049; */
+        }
+        /* Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            
+        }
+        th {
+            background-color: #f2f2f2;
+            white-space: nowrap;
+        }
+        td {
+            word-wrap: break-word;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Mobile Card Styling */
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead {
+                
+                display: none;
+            }
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                
+                
+            }
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                font-size: 14px;
+            }
+            td:last-child {
+                border-bottom: none;
+            }
+            td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                flex: 0 0 40%;
+                color: #333;
+            }
+            
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-4 mt-3">
+        <div class="row">
+            <!-- Sidebar -->
+            {% if on_dashboard_page %}
+            <div class="col-md-2 mt-3 d-none d-lg-block">
+                <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+                <hr class="hr--large" />
+                <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+                <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+                <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+                <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+                <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+                <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+            </div>
+            {% endif %}
+            <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
+                <h1>Newsletter Subscribers</h1>
+                <br>
+                <a class="add-newsletter-btn btn btn-success mb-3" href="{% url 'dashboard:send_newsletter' %}">Send Newsletter</a>
+                <br>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Subscribed At</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subscriber in subscribers %}
+                            <tr>
+                                <td data-label="Email">{{ subscriber.email }}</td>
+                                <td data-label="Subscribed At">{{ subscriber.subscribed_at }}</td>
+                                <td data-label="Active">{{ subscriber.is_active|yesno:"Yes,No" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No subscribers yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

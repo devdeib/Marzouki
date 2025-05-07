@@ -24,6 +24,14 @@ class SignupForm(UserCreationForm):
         return user
 
 
+class NewsletterSubscriptionForm(forms.ModelForm):
+    class Meta:
+        model = NewsletterSubscriber
+        fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}),
+        }
+
 class SearchForm(forms.Form):
     query = forms.CharField(label='Search', max_length=200, required=False)
 
@@ -44,3 +52,24 @@ class ArtistPhotoForm(forms.ModelForm):
         widgets = {
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+
+
+class SocialProfilesForm(forms.Form):
+    twitter_url = forms.URLField(
+        required=False,
+        widget=forms.URLInput(
+            attrs={'placeholder': 'https://twitter.com/username'})
+    )
+    twitter_active = forms.BooleanField(required=False, initial=True)
+    instagram_url = forms.URLField(
+        required=False,
+        widget=forms.URLInput(
+            attrs={'placeholder': 'https://instagram.com/username'})
+    )
+    instagram_active = forms.BooleanField(required=False, initial=True)
+    facebook_url = forms.URLField(
+        required=False,
+        widget=forms.URLInput(
+            attrs={'placeholder': 'https://facebook.com/username'})
+    )
+    facebook_active = forms.BooleanField(required=False, initial=True)

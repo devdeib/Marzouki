@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}
   Your shopping cart
 {% endblock %}
+
 {% block content %}
   <div class="paints-header text-center mt-3 font-weight-bold">
     <h1>Your Cart</h1>
@@ -19,48 +21,59 @@
   </div>
 
   <div class="cart-details-container container mt-3">
-    {% if messages %}
-      <div class="alert alert-warning">
-        {% for message in messages %}
-          {{ message }}
-        {% endfor %}
-      </div>
-    {% endif %}
-    <div class="row main-container">
-      <div class="cartlist col-md-8">
+    <div class="main-container">
+      
+      <!-- Cart Items -->
+      <div class="cartlist">
         {% for item in cart %}
           <a href="{% url 'paint_detail' item.item_id %}" style="text-decoration: none;">
-            <div class="list">
-              <div class="cart-img">
-                <img src="{{ item.item_photo }}" alt="Item Photo" class="" onerror="this.src='{% static 'imgs/default.png' %}'"/>
+            <div class="list d-flex align-items-start justify-content-between">
+              <!-- Image -->
+              <div class="cart-img me-3">
+                <img src="{{ item.item_photo }}" alt="Item Photo" onerror="this.src='{% static 'imgs/default.png' %}'"/>
               </div>
-              <div class="cart-details-responsive">
-                <h3 class="cart-title mb-2">
-                  {{ item.item_name }}
-                  <strong class="small-quantity">{{ item.quantity }}x</strong>
-                  <small class="small-quantity"><a href="{% url 'paint_detail' item.item_id %}" class="text-danger">Edit</a></small>
-                </h3>
-                <p class="cart-price mb-2">
-                  {% if item.choice %}
-                    <span>{{ item.variation }}: {{ item.choice }} {% if item.choice_increment|floatformat:2 != "0.00" %}(+${{ item.choice_increment|floatformat:2 }}){% endif %}</span><br>
+
+              <!-- Details -->
+              <div class="cart-details-responsive flex-grow-1">
+                <div class="d-flex align-items-center">
+                  <h3 class="cart-title mb-2">{{ item.item_name }}</h3>
+                  <span class="small-quantity ms-2">{{ item.quantity }}x</span>
+                </div>
+
+                <div class="cart-price-section mb-2">
+                  <p style="color: green; font-weight: 700; font-size: large;">${{ item.total_price|floatformat:2 }}</p>
+                  {% if item.discount_percent > 0 %}
+                    <p class="discount-info mb-1 text-muted small">
+                      <span class="text-decoration-line-through">${{ item.item_price|floatformat:2 }}</span>
+                      <span> ({{ item.discount_percent }}% off)</span>
+                    </p>
                   {% endif %}
-                  {% if item.final_price < item.item_price|floatformat:2 %}
-                    <span style="color: green; font-weight: bold;">${{ item.final_price|floatformat:2 }}</span>
-                    <span style="text-decoration: line-through; color: #888; margin-left: 5px;">${{ item.item_price|floatformat:2 }}</span>
-                  {% else %}
-                    <span style="font-weight: bold;">${{ item.final_price|floatformat:2 }}</span>
-                  {% endif %}
-                  <span> (Total: ${{ item.total_price|floatformat:2 }})</span>
-                </p>
-                <p class="card-text cart-description mb-4">{{ item.item_description }}</p>
+                </div>
+
+                {% if item.variation_choices %}
+                  <div class="cart-variation mb-2">
+                    {% for vc in item.variation_choices %}
+                      <div>{{ vc.variation_name }}: {{ vc.choice_name }}
+                        {% if vc.price_increment|floatformat:2 != "0.00" %}
+                          (+${{ vc.price_increment|floatformat:2 }})
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                {% if item.personalization %}
+                  <div class="mb-2"><strong>Personalization:</strong> {{ item.personalization }}</div>
+                {% endif %}
+
                 <form action="{% url 'cart:cart_remove' item.item_id %}" method="post">
                   {% csrf_token %}
-                  <button class="btn btn-danger remove-item" type="submit">Remove</button>
+                  <button class=" btn btn-danger remove-item" style="margin-top: 5px;" type="submit">Remove</button>
                 </form>
               </div>
             </div>
           </a>
-          {% if not forloop.last %}
+          {% if not forloop.last and cart|length > 1 %}
             <hr class="hr--large" />
           {% endif %}
         {% empty %}
@@ -68,17 +81,41 @@
         {% endfor %}
       </div>
 
+      <!-- Order Summary -->
       {% if cart|length > 0 %}
-        <div class="col-md-4">
-          <div class="total-price mb-3">
-            <strong>Total: ${{ total_price|floatformat:2 }}</strong>
-          </div>
-          <div class="options">
-            <p><a href="{% url 'paints' %}" class="button light mb-3">Continue shopping</a></p>
-            <p><a href="{% url 'orders:order_create' %}" class="btn btn-warning">Checkout</a></p>
+        <div class="checkout-box">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Order Summary</h5>
+              <hr>
+              <div class="d-flex justify-content-between mb-3">
+                <span>Total</span>
+                <span class="fw-bold">${{ total_price|floatformat:2 }}</span>
+              </div>
+              <a href="{% url 'orders:order_create' %}" class="btn btn-primary w-100 mb-2">Checkout</a>
+              <a href="{% url 'paints' %}" class="btn btn-outline-secondary w-100">Continue Shopping</a>
+            </div>
           </div>
         </div>
       {% endif %}
     </div>
   </div>
+  <style>
+  .image-container {
+      width: 90%;
+      aspect-ratio: 1 / 1; /* Make all images square */
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+
+  .image-container img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+  }
+
+
+  </style>
 {% endblock %}

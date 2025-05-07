@@ -1,4 +1,4 @@
-{% extends 'admin_base.html' %}
+{% extends 'base.html' %}
 {% block content %}
 <!DOCTYPE html>
 <html>
@@ -9,84 +9,178 @@
             width: 100%;
             border-collapse: collapse;
         }
-        table, th, td {
-            border: 1px lightslategray;
-        }
+
         th, td {
             padding: 10px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
+            white-space: nowrap;
         }
+
+        td {
+            word-wrap: break-word;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
         .main-content {
             padding: 20px;
         }
+
         .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 20px;
         }
-        .view-btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .view-btn:hover {
-            background-color: #0056b3;
-        }
+
         .status-true {
             color: green;
         }
+
         .status-false {
             color: red;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Mobile Card Styling */
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead {
+                
+                display: none;
+            }
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                
+                
+            }
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                font-size: 14px;
+            }
+            td:last-child {
+                border-bottom: none;
+            }
+            td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                flex: 0 0 40%;
+                color: #333;
+            }
+            
+            
         }
     </style>
 </head>
 <body>
-    <div class="main-content">
-        <div class="header-container">
-            <h1>Order List</h1>
+    <div class="container-fluid px-4 mt-3">
+        <div class="row">
+            {% if on_dashboard_page %}
+            <div class="col-md-2 mt-3 d-none d-lg-block">
+                <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+                <hr class="hr--large" />
+                <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+                <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+                <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+                <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+                <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+                <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+            </div>
+            {% endif %}
+            <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
+                <h1>Orders List</h1>
+                <br>
+                <form method="GET" action="{% url 'dashboard:order_list' %}" class="row g-2 align-items-center">
+                    <div class="col-12 col-md-auto">
+                        <label for="year" class="form-label mb-0">Filter Orders:</label>
+                    </div>
+                    <div class="col-12 col-md-auto">
+                        <select name="year" id="year" class="form-select">
+                            <option value="">All Years</option>
+                            {% for year in years %}
+                                <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-auto">
+                        <select name="month" id="month" class="form-select">
+                            <option value="">All Months</option>
+                            <option value="1" {% if selected_month == '1' %}selected{% endif %}>January</option>
+                            <option value="2" {% if selected_month == '2' %}selected{% endif %}>February</option>
+                            <option value="3" {% if selected_month == '3' %}selected{% endif %}>March</option>
+                            <option value="4" {% if selected_month == '4' %}selected{% endif %}>April</option>
+                            <option value="5" {% if selected_month == '5' %}selected{% endif %}>May</option>
+                            <option value="6" {% if selected_month == '6' %}selected{% endif %}>June</option>
+                            <option value="7" {% if selected_month == '7' %}selected{% endif %}>July</option>
+                            <option value="8" {% if selected_month == '8' %}selected{% endif %}>August</option>
+                            <option value="9" {% if selected_month == '9' %}selected{% endif %}>September</option>
+                            <option value="10" {% if selected_month == '10' %}selected{% endif %}>October</option>
+                            <option value="11" {% if selected_month == '11' %}selected{% endif %}>November</option>
+                            <option value="12" {% if selected_month == '12' %}selected{% endif %}>December</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-auto">
+                        <button type="submit" class="btn btn-primary w-100 w-md-auto">Filter</button>
+                    </div>
+                </form>
+
+                <br>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Date</th>
+                                <th>Address</th>
+                                <th>Paid</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td data-label="Order ID">{{ order.id }}</td>
+                                    <td data-label="User">{{ order.first_name }} {{ order.last_name }}</td>
+                                    <td data-label="Email">{{ order.email }}</td>
+                                    <td data-label="Date">{{ order.created }}</td>
+                                    <td data-label="Address">{{ order.address }}, {{ order.city }}, {{ order.postal_code }}</td>
+                                    <td data-label="Paid">
+                                        {% if order.paid %}
+                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                        {% else %}
+                                            <span class="fa fa-times"></span>
+                                        {% endif %}
+                                    </td>
+                                    <td data-label="Total">${{ order.get_total_cost }}</td>
+                                    <td data-label="Actions">
+                                        <a class="" href="{% url 'orders:admin_order_detail' order.id %}">View</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Address</th>
-                    <th>Created</th>
-                    <th>Paid</th>
-                    <th>Total Cost</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.first_name }} {{ order.last_name }}</td>
-                    <td>{{ order.email }}</td>
-                    <td>{{ order.address }}, {{ order.city }}, {{ order.postal_code }}</td>
-                    <td>{{ order.created }}</td>
-                    <td>
-                        {% if order.paid %}
-                            <i class="fa fa-check" aria-hidden="true"></i>
-                        {% else %}
-                            <span class="fa fa-times"></span>
-                        {% endif %}
-                    </td>
-                    <td>${{ order.get_total_cost }}</td>
-                    <td>
-                        <a class="" href="{% url 'orders:admin_order_detail' order.id %}">View</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 </body>
 </html>

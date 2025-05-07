@@ -1,48 +1,103 @@
 {% load static %}
-<header style="position: sticky;">
+<header style="position: sticky; top: 0; z-index: 1000;">
   <div class="bs-component">
     <nav class="navbar navbar-expand-lg bg-primary navbar sticky-top px-3 py-3" data-bs-theme="dark">
-      <div class="container-fluid mx-5">
+      <div class="container-fluid mx-md-5 mx-2 d-flex justify-content-between align-items-center">
         <a class="navbar-brand" href="{% url 'home' %}">Waseem Marzouki</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          <span class="navbar-toggler-close" style="display: none;">✕</span>
+        </button>
 
-        <div class="collapse navbar-collapse text-center" id="navbarColor01">
-          <ul class="navbar-nav me-auto text-center">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'home' %}">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'paints' %}">Shop</a>
-            </li>
+        <!-- Offcanvas Menu for Small Screens -->
+        <div class="offcanvas offcanvas-end d-block d-lg-none" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+          <div class="offcanvas-header">
             
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
-            
-            {% if user.is_authenticated and user.is_superuser %}
-              <li>
-                <a class="nav-link" href="{% url 'dashboard:admin_home' %}">Shop Managment</a>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body p-0">
+            <ul class="navbar-nav flex-column w-100">
+              <!-- Search Bar (Small Screens) -->
+              <li class="nav-item">
+                <form class="search-form mb-3" action="{% url 'search' %}" style="padding: 15px;">
+                  <div class="d-flex flex-column">
+                    <input class="form-control search mb-2" type="search" placeholder="Search for products" name="query" style="width: 100%;" />
+                    <button class="btn btn-secondary" type="submit" style="width: 100%;">Search</button>
+                  </div>
+                </form>
               </li>
+              <!-- Header Sections -->
+              <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'paints' %}">Gallery</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+              {% if user.is_authenticated and user.is_superuser %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:store_items_list' %}">Shop Management</a></li>
+                
+                {% if on_dashboard_page %}
+                  <hr class="hr--large">
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}" href="{% url 'dashboard:store_items_list' %}"> Listings</a></li>
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}" href="{% url 'dashboard:section_list' %}"> Categories</a></li>
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}" href="{% url 'dashboard:discount_list' %}"> Financials</a></li>
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}" href="{% url 'dashboard:order_list' %}"> Orders</a></li>
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}" href="{% url 'dashboard:newsletter_list' %}">News Letter</a></li>
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}" href="{% url 'dashboard:users_list' %}"> Users</a></li>
+                {% endif %}
+              {% endif %}
+              <!-- Separator -->
+              <li><hr class="hr--large"/></li>
+              {% if on_paints_page %}
+                <!-- Categories (only visible on paints page) -->
+                {% for section in sections %}
+                  <li class="nav-item"><a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a></li>
+                {% endfor %}
+                <!-- Separator -->
+                <li><hr class="hr--large"/></li>
+              {% endif %}
+
+              <!-- Auth and Cart -->
+              <li class="nav-item">
+                  <a href="{% url 'login' %}" class="nav-link d-flex align-items-center">
+                    <img src="{% static 'icons/person.svg' %}" alt="Login Icon" style="width: clamp(20px, 4vw, 26px); height: auto; margin-right: 8px;" />
+                    Login
+                  </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'cart:cart_detail' %}" class="nav-link d-flex align-items-center">
+                  <img src="{% static 'icons/cart.svg' %}" alt="Cart Icon" style="width: clamp(20px, 4vw, 26px); height: auto; margin-right: 8px;" />
+                  Cart
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Large Screen Layout -->
+        <div class="collapse navbar-collapse d-lg-flex d-none" id="navbarColor01">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'paints' %}">Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+            {% if user.is_authenticated and user.is_superuser %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:store_items_list' %}">Shop Management</a></li>
             {% endif %}
           </ul>
-        </div>
-      </div>
-      <div class="header-icon d-flex justify-content-end mx-5">
-        <a href="{% url 'login' %}" class="btn-sm">
-          <img src="{% static 'icons/person.svg' %}" alt="Person Icon" />
-        </a>
-        <div class="position-relative">
-          <a href="{% url 'cart:cart_detail' %}" class="btn-sm">
-            <img src="{% static 'icons/cart.svg' %}" alt="Cart Icon" />
-          </a>
-          {% with total_items=cart.cart.values|length %}
-            {% if total_items > 0 %}
-              <span class="cart-badge">{{ total_items }}</span>
-            {% endif %}
-          {% endwith %}
+          <div class="header-icon d-flex">
+            <a href="{% url 'login' %}" class="btn-sm">
+              <img src="{% static 'icons/person.svg' %}" alt="Person Icon" style="width: clamp(20px, 4vw, 26px); height: auto;" />
+            </a>
+            <div class="position-relative">
+              <a href="{% url 'cart:cart_detail' %}" class="btn-sm">
+                <img src="{% static 'icons/cart.svg' %}" alt="Cart Icon" style="width: clamp(20px, 4vw, 26px); height: auto;" />
+              </a>
+              {% with total_items=cart.cart.values|length %}
+                {% if total_items > 0 %}
+                  <span class="cart-badge">{{ total_items }}</span>
+                {% endif %}
+              {% endwith %}
+            </div>
+          </div>
         </div>
       </div>
     </nav>
   </div>
 </header>
-{% comment %} {% with total_items=cart.cart.values|length %} {% endcomment %}

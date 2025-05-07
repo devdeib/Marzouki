@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import dj_database_url
 from pathlib import Path
 import os
 import stripe
@@ -118,6 +119,11 @@ TEMPLATES = [
         },
     },
 ]
+
+
+DATABASES = {
+    'default': dj_database_url.config(default='postgresql://postgres:[admin123admin]@db.bkfbhshcpuvroimizzjn.supabase.co:5432/postgres')
+}
 
 CACHES = {
     'default': {

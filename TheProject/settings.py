@@ -122,7 +122,7 @@ TEMPLATES = [
 
 
 DATABASES = {
-    'default': dj_database_url.config(default='postgresql://postgres:admin123admin@db.bkfbhshcpuvroimizzjn.supabase.co:5432/postgres')
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 CACHES = {

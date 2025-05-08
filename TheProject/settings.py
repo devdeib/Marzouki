@@ -106,8 +106,14 @@ ROOT_URLCONF = 'TheProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'DIRS': [
+            BASE_DIR / 'TheApp/Templates',
+            BASE_DIR / 'cart/Templates',
+            BASE_DIR / 'payment/Templates',
+            BASE_DIR / 'dashboard/Templates',
+            BASE_DIR / 'orders/Templates',
+        ],
+        'APP_DIRS': True,  # Keep for standard templates/ directories
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -211,7 +217,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'TheApp/static/media')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'TheApp/static/media'),
 ]
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

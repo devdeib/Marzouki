@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f&8sz$1h8rvnip$fyofe%6g#2ruc6@13$4b5&ye^v14e47rv!l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 WSGI_APPLICATION = 'TheProject.wsgi.application'

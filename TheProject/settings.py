@@ -167,6 +167,8 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
+    # Or IPv4 address
+    DATABASES['default']['HOST'] = 'db.bkfbhshcpuvroimizzjn.supabase.co'
 else:
     DATABASES = {
         'default': {

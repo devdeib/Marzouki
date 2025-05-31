@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f&8sz$1h8rvnip$fyofe%6g#2ruc6@13$4b5&ye^v14e47rv!l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 WSGI_APPLICATION = 'TheProject.wsgi.application'
@@ -106,14 +106,8 @@ ROOT_URLCONF = 'TheProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'TheApp/Templates',
-            BASE_DIR / 'cart/Templates',
-            BASE_DIR / 'payment/Templates',
-            BASE_DIR / 'dashboard/Templates',
-            BASE_DIR / 'orders/Templates',
-        ],
-        'APP_DIRS': True,  # Keep for standard templates/ directories
+        'DIRS': [BASE_DIR / 'TheApp/Templates'],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -127,9 +121,7 @@ TEMPLATES = [
 ]
 
 
-DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
-}
+
 
 CACHES = {
     'default': {
@@ -168,14 +160,20 @@ DEFAULT_FROM_EMAIL = 'adeeb.b5000@gmail.com'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
-}
-
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -217,7 +215,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'TheApp/static/media')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'TheApp/static'),
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

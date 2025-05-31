@@ -81,7 +81,7 @@
             <form method="POST" enctype="multipart/form-data" id="hero-image-form" style="display: inline;">
               {% csrf_token %}
               <input type="file" id="hero-image-input" name="image" accept="image/*" style="display: none;" onchange="document.getElementById('hero-image-form').submit();" />
-              <button type="button" class="btn btn-outline-light" onclick="document.getElementById('hero-image-input').click();">Change Hero Image</button>
+              <button type="button" class="btn btn-outline-light" onclick="document.getElementById('hero-image-input').click();">Change Image</button>
             </form>
           {% endif %}
 

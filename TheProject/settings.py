@@ -161,14 +161,16 @@ DEFAULT_FROM_EMAIL = 'adeeb.b5000@gmail.com'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-
+# Database configuration
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
-    # Or IPv4 address
-    DATABASES['default']['HOST'] = 'db.bkfbhshcpuvroimizzjn.supabase.co'
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',  # Enforce SSL for Supabase
+        'connect_timeout': 5,  # Set connection timeout
+    }
 else:
     DATABASES = {
         'default': {
@@ -176,6 +178,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

@@ -228,24 +228,18 @@ function initializeVariationHandlers() {
 }
 
 function handleVariationDelete(variationForm) {
-  const allVisibleVariations = document.querySelectorAll(
-    '.variation-form:not([style*="display: none"])'
-  );
-
-  if (allVisibleVariations.length > 1) {
-    const deleteInput = variationForm.querySelector('input[name$="-DELETE"]');
-    if (deleteInput) {
-      if (deleteInput.type === "checkbox") {
-        deleteInput.checked = true;
-      } else {
-        deleteInput.value = "on";
-      }
-      variationForm.style.display = "none";
+  const deleteInput = variationForm.querySelector('input[name$="-DELETE"]');
+  if (deleteInput) {
+    if (deleteInput.type === "checkbox") {
+      deleteInput.checked = true;
     } else {
-      variationForm.remove();
+      deleteInput.value = "on";
     }
-    updateAllFormIndexes();
-  }   
+    variationForm.style.display = "none";
+  } else {
+    variationForm.remove();
+  }
+  updateAllFormIndexes();
 }
 
 

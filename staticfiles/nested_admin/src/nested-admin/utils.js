@@ -308,11 +308,19 @@ DJNesting.DjangoInlines = {
     if (typeof window.SelectFilter !== "undefined") {
       $form.find(".selectfilter").each(function (index, value) {
         var namearr = value.name.split("-");
-        SelectFilter.init(value.id, namearr[namearr.length - 1], false);
+        SelectFilter.init(
+          value.id,
+          this.dataset.fieldName ?? namearr[namearr.length - 1],
+          false
+        );
       });
       $form.find(".selectfilterstacked").each(function (index, value) {
         var namearr = value.name.split("-");
-        SelectFilter.init(value.id, namearr[namearr.length - 1], true);
+        SelectFilter.init(
+          value.id,
+          this.dataset.fieldName ?? namearr[namearr.length - 1],
+          true
+        );
       });
     }
   },
@@ -340,6 +348,40 @@ if (typeof window.SelectFilter !== "undefined") {
   }, 12);
 }
 
+function patchSelectBox() {
+  window.SelectBox.init = (function (oldFn) {
+    return function init(field_id, field_name, is_stacked) {
+      if (field_id.match(/\-empty\-/)) {
+        return;
+      } else {
+        oldFn.apply(this, arguments);
+      }
+    };
+  })(window.SelectBox.init);
+  window.SelectBox.add_to_cache = (function (oldFn) {
+    return function add_to_cache(id, option) {
+      if (!id.match(/_(from|to)$/)) return;
+      return oldFn.apply(this, arguments);
+    };
+  })(window.SelectBox.add_to_cache);
+  window.SelectBox.redisplay = (function (oldFn) {
+    return function redisplay(id) {
+      if (!id.match(/_(from|to)$/)) return;
+      return oldFn.apply(this, arguments);
+    };
+  })(window.SelectBox.redisplay);
+}
+
+if (typeof window.SelectBox !== "undefined") {
+  patchSelectBox();
+} else {
+  setTimeout(function () {
+    if (typeof window.SelectBox !== "undefined") {
+      patchSelectBox();
+    }
+  }, 12);
+}
+
 const djangoFuncs = ["prepopulate", "djangoAdminSelect2"];
 
 djangoFuncs.forEach((funcName) => {
@@ -348,7 +390,7 @@ djangoFuncs.forEach((funcName) => {
       return;
     }
     if (typeof $.fn[funcName] === "undefined") {
-      return setTimeout(() => patchDjangoFunction(callCount++), 12);
+      return setTimeout(() => patchDjangoFunction(++callCount), 12);
     }
     $.fn[funcName] = (function (oldFn) {
       return function django_fn_patch() {
@@ -388,7 +430,7 @@ grpFuncs.forEach((funcName) => {
       typeof window.grp === "undefined" ||
       typeof window.grp.jQuery.fn[funcName] === "undefined"
     ) {
-      return setTimeout(() => patchGrpFunction(callCount++), 12);
+      return setTimeout(() => patchGrpFunction(++callCount), 12);
     }
     window.grp.jQuery.fn[funcName] = (function (oldFn) {
       return function grp_fn_patch() {

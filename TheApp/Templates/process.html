@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  Pay your order
+{% endblock %}
+{% block content %}
+  <div class="text-center mt-3 font-weight-bold">
+    <h1>Order Summary</h1>
+    <hr class="hr--large" />
+  </div>
+
+  <div class="container mt-3 d-flex justify-content-center">
+    <div class="card p-4" style="width: 400px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+      <h4 class="text-center mb-4">Bill</h4>
+      <ul class="list-unstyled">
+        {% for item in order.items.all %}
+          <li class="d-flex justify-content-between mb-2">
+            <span>
+              {{ item.storeitem.item_name }} ({{ item.quantity }}x)
+              {% if item.variation_name and item.choice_name %}
+                - {{ item.variation_name }}: {{ item.choice_name }}
+                {% if item.choice_increment > 0 %}
+                  (+${{ item.choice_increment|floatformat:2 }})
+                {% endif %}
+              {% endif %}
+            </span>
+            <span>${{ item.item_price|add:item.choice_increment|floatformat:2 }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <hr />
+      <div class="d-flex justify-content-between mb-3">
+        <strong>Total Cost:</strong>
+        <strong>${{ order.get_total_cost }}</strong>
+      </div>
+      <a href="#" onclick="window.print();" style="display: inline-grid; justify-items: center;">Print order</a>
+      <form action="{% url 'payment:process' %}" method="post" class="text-center">
+        {% csrf_token %}
+        <input type="submit" value="Pay now" class="btn btn-warning" />
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .hover-shadow:hover { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    .custom-btn { background-color: #ff9800; border: none; transition: background-color 0.3s ease; }
+    .custom-btn:hover { background-color: #e68900; }
+    .card { border-radius: 5px; background-color: #fff; padding: 20px; margin: 0 auto; gap: 25px; }
+    .card h4 { border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+    .card ul { padding: 0; margin: 0; }
+    .card li { list-style-type: none; }
+    @media print { header, footer, .breadcrumbs, .card a, .card form { display: none !important; } .card { border: none; box-shadow: none; } }
+  </style>
+{% endblock %}

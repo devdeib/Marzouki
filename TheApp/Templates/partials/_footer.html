@@ -1,11 +1,157 @@
 {% load static %}
-<br />
-<footer class="text-dark text-center py-3" style="background-color: #f7f7f7; width: 100%;">
-  
+<footer style="background-color: #f7f7f7; width: 100%; border-top: 1px solid #e0e0e0;">
+  <div class="footer-inner">
+    <!-- Left: Brand + Nav Links -->
+    <div class="footer-left">
+      <p class="footer-brand">Waseem Marzouki</p>
+      <ul class="footer-nav">
+        <li><a href="{% url 'how_to_use' %}">How to use this shop</a></li>
+        <li><a href="{% url 'cart:terms_and_conditions' %}">Terms & Conditions</a></li>
+        <li><a href="{% url 'about' %}">About the artist</a></li>
+      </ul>
+    </div>
+    <!-- Right: Copyright + Payment Icons -->
+    <div class="footer-right">
+      <p class="footer-copy">© 2026, Waseem Marzouki</p>
+      <p class="footer-dev">Developed by <a href="https://www.virtual-gravity.net" target="_blank">Virtual Gravity</a></p>
+      <div class="footer-payments">
+        <img src="{% static 'icons/stripe.svg' %}" alt="Stripe" class="payment-icon">
+        <img src="{% static 'icons/applepay.svg' %}" alt="Apple Pay" class="payment-icon">
+        <img src="{% static 'icons/mastercard.svg' %}" alt="MasterCard" class="payment-icon">
+        <img src="{% static 'icons/google.svg' %}" alt="Google Pay" class="payment-icon">
+        <img src="{% static 'icons/visa.svg' %}" alt="Visa" class="payment-icon">
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .footer-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 48px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .footer-brand {
+      font-size: 28px;
+      font-weight: 400;
+      color: #1a1a1a;
+      margin: 0 0 24px 0;
+      letter-spacing: -0.3px;
+    }
+
+    .footer-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-nav li {
+      margin-bottom: 14px;
+    }
+
+    .footer-nav li:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-nav li a {
+      font-size: 14px;
+      color: #555;
+      text-decoration: none;
+    }
+
+    .footer-nav li a:hover {
+      color: #1a1a1a;
+    }
+
+    .footer-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .footer-copy,
+    .footer-dev {
+      font-size: 13px;
+      color: #313131;
+      margin: 0 0 6px 0;
+    }
+
+    .footer-dev a {
+      color: #777;
+      text-decoration: none;
+    }
+
+    .footer-dev a:hover {
+      color: #1a1a1a;
+    }
+
+    .footer-payments {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-top: 85px;
+    }
+
+    .payment-icon {
+      height: 26px;
+      width: auto;
+      filter: grayscale(100%) brightness(100%);
+    }
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+      .footer-inner {
+        padding: 40px 40px;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .footer-inner {
+        flex-direction: column;
+        gap: 36px;
+        padding: 36px 24px;
+      }
+
+      .footer-right {
+        text-align: left;
+        align-items: flex-start;
+        width: 100%;
+      }
+
+      .footer-payments {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 20px;
+      }
+    }
+
+    /* Small mobile */
+    @media (max-width: 480px) {
+      .footer-brand {
+        font-size: 22px;
+      }
+
+      .footer-inner {
+        padding: 28px 16px;
+      }
+
+      .payment-icon {
+        height: 22px;
+      }
+    }
+  </style>
 </footer>
-<style>
-  .footer {
-    width: 1000px;
-    margin: 0 auto; /* Center the footer div */
-  }
-</style>

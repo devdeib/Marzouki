@@ -222,35 +222,78 @@
       display: table-row;
       width: auto;
     }
+
+    .responsive-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+    .choice-row td {
+      white-space: nowrap;
+    }
+    .choice-row .form-control {
+      display: inline-block;
+      width: auto;
+      max-width: 80%;
+      vertical-align: middle;
+    }
+    .variation-select-group {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
   </style>
+  <div class="container-fluid px-4 mt-3">
+    <div class="row">
+      {% if on_dashboard_page %}
+      <div class="col-md-2 mt-3 d-none d-lg-block">
+        <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+        <hr class="hr--large" />
+        <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' or request.resolver_match.url_name == 'edit_store_item' or request.resolver_match.url_name == 'add_store_item' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+        <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+        <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+        <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+        <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper"></i>News Letter</a>
+        <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users"></i>Users</a>
+      </div>
+      {% endif %}
+      <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
   <div class="main-content">
     <h1>Edit Store Item</h1>
 
     <!-- Variation Popup Modal -->
     <div id="variation-popup" class="modal">
       <div class="modal-content">
-        <div class="modal-header">
-          <h3>Add New Variation</h3>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
+        <form id="variation-form" method="post" action="#">
           {% csrf_token %}
-          <div class="form-group">
-            <input type="text" name="name" class="form-control" placeholder="Variation Name" required />
+          <div class="modal-header">
+            <h3>Add New Variation</h3>
+            <span class="close">&times;</span>
           </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+          <div class="modal-body">
+            <div class="form-group">
+              <input type="text" name="name" class="form-control" placeholder="Variation Name" required />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save</button>
+              <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
 
     <!-- Main Form Container -->
     <div class="form-container">
-      <form method="POST" enctype="multipart/form-data" id="edit-store-item-form">
+      <form method="POST" enctype="multipart/form-data" id="edit-store-item-form" action="">
         {% csrf_token %}
         {{ store_item_form.non_field_errors }}
+        {% if image_formset.non_form_errors %}
+          <div class="alert alert-danger">{{ image_formset.non_form_errors }}</div>
+        {% endif %}
+        {% if video_formset.non_form_errors %}
+          <div class="alert alert-danger">{{ video_formset.non_form_errors }}</div>
+        {% endif %}
 
         <!-- Basic Fields -->
         <div class="form-group">
@@ -284,6 +327,11 @@
         </div>
 
         <div class="form-group">
+          <label>Category (section):</label>
+          {{ store_item_form.section }}
+        </div>
+
+        <div class="form-group">
           <label>Primary Color:</label>
           {{ store_item_form.primary_color }}
         </div>
@@ -304,9 +352,59 @@
         </div>
 
         <div class="form-group">
-          <label class="btn btn-success" for="id_item_photo">Upload Image</label>
+          <label class="btn btn-success" for="id_item_photo">Upload main image</label>
           {{ store_item_form.item_photo }}
           <span class="file-name">No file chosen</span>
+          {% if store_item.item_photo %}
+            <p class="mt-2">Current: {{ store_item.item_photo.name }}</p>
+          {% endif %}
+        </div>
+
+        <div class="additional-photos-section">
+          {{ image_formset.management_form }}
+          <ul class="image-list" id="image-list">
+            {% for form in image_formset %}
+              {% if form.instance.pk and form.instance.image %}
+                <li>
+                  {{ form.id }}
+                  <span class="file-name">{{ form.instance.image.name }}</span>
+                  <button type="button" class="remove-image" title="Remove image"><i class="fa fa-times"></i></button>
+                  {{ form.DELETE.as_hidden }}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+          <div id="images-container" style="display: none;">
+            {% for form in image_formset %}
+              <div class="image-form">{{ form.image }}</div>
+            {% endfor %}
+          </div>
+          <div class="empty-form image-form" style="display: none;">{{ image_formset.empty_form }}</div>
+          <button type="button" class="btn btn-success btn-sm add-image-btn">Add Image</button>
+        </div>
+
+        <p class="mt-3 mb-1"><strong>Video of the product:</strong></p>
+        <div class="media-upload-section media-section">
+          {{ video_formset.management_form }}
+          <ul class="video-list" id="video-list">
+            {% for form in video_formset %}
+              {% if form.instance.pk and form.instance.video_file %}
+                <li>
+                  {{ form.id }}
+                  <i class="fa fa-video-camera mr-2"></i>
+                  <span class="file-name">{{ form.instance.video_file.name }}</span>
+                  <button type="button" class="remove-video" title="Remove video"><i class="fa fa-times"></i></button>
+                  {{ form.DELETE.as_hidden }}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+          <div id="videos-container" style="display: none;">
+            {% for form in video_formset %}
+              <div class="video-form">{{ form.video_file }}</div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn-success btn-sm add-video-btn">Add Video</button>
         </div>
 
         <hr class="hr--large" />
@@ -324,9 +422,11 @@
                   {% with choices_formset=choices_formsets|index:forloop.counter0 %}
                     {{ choices_formset.management_form }}
                     <div class="variation-select-group">
+                      <span class="d-none">{{ variation_form.DELETE }}</span>
+                      {{ variation_form.id }}
                       {{ variation_form.variation }}
                       <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
-                      <a href="#" class="remove-choice fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                      <a href="#" class="remove-variation fa fa-trash" title="Remove variation" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
                     </div>
 
                     <table>
@@ -368,9 +468,11 @@
       </form>
     </div>
   </div>
+      </div>
+    </div>
+  </div>
 
   {% block extra_js %}
     <script src="{% static 'js/store-item-form.js' %}"></script>
-    <script src="{% static 'js/edit-store-item.js' %}"></script>
   {% endblock %}
 {% endblock %}

@@ -120,10 +120,13 @@ class SectionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
-
+    
     class Meta:
         model = Section
-        fields = ['name', 'items']
+        fields = ['name', 'category', 'items']
+        widgets = {
+            'category': forms.Select(choices=Section.CATEGORY_CHOICES, attrs={'class': 'qdropbtn mb-3'}),
+        }
 
 
 class NewsletterForm(forms.Form):
@@ -189,8 +192,3 @@ class ItemVariationForm(forms.ModelForm):
     class Meta:
         model = ItemVariation
         fields = ['item', 'variation']
-
-
-# Create an inline formset for Choices related to an ItemVariation
-ChoiceFormSet = inlineformset_factory(ItemVariation, Choices, fields=(
-    'name', 'price_increment'), extra=1, can_delete=True)

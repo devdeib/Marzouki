@@ -210,7 +210,7 @@
       }
 
       </style>
-      <title>Add New Store Item</title>
+      <title>{% if is_edit %}Edit Store Item{% else %}Add New Store Item{% endif %}</title>
     </head>
 
     <body>
@@ -221,7 +221,7 @@
             <div class="col-md-2 mt-3 d-none d-lg-block">
                 <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
                 <hr class="hr--large" />
-                <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+                <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' or request.resolver_match.url_name == 'add_store_item' or request.resolver_match.url_name == 'edit_store_item' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
                 <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
                 <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
                 <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
@@ -230,7 +230,7 @@
             </div>
             {% endif %}
             <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
-            <h1>Add New Store Item</h1>
+            <h1>{% if is_edit %}Edit Store Item{% else %}Add New Store Item{% endif %}</h1>
 
             <!-- Tag Modal -->
             <div id="tag-popup" class="modal">
@@ -302,7 +302,7 @@
             </div>
 
             <div class="form-container">
-              <form method="post" enctype="multipart/form-data" id="store-item-form">
+              <form method="post" enctype="multipart/form-data" id="store-item-form" action="{% if is_edit %}{% url 'dashboard:edit_store_item' store_item.pk %}{% else %}{% url 'dashboard:add_store_item' %}{% endif %}">
                 {% csrf_token %}
                 <!-- Render the rest of the form fields -->
                 {{ store_item_form.non_field_errors }}
@@ -330,6 +330,13 @@
                 <!-- New "Create a New Tag" button -->
                 <button type="button" id="create-tag-btn" class="btn btn-success btn-sm mt-2">Create a New Tag</button>
                 <p></p>
+
+                <p>Primary color:</p>
+                {{ store_item_form.primary_color }}
+                <p></p>
+                <p>Secondary color:</p>
+                {{ store_item_form.secondary_color }}
+                <p></p>
                 
      
                 <p>Width:</p>
@@ -342,7 +349,7 @@
                 <div class="main-photo-section">
                   <div class="form-group">
                     {{ store_item_form.item_photo }}
-                    {% if store_item.item_photo %}
+                    {% if store_item and store_item.item_photo %}
                       <p class="mt-2">Current: {{ store_item.item_photo.name }}</p>
                     {% endif %}
                   </div>
@@ -402,61 +409,70 @@
                 </div>
                 <hr class="hr--large" />
                 <br />
-                <h3>Variations Managment</h3>
+                <h3>Variations Management</h3>
 
                 <!-- Variation formset management form -->
                 {{ variation_formset.management_form }}
 
                 <div id="variation-container" index="{{ form_index }}">
                   {% for variation_form in variation_formset %}
+                    {% with choices_formset=choices_formsets|index:forloop.counter0 %}
                     <div class="variation-form" data-index="{{ forloop.counter0 }}">
                       <div class="variation-fields">
-                        {% with choices_formset=choices_formsets|index:forloop.counter0 %}
+                        {% if choices_formset %}
                           {{ choices_formset.management_form }}
                           <div class="responsive-table-wrapper">
+                            <div class="variation-select-group">
+                              {{ variation_form.variation }}
+                              <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+                              <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                            </div>
                             <table class="variation-table">
-                            <thead>
-                              <tr>
-                                <th>Choice Name</th>
-                                <th>Price Increment</th>
-                              </tr>
-                            </thead>
-                            <tbody class="choices-container">
-                              {% for choice_form in choices_formset %}
-                                <div class="variation-select-group">
-                                  {{ variation_form.variation }}
-                                  <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
-                                  <!-- Added trash icon for variation -->
-                                  <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
-                                </div>
-                                <tr class="choice-row">
-                                  <td>
-                                    {{ choice_form.name|add_class:'form-control custom-width' }}
-                                    {% if forloop.last %}
-                                      <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
-                                    {% endif %}
-                                  </td>
-                                  <td>{{ choice_form.price_increment|add_class:'form-control custom-width' }}</td>
+                              <thead>
+                                <tr>
+                                  <th>Choice Name</th>
+                                  <th>Price Increment</th>
                                 </tr>
-                              {% endfor %}
-                            </tbody>
+                              </thead>
+                              <tbody class="choices-container">
+                                {% for choice_form in choices_formset %}
+                                  <tr class="choice-row">
+                                    <td>
+                                      {{ choice_form.name|add_class:'form-control custom-width' }}
+                                      {% if forloop.last %}
+                                        <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
+                                      {% endif %}
+                                    </td>
+                                    <td>{{ choice_form.price_increment|add_class:'form-control custom-width' }}</td>
+                                  </tr>
+                                {% endfor %}
+                              </tbody>
                             </table>
                           </div>
-                        {% endwith %}
+                        {% else %}
+                          <div class="responsive-table-wrapper">
+                            <div class="variation-select-group">
+                              {{ variation_form.variation }}
+                              <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+                              <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                            </div>
+                          </div>
+                        {% endif %}
                       </div>
                     </div>
+                    {% endwith %}
                   {% endfor %}
                 </div>
 
                 <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
-                <button type="submit" class="btn btn-success">Save</button>
+                <button type="submit" class="btn btn-success">{% if is_edit %}Save changes{% else %}Save{% endif %}</button>
               </form>
           </div>
         </div>
       </div>
 
       <script src="{% static 'js/store-item-form.js' %}"></script>
-      <script src="{% static 'js/image-upload.js.js' %}"></script>
+      <script src="{% static 'js/image-upload.js' %}"></script>
       <script>
         // Tag modal and AJAX handling
         document.getElementById('create-tag-btn').addEventListener('click', function() {

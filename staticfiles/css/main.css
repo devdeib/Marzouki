@@ -362,7 +362,7 @@ body {
   /* height: 100%; */
   background-color: #f7f7f7;
   /* make sure it's the same as the rest of the card */
-  padding: 1rem;
+  
   
   
   
@@ -371,7 +371,7 @@ body {
 .product-card .product-title {
   min-height: 2rem;
   /* or however much needed for 2 lines */
-  margin-bottom: 0.5rem;
+  
   
 }
 
@@ -417,11 +417,6 @@ body {
 }
 
 
-.card-body img {
-  margin-bottom: 10px;
-  /* Add margin to the bottom of the image */
-}
-
 
 .card-container {
   display: grid;
@@ -445,6 +440,10 @@ body {
   /* Set a high z-index to ensure it's above other elements */
 }
 
+.row {
+  --bs-gutter-x: 10px;
+  --bs-gutter-y: 0px;
+}
 
 
 /* ----------------- Paint Details -------------------- */
@@ -486,7 +485,7 @@ body {
   max-width: 100%;
   object-fit: contain;
   transition: opacity 0.5s ease-in-out;
-  position: absolute;
+  position: inherit;
   
   opacity: 1;
 }
@@ -706,7 +705,7 @@ body {
     flex-direction: column;
     padding: 2rem 2rem;
     gap: 2rem;
-    align-items: center;
+    align-items: inherit;
   }
 
   .details {
@@ -912,9 +911,9 @@ body {
   justify-content: space-between;
   margin-right: 0%;
   padding: 20px;
-  width: 450px;
-  margin-left: 10%;
-  margin-right: 10%;
+  width: auto;
+
+  
   border: solid;
   border-color: #dbdbdb;
   border-width: 1.5px;
@@ -1027,4 +1026,70 @@ html {
   align-items: center;
   justify-content: center;
   gap: 200px;
+}
+.desktop-search-wrapper {
+  position: absolute;
+  right: 140px;
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.35s ease, opacity 0.25s ease;
+  z-index: 1000;
+  /* حتى يكون فوق كل شيء */
+}
+
+.desktop-search-wrapper.active {
+  width: auto;
+  opacity: 1;
+}
+
+.desktop-search-input {
+  
+  border: 1px solid #c8c8c8 !important;
+  height: 38px;
+  width: 250px;
+  padding: 0 10px;
+}
+/* ---------------- Categories Dropdown ---------------- */
+
+.categories-dropdown {
+  background-color: rgb(26, 26, 26);
+  border: none;
+  width: 300px;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.categories-dropdown .dropdown-item {
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+.categories-dropdown .dropdown-item:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+/* Open dropdown on hover */
+@media (min-width: 992px) {
+  .navbar .dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+  }
+}/* Prevent jump on click */
+.navbar .dropdown-toggle::after {
+  vertical-align: middle;
+}
+
+/* --- Global content / footer breathing room (site-wide) --- */
+body > main {
+  padding-bottom: clamp(3rem, 10vw, 7rem);
+}
+
+.footer-wrapper {
+  margin-top: clamp(1.5rem, 5vw, 3.5rem);
 }

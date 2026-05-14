@@ -4108,12 +4108,16 @@ DJNesting.DjangoInlines = {
     // instantiate a new SelectFilter instance for it.
     if (typeof window.SelectFilter !== "undefined") {
       $form.find(".selectfilter").each(function (index, value) {
+        var _this$dataset$fieldNa;
+
         var namearr = value.name.split("-");
-        SelectFilter.init(value.id, namearr[namearr.length - 1], false);
+        SelectFilter.init(value.id, (_this$dataset$fieldNa = this.dataset.fieldName) != null ? _this$dataset$fieldNa : namearr[namearr.length - 1], false);
       });
       $form.find(".selectfilterstacked").each(function (index, value) {
+        var _this$dataset$fieldNa2;
+
         var namearr = value.name.split("-");
-        SelectFilter.init(value.id, namearr[namearr.length - 1], true);
+        SelectFilter.init(value.id, (_this$dataset$fieldNa2 = this.dataset.fieldName) != null ? _this$dataset$fieldNa2 : namearr[namearr.length - 1], true);
       });
     }
   }
@@ -4141,6 +4145,42 @@ if (typeof window.SelectFilter !== "undefined") {
   }, 12);
 }
 
+function patchSelectBox() {
+  window.SelectBox.init = function (oldFn) {
+    return function init(field_id, field_name, is_stacked) {
+      if (field_id.match(/\-empty\-/)) {
+        return;
+      } else {
+        oldFn.apply(this, arguments);
+      }
+    };
+  }(window.SelectBox.init);
+
+  window.SelectBox.add_to_cache = function (oldFn) {
+    return function add_to_cache(id, option) {
+      if (!id.match(/_(from|to)$/)) return;
+      return oldFn.apply(this, arguments);
+    };
+  }(window.SelectBox.add_to_cache);
+
+  window.SelectBox.redisplay = function (oldFn) {
+    return function redisplay(id) {
+      if (!id.match(/_(from|to)$/)) return;
+      return oldFn.apply(this, arguments);
+    };
+  }(window.SelectBox.redisplay);
+}
+
+if (typeof window.SelectBox !== "undefined") {
+  patchSelectBox();
+} else {
+  setTimeout(function () {
+    if (typeof window.SelectBox !== "undefined") {
+      patchSelectBox();
+    }
+  }, 12);
+}
+
 var djangoFuncs = ["prepopulate", "djangoAdminSelect2"];
 djangoFuncs.forEach(function (funcName) {
   (function patchDjangoFunction(callCount) {
@@ -4150,7 +4190,7 @@ djangoFuncs.forEach(function (funcName) {
 
     if (typeof _jquery_shim_js__WEBPACK_IMPORTED_MODULE_13__["default"].fn[funcName] === "undefined") {
       return setTimeout(function () {
-        return patchDjangoFunction(callCount++);
+        return patchDjangoFunction(++callCount);
       }, 12);
     }
 
@@ -4170,7 +4210,7 @@ grpFuncs.forEach(function (funcName) {
 
     if (typeof window.grp === "undefined" || typeof window.grp.jQuery.fn[funcName] === "undefined") {
       return setTimeout(function () {
-        return patchGrpFunction(callCount++);
+        return patchGrpFunction(++callCount);
       }, 12);
     }
 

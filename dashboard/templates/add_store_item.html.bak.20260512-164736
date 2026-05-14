@@ -1,0 +1,547 @@
+{% extends 'base.html' %}
+{% block content %}
+  {% load static %}
+  {% load form_filters %}
+  {% load custom_filters %}
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+      <style>
+        /* Existing styles remain unchanged */
+        input[type='checkbox'][name$='-DELETE'],
+        label[for$='-DELETE'] {
+          display: none;
+        }
+        
+        .custom-file-input {
+          display: none;
+        }
+        
+        .custom-file-label {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #4caf50;
+          color: white;
+          cursor: pointer;
+          font-size: 14px;
+          text-align: center;
+          border-radius: 5px;
+        }
+        
+        .file-name {
+          margin-left: 10px;
+          font-size: 14px;
+          color: #555;
+        }
+        
+        .form-container {
+          margin-top: 25px;
+        }
+        
+        .form-group {
+          margin-bottom: 15px;
+        }
+        
+        .form-group label {
+          margin-bottom: 5px;
+        }
+        
+        .form-actions {
+          margin-top: 20px;
+          text-align: right;
+        }
+        
+        .btn {
+          margin-right: 10px;
+        }
+        
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+        }
+        
+        th,
+        td {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+        
+        th {
+          background-color: #f2f2f2;
+        }
+        
+        .variation-select-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .variation-select-group select {
+          /* Existing select styles */
+          
+          appearance: none;
+          /* ... (rest of the styles remain unchanged) */
+        }
+        
+        .add-variation-btn {
+          cursor: pointer;
+          padding: 5px;
+          transition: color 0.3s;
+        }
+        
+        .add-variation-btn:hover {
+          color: #45a049 !important;
+        }
+        
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.4);
+          animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .modal-content {
+          background-color: #fefefe;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 50%;
+          max-width: 500px;
+          border-radius: 5px;
+          position: relative;
+          animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+          from { transform: translateY(-100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #ddd;
+          padding-bottom: 10px;
+        }
+        
+        .close {
+          color: #aaa;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: color 0.3s;
+        }
+        
+        .close:hover {
+          color: #000;
+        }
+        
+        .modal-body {
+          margin-bottom: 20px;
+        }
+        
+        .form-control {
+          width: 100%;
+          padding: 8px 12px;
+        }
+        .custom-width {
+          display: table-row;
+          width: auto;
+        }
+        /* New style for the tags select with dynamic update */
+        #id_tags {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+        }
+        /* Add these at the end of your style block */
+
+      /* Enable horizontal scrolling for tables on small screens */
+      .responsive-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+      }
+
+      table.variation-table {
+        min-width: 600px; /* or larger depending on your table contents */
+      }
+
+      /* Keep icons inline with inputs */
+      .choice-row td {
+        white-space: nowrap;
+      }
+
+      .choice-row .form-control {
+        display: inline-block;
+        width: auto;
+        max-width: 80%;
+        vertical-align: middle;
+      }
+
+      .choice-row a.fa-plus,
+      .choice-row a.fa-trash {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 5px;
+      }
+
+      /* Avoid icon wrapping below inputs */
+      .variation-select-group {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      </style>
+      <title>Add New Store Item</title>
+    </head>
+
+    <body>
+      <div class="container-fluid px-4 mt-3">
+          <div class="row">
+            <!-- Sidebar -->
+            {% if on_dashboard_page %}
+            <div class="col-md-2 mt-3 d-none d-lg-block">
+                <h1 class="sidebar-header text-center" style="margin-top: -10px">Shop Manager</h1>
+                <hr class="hr--large" />
+                <a href="{% url 'dashboard:store_items_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}"><i class="fas fa-box"></i>Listings</a>
+                <a href="{% url 'dashboard:section_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}"><i class="fas fa-th-large"></i>Categories</a>
+                <a href="{% url 'dashboard:discount_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}"><i class="fas fa-percent"></i>Financials</a>
+                <a href="{% url 'dashboard:order_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}"><i class="fas fa-box"></i>Orders</a>
+                <a href="{% url 'dashboard:newsletter_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}"><i class="fa fa-newspaper" aria-hidden="true"></i>News Letter</a>
+                <a href="{% url 'dashboard:users_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}"><i class="fa fa-users" aria-hidden="true"></i>Users</a>
+            </div>
+            {% endif %}
+            <div class="{% if on_dashboard_page %}col-12 col-lg-10{% else %}col-12{% endif %}">
+            <h1>Add New Store Item</h1>
+
+            <!-- Tag Modal -->
+            <div id="tag-popup" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Add New Tag</h3>
+                  <span class="close">×</span>
+                </div>
+                <div class="modal-body">
+                  <form id="tag-form" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label for="tag-name" class="form-label">Tag Name</label>
+                      <input type="text" id="tag-name" name="name" class="form-control" required />
+                    </div>
+                    <div class="form-actions">
+                      <button type="submit" class="btn btn-primary">Save</button>
+                      <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variation Modal (unchanged) -->
+            <div id="variation-popup" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Add New Variation</h3>
+                  <span class="close">×</span>
+                </div>
+                <div class="modal-body">
+                  <form id="variation-form" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label for="variation-name" class="form-label">Variation Name</label>
+                      <input type="text" id="variation-name" name="name" class="form-control" required />
+                    </div>
+                    <div class="form-actions">
+                      <button type="submit" class="btn btn-primary">Save</button>
+                      <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- New Section Modal -->
+            <div id="section-popup" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Add New Section</h3>
+                  <span class="close">×</span>
+                </div>
+                <div class="modal-body">
+                  <form id="section-form" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label for="section-name" class="form-label">Section Name</label>
+                      <input type="text" id="section-name" name="name" class="form-control" required />
+                    </div>
+                    <div class="form-actions">
+                      <button type="submit" class="btn btn-primary">Save</button>
+                      <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-container">
+              <form method="post" enctype="multipart/form-data" id="store-item-form">
+                {% csrf_token %}
+                <!-- Render the rest of the form fields -->
+                {{ store_item_form.non_field_errors }}
+                <p>Status:</p>
+                {{ store_item_form.status }}
+                <p></p>
+                <p>Category:</p>
+                {{ store_item_form.section }}
+                  <a href="#" class="add-section-btn btn btn-success btn-sm mt-2" style="text-decoration: none; font-size: ;">Add Category</a>
+                <p></p>
+                <p>Listing Name:</p>
+                {{ store_item_form.item_name }}
+                <p></p>
+                <p>Description:</p>
+                {{ store_item_form.item_description }}
+                <p></p>
+                <p>Price:</p>
+                {{ store_item_form.item_price }}
+                <p></p>
+                <p>Quantity:</p>
+                {{ store_item_form.item_quantity }}
+                <p></p>
+                <p>Choose Tags:</p>
+                {{ store_item_form.tags }}
+                <!-- New "Create a New Tag" button -->
+                <button type="button" id="create-tag-btn" class="btn btn-success btn-sm mt-2">Create a New Tag</button>
+                <p></p>
+                
+     
+                <p>Width:</p>
+                {{ store_item_form.width }}
+                <p></p>
+                <p>Height:</p>
+                {{ store_item_form.height }}
+                <p></p>
+                <p>Photos:</p>
+                <div class="main-photo-section">
+                  <div class="form-group">
+                    {{ store_item_form.item_photo }}
+                    {% if store_item.item_photo %}
+                      <p class="mt-2">Current: {{ store_item.item_photo.name }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+                <!-- Additional Photos Section -->
+                <div class="additional-photos-section">
+                  {{ image_formset.management_form }}
+
+                  <ul class="image-list" id="image-list">
+                    {% for form in image_formset %}
+                      {% if form.instance.pk and form.instance.image %}
+                        <li>
+                          {{ form.id }}
+                          <span class="file-name">{{ form.instance.image.name }}</span>
+                          <button type="button" class="remove-image" title="Remove image"><i class="fa fa-times"></i></button>
+                          {{ form.DELETE.as_hidden }}
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+
+                  <div id="images-container" style="display: none;">
+                    {% for form in image_formset %}
+                      <div class="image-form">{{ form.image }}</div>
+                    {% endfor %}
+                  </div>
+                  <!-- Empty form template -->
+                  <div class="empty-form image-form" style="display: none;">{{ image_formset.empty_form }}</div>
+                  <button type="button" class="btn btn-success btn-sm add-image-btn">Add Image</button>
+                </div>
+                <br />
+
+                <!-- Videos Section -->
+                <p>Video of the product:</p>
+                <div class="media-upload-section media-section">
+                  {{ video_formset.management_form }}
+
+                  <ul class="video-list" id="video-list">
+                    {% for form in video_formset %}
+                      {% if form.instance.pk and form.instance.video_file %}
+                        <li>
+                          {{ form.id }}
+                          <i class="fa fa-video-camera mr-2"></i>
+                          <span class="file-name">{{ form.instance.video_file.name }}</span>
+                          <button type="button" class="remove-video" title="Remove video"><i class="fa fa-times"></i></button>
+                          {{ form.DELETE.as_hidden }}
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                  <div id="videos-container" style="display: none;">
+                    {% for form in video_formset %}
+                      <div class="video-form">{{ form.video_file }}</div>
+                    {% endfor %}
+                  </div>
+                  <button type="button" class="btn btn-success btn-sm add-video-btn">ADD VIDEO</button>
+                </div>
+                <hr class="hr--large" />
+                <br />
+                <h3>Variations Managment</h3>
+
+                <!-- Variation formset management form -->
+                {{ variation_formset.management_form }}
+
+                <div id="variation-container" index="{{ form_index }}">
+                  {% for variation_form in variation_formset %}
+                    <div class="variation-form" data-index="{{ forloop.counter0 }}">
+                      <div class="variation-fields">
+                        {% with choices_formset=choices_formsets|index:forloop.counter0 %}
+                          {{ choices_formset.management_form }}
+                          <div class="responsive-table-wrapper">
+                            <table class="variation-table">
+                            <thead>
+                              <tr>
+                                <th>Choice Name</th>
+                                <th>Price Increment</th>
+                              </tr>
+                            </thead>
+                            <tbody class="choices-container">
+                              {% for choice_form in choices_formset %}
+                                <div class="variation-select-group">
+                                  {{ variation_form.variation }}
+                                  <a href="#" class="add-variation-btn fa fa-plus" style="text-decoration: none; color:#4caf50;"></a>
+                                  <!-- Added trash icon for variation -->
+                                  <a href="#" class="remove-variation fa fa-trash" style="text-decoration: none; color: gray; margin-left: 10px;"></a>
+                                </div>
+                                <tr class="choice-row">
+                                  <td>
+                                    {{ choice_form.name|add_class:'form-control custom-width' }}
+                                    {% if forloop.last %}
+                                      <a href="#" class="add-choice-link fa fa-plus" style="text-decoration: none; color:#4caf50; margin-left:10px" data-variation-index="{{ forloop.parentloop.counter0 }}"></a>
+                                    {% endif %}
+                                  </td>
+                                  <td>{{ choice_form.price_increment|add_class:'form-control custom-width' }}</td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                            </table>
+                          </div>
+                        {% endwith %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <button type="button" id="add-variation" class="btn btn-outline">Add Variation</button>
+                <button type="submit" class="btn btn-success">Save</button>
+              </form>
+          </div>
+        </div>
+      </div>
+
+      <script src="{% static 'js/store-item-form.js' %}"></script>
+      <script src="{% static 'js/image-upload.js.js' %}"></script>
+      <script>
+        // Tag modal and AJAX handling
+        document.getElementById('create-tag-btn').addEventListener('click', function() {
+          document.getElementById('tag-popup').style.display = 'block';
+        });
+        // New Section Modal Handling
+        document.querySelector('.add-section-btn').addEventListener('click', function(e) {
+          e.preventDefault();
+          document.getElementById('section-popup').style.display = 'block';
+        });
+        // Close modals
+        document.querySelectorAll('.close, .close-modal').forEach(closeBtn => {
+          closeBtn.addEventListener('click', function() {
+            document.getElementById('tag-popup').style.display = 'none';
+            document.getElementById('variation-popup').style.display = 'none';
+            document.getElementById('section-popup').style.display = 'none';
+          });
+        });
+
+        // Handle tag form submission via AJAX
+        document.getElementById('tag-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          fetch('/dashboard/add_tag/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              const tagSelect = document.getElementById('id_tags');
+              let option = new Option(data.tag.name, data.tag.id, false, false);
+              tagSelect.add(option);
+              document.getElementById('tag-popup').style.display = 'none';
+              document.getElementById('tag-name').value = ''; // Clear input
+            } else {
+              alert('Error: ' + data.error);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        });
+        // Handle section form submission via AJAX
+        document.getElementById('section-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          fetch('/dashboard/add_section_ajax/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              const sectionSelect = document.getElementById('id_section');
+              let option = new Option(data.section.name, data.section.id, true, true); // Select the new section by default
+              sectionSelect.add(option);
+              document.getElementById('section-popup').style.display = 'none';
+              document.getElementById('section-name').value = ''; // Clear input
+            } else {
+              alert('Error: ' + data.error);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        });
+        // Close modal if clicking outside
+        window.addEventListener('click', function(event) {
+          const tagModal = document.getElementById('tag-popup');
+          const variationModal = document.getElementById('variation-popup');
+          const sectionModal = document.getElementById('section-popup');
+          if (event.target == tagModal) {
+            tagModal.style.display = 'none';
+          }
+          if (event.target == variationModal) {
+            variationModal.style.display = 'none';
+          }
+          if (event.target == sectionModal) {
+            sectionModal.style.display = 'none';
+          }
+        });
+      </script>
+    </body>
+  </html>
+{% endblock %}

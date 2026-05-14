@@ -1,0 +1,99 @@
+###############################################################################
+# Example Nginx server block for the Marzouki Django app.
+#
+# Drop in /etc/nginx/sites-available/marzouki and symlink to sites-enabled.
+# Then:  sudo nginx -t && sudo systemctl reload nginx
+#
+# Assumes:
+#   * Gunicorn is bound to 127.0.0.1:8001 (see deploy/gunicorn.conf.py)
+#   * SSL certs from Certbot at /etc/letsencrypt/live/<your-domain>/
+#   * Project files at /srv/marzouki
+###############################################################################
+
+# ----- HTTP -> HTTPS redirect ------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name marzoukiart.com www.marzoukiart.com;
+
+    # Hide nginx version from Server header (minor hardening).
+    server_tokens off;
+
+    # Allow Certbot HTTP-01 challenges through.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# ----- HTTPS ------------------------------------------------------------------
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name marzoukiart.com www.marzoukiart.com;
+
+    server_tokens off;
+
+    ssl_certificate     /etc/letsencrypt/live/marzoukiart.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/marzoukiart.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # Reasonable production defaults
+    client_max_body_size 25M;
+    keepalive_timeout    65;
+    sendfile             on;
+    tcp_nopush           on;
+    gzip                 on;
+    gzip_types text/plain text/css application/json application/javascript
+               application/xml text/xml application/rss+xml image/svg+xml;
+
+    # ----- Static files (served directly by Nginx, not Django) ---------------
+    location /static/ {
+        alias /srv/marzouki/staticfiles/;
+        access_log off;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # ----- Media files (user uploads) ----------------------------------------
+    location /media/ {
+        alias /srv/marzouki/media/;
+        access_log off;
+        expires 7d;
+        add_header Cache-Control "public";
+    }
+
+    # ----- Block direct access to sensitive paths ----------------------------
+    location ~ ^/(\.git|\.env|venv|logs|deploy)(/|$) {
+        deny all;
+        return 404;
+    }
+
+    # ----- Stripe webhook ----------------------------------------------------
+    # No client_max_body_size override; webhooks are small.
+    location = /stripe/webhook/ {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    # ----- Pass everything else to Gunicorn ----------------------------------
+    location / {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 60s;
+        proxy_redirect off;
+    }
+}

@@ -37,7 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeMediaButtons();
     initializeExistingMediaHandlers();
     initializeModalHandlers();
-    initializeFormSubmission();
     console.log("DOM loaded and initialized");
   }
 });
@@ -82,61 +81,25 @@ function bindEventListeners() {
   if (addVariationBtn) {
     addVariationBtn.addEventListener("click", addNewVariation);
   }
-
-  const form = document.querySelector("form");
-  if (form) {
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      if (validateForm()) {
-        const formData = new FormData(this);
-        try {
-          const response = await fetch(this.action, {
-            method: "POST",
-            body: formData,
-            headers: {
-              "X-CSRFToken": document.querySelector(
-                "[name=csrfmiddlewaretoken]"
-              ).value,
-            },
-          });
-
-          if (response.redirected) {
-            window.location.href = response.url;
-          } else if (response.ok) {
-            window.location.href = "/dashboard/store_items/";
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("An error occurred while submitting the form.");
-        }
-      }
-    });
-  }
+  // Store-item forms rely on a normal browser POST so Django can redirect and re-render errors.
 }
 
 // Replace the existing initializeModalHandlers() with this version
 function initializeModalHandlers() {
   const modal = document.getElementById("variation-popup");
+  if (!modal) return;
 
-  // Close button handlers
-  document.querySelectorAll(".close, .close-modal").forEach((btn) => {
+  modal.querySelectorAll(".close, .close-modal").forEach((btn) => {
     btn.addEventListener("click", () => {
       modal.style.display = "none";
     });
   });
 
-  // Click outside modal to close
   window.addEventListener("click", function (e) {
     if (e.target === modal) {
       modal.style.display = "none";
     }
   });
-
-  // Variation form submission
-  const variationForm = document.getElementById("variation-form");
-  if (variationForm) {
-    variationForm.addEventListener("submit", handleVariationSubmit);
-  }
 }
 
 // ----------------------- Variations Management ----------------------------
@@ -144,6 +107,10 @@ function initializeVariationPopup() {
     console.log("Initializing variation popup...");
     const modal = document.getElementById("variation-popup");
     const variationForm = document.getElementById("variation-form");
+    if (!modal || !variationForm) {
+      console.warn("variation-popup or variation-form missing; skipping popup wiring.");
+      return;
+    }
 
     // Remove all existing event listeners
     const newForm = variationForm.cloneNode(true);
@@ -268,7 +235,11 @@ function handleVariationDelete(variationForm) {
   if (allVisibleVariations.length > 1) {
     const deleteInput = variationForm.querySelector('input[name$="-DELETE"]');
     if (deleteInput) {
-      deleteInput.value = "on";
+      if (deleteInput.type === "checkbox") {
+        deleteInput.checked = true;
+      } else {
+        deleteInput.value = "on";
+      }
       variationForm.style.display = "none";
     } else {
       variationForm.remove();
@@ -306,31 +277,6 @@ async function addNewVariation(e) {
         isProcessingVariation = false;
     }
 }
-
-// Single DOMContentLoaded event listener
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Document loaded - initializing variations");
-    initializeVariationHandlers();
-
-    // Add variation button handler
-    const addVariationBtn = document.getElementById("add-variation");
-    if (addVariationBtn) {
-        const newBtn = addVariationBtn.cloneNode(true);
-        addVariationBtn.parentNode.replaceChild(newBtn, addVariationBtn);
-
-        newBtn.addEventListener("click", async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            if (isProcessingVariation) {
-                console.log("Already processing a variation - preventing duplicate");
-                return;
-            }
-
-            await addNewVariation(e);
-        });
-    }
-});
 
 // --------------------------- Choice Management ---------------------------
 function initializeChoiceForms(variationForm) {
@@ -683,9 +629,7 @@ function updateManagementForms() {
   const container = document.getElementById("variation-container");
   if (!container) return;
 
-  const variations = container.querySelectorAll(
-    '.variation-form:not([style*="display: none"])'
-  );
+  const variations = container.querySelectorAll(".variation-form");
   const variationTotal = document.querySelector(
     'input[name="variation-TOTAL_FORMS"]'
   );
@@ -696,9 +640,7 @@ function updateManagementForms() {
   variations.forEach((variation, index) => {
     const choicesContainer = variation.querySelector(".choices-container");
     if (choicesContainer) {
-      const choices = choicesContainer.querySelectorAll(
-        '.choice-row:not([style*="display: none"])'
-      );
+      const choices = choicesContainer.querySelectorAll(".choice-row");
       const choicesTotal = variation.querySelector(
         `input[name="choices_${index}-TOTAL_FORMS"]`
       );

@@ -1,0 +1,117 @@
+{% extends 'base.html' %} 
+{% load static %}
+{% block content %}
+
+<div class="account-container">
+
+    <div class="account-header">
+        <h1>My Account</h1>
+    </div>
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn btn btn-danger">Log Out</button>
+    </form>
+
+    <hr class="hr--large">
+    <h3>Order History</h3>
+
+    {% if orders %}
+        <div class="orders-list">
+        {% for order in orders %}
+            <div class="order-card">
+                <h4>Order #{{ order.id }} - {{ order.created|date:"d M Y H:i" }}</h4>
+                <p>{% if order.paid %} Paid {% else %} Not Paid {% endif %}</p>
+                <ul class="order-items">
+                    {% for item in order.items.all %}
+                        <li>{{ item.storeitem.item_name }} - Quantity: {{ item.quantity }} - Price: {{ item.get_cost }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p>You haven't placed any orders yet</p>
+    {% endif %}
+
+</div>
+
+
+
+<style>
+/* ===== Container ===== */
+.account-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ===== Header ===== */
+.account-header {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* ===== Logout Button ===== */
+.logout-btn {
+    display: block;
+    text-align: center;
+    margin: 10px auto 40px auto;
+    padding: 10px 20px;
+    
+    color: white;
+    text-decoration: none;
+   
+    width: 150px;
+}
+
+/* ===== Orders List ===== */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.order-card h4 {
+    margin-bottom: 10px;
+}
+
+/* ===== Order Items ===== */
+.order-items {
+    list-style: none;
+    padding-left: 10px;
+}
+
+.order-items li {
+    padding: 5px 0;
+}
+
+/* ===== Responsive ===== */
+@media screen and (min-width: 768px) {
+    .orders-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    .order-card {
+        width: 45%;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .order-card {
+        width: 30%;
+    }
+}
+
+</style>
+{% endblock %}

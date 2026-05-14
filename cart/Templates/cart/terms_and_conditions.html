@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Terms & Conditions
+{% endblock %}
+
+{% block content %}
+<style>
+  .terms-wrapper {
+    max-width: 820px;
+    margin: 60px auto;
+    padding: 0 24px 80px;
+  }
+
+  .terms-wrapper h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .terms-meta {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 40px;
+  }
+
+  .terms-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin-bottom: 40px;
+  }
+
+  .terms-section {
+    margin-bottom: 40px;
+  }
+
+  .terms-section h2 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .terms-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .terms-section ul li {
+    font-size: 0.96rem;
+    line-height: 1.75;
+    color: #333;
+    padding: 8px 0 8px 16px;
+    border-bottom: 1px solid #f3f3f3;
+    position: relative;
+  }
+
+  .terms-section ul li:last-child {
+    border-bottom: none;
+  }
+
+  .terms-section ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 18px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #bbb;
+  }
+
+  .terms-section ul li strong {
+    display: inline-block;
+    color: #111;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+
+  .terms-contact {
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 20px 24px;
+    font-size: 0.93rem;
+    color: #444;
+    line-height: 1.7;
+  }
+
+  .terms-contact a {
+    color: #1a1a1a;
+    text-decoration: underline;
+  }
+</style>
+
+<div class="terms-wrapper">
+  <h1>Terms &amp; Conditions</h1>
+  <p class="terms-meta">Last Updated: April 29, 2026</p>
+  <hr class="terms-divider">
+
+  <div class="terms-section">
+    <h2>1. Overview &amp; Eligibility</h2>
+    <ul>
+      <li><strong>Service Provider:</strong> This website is operated by Waseem Marzouki.</li>
+      <li><strong>Acceptance:</strong> By visiting our site or purchasing artwork, you agree to be bound by these Terms and Conditions.</li>
+      <li><strong>Eligibility:</strong> You represent that you are at least the age of majority in your state or province of residence.</li>
+      <li><strong>Availability:</strong> We reserve the right to modify or discontinue artworks or listings at any time without notice and do not guarantee the availability of any artwork at any time.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>2. Disclaimer of Warranties</h2>
+    <ul>
+      <li><strong>"As-Is" Status:</strong> All products and services are provided "as is" and "as available" for your use.</li>
+      <li><strong>No Warranty:</strong> We provide no warranties of any kind, either express or implied, including all implied warranties of merchantability, fitness for a particular purpose, and non-infringement, except as required by law.</li>
+      <li><strong>Artistic Variation:</strong> Minor variations in color or texture are inherent to digital displays and the printing process; such variations do not constitute defects.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>3. Intellectual Property &amp; Artistic Rights</h2>
+    <ul>
+      <li><strong>Ownership:</strong> All artworks remain the exclusive intellectual property of Waseem Marzouki. Purchase of a physical Work grants a license for personal, non-commercial display in private spaces or non-commercial public settings.</li>
+      <li><strong>Strict Prohibitions:</strong> The Buyer is strictly prohibited from reproducing, distributing, modifying, or creating derivative works based on the artwork. Any unauthorized use constitutes intellectual property infringement.</li>
+      <li><strong>Commercial &amp; AI Restrictions:</strong> This prohibition includes any commercial use in any form, AI training, or reselling the Work on online marketplaces or digital platforms without prior written consent.</li>
+      <li><strong>Artist's Future Rights:</strong> The Artist retains the unrestricted right to develop, reinterpret, enlarge, and produce derivative works based on any sketch or study, including for commercial use. The sale of a sketch does not grant the Buyer exclusivity over the visual concept.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>4. Orders, Payment &amp; Fulfillment</h2>
+    <ul>
+      <li><strong>Stripe Processing:</strong> Payments are processed securely via Stripe. We do not store credit card data.</li>
+      <li><strong>Right to Refuse:</strong> We reserve the right to refuse service or cancel orders at our sole discretion, including suspected fraud or unauthorized reselling.</li>
+      <li><strong>Fulfillment Partner:</strong> Prints are fulfilled by third-party partners (e.g., Printify). Delivery times are estimates only and may vary due to carrier or production delays; we are not liable for such delays.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>5. Shipping &amp; Risk of Loss</h2>
+    <ul>
+      <li><strong>Origin:</strong> All orders ship from Los Angeles, CA.</li>
+      <li><strong>Risk Transfer:</strong> Risk of loss and title transfer to the Buyer upon delivery to the shipping carrier, except where otherwise required by applicable law.</li>
+      <li><strong>Customs:</strong> International Buyers are solely responsible for all customs duties, import taxes, or local fees.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>6. Returns &amp; Damage Claims</h2>
+    <ul>
+      <li><strong>Final Sale:</strong> All original artworks are final sale.</li>
+      <li><strong>Damage Reporting:</strong> Claims for items damaged in transit must be submitted within 3 calendar days of delivery with photographic evidence of the Work and packaging. Failure to report within this period limits eligibility for replacement or refund.</li>
+      <li><strong>Prints:</strong> Prints are eligible for replacement only if they arrive damaged or defective, subject to production partner policies.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>7. Indemnification &amp; Liability</h2>
+    <ul>
+      <li><strong>Indemnification:</strong> You agree to indemnify and hold harmless Waseem Marzouki from any claims or demands arising from your breach of these Terms or violation of any law.</li>
+      <li><strong>Liability Cap:</strong> To the fullest extent permitted by applicable law, Waseem Marzouki is not liable for any indirect, incidental, or consequential damages. Total liability is limited to the purchase price paid for the Work.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>8. Legal Provisions</h2>
+    <ul>
+      <li><strong>Governing Law:</strong> These Terms are governed by the laws of the State of California, USA.</li>
+      <li><strong>Jurisdiction:</strong> Any disputes shall be settled in the courts located in Los Angeles County, California, subject to applicable consumer protection laws.</li>
+      <li><strong>Severability:</strong> If any part of these Terms is found unenforceable, the remaining provisions remain in full effect.</li>
+      <li><strong>Entire Agreement:</strong> These Terms constitute the entire agreement between the Buyer and Artist.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>9. Contact</h2>
+    <div class="terms-contact">
+      Questions regarding these Terms should be sent to: <a href="mailto:wazems@yahoo.com">wazems@yahoo.com</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
-# Exit on error
-set -o errexit
+# Build / release script for the Marzouki Django app.
+#
+# Run from the project root (the directory that contains `manage.py`):
+#   ./TheProject/build.sh
+#
+# Or from anywhere; the script self-locates the project root.
 
-# Install dependencies
+set -euo pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_ROOT"
+
+echo "[build] Installing Python dependencies..."
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Collect static files
+echo "[build] Collecting static files..."
 python manage.py collectstatic --no-input
 
-# Apply database migrations
-python manage.py migrate
+echo "[build] Applying database migrations..."
+python manage.py migrate --no-input
+
+echo "[build] Done."

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Payment successful{% endblock %}
+{% block content %}
+  <div class="paints-header text-center mt-5 font-weight-bold">
+    <h1>Thank you for your order</h1>
+    <h3 class="font-weight-light mt-3">
+      {% if order_id %}
+        Your order <strong>#{{ order_id }}</strong> has been received.
+      {% else %}
+        Your order has been received.
+      {% endif %}
+    </h3>
+    <p class="text-muted mt-3" style="max-width: 600px; margin: 0 auto;">
+      You will receive an email confirmation once payment is fully processed.
+      If you have any questions, please contact us at
+      <a href="mailto:wazems@yahoo.com">wazems@yahoo.com</a>.
+    </p>
+    <a href="{% url 'paints' %}" class="btn btn-outline-dark mt-4">Continue browsing</a>
+    <hr class="hr--large" />
+  </div>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% load static %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const toggle = document.getElementById("searchToggle");
+  const form = document.getElementById("desktopSearchForm");
+  const icon = toggle.querySelector("img"); // الأيقونة نفسها
+
+  toggle.addEventListener("click", function(e) {
+    e.preventDefault();
+    form.classList.toggle("active");
+    icon.style.display = form.classList.contains("active") ? "none" : "block";
+  });
+
+  document.addEventListener("click", function(e) {
+    if (!form.contains(e.target) && !toggle.contains(e.target)) {
+      form.classList.remove("active");
+      icon.style.display = "block"; // ترجّع الأيقونة
+    }
+  });
+});
+</script> 
+<header style="position: sticky; top: 0; z-index: 1000;">
+  <div class="bs-component">
+    <nav class="navbar navbar-expand-lg bg-primary navbar sticky-top px-3 py-3" data-bs-theme="dark">
+      <div class="container-fluid mx-md-5 mx-2 d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="{% url 'home' %}">Waseem Marzouki</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          <span class="navbar-toggler-close" style="display: none;">✕</span>
+        </button>
+
+        <!-- Offcanvas Menu for Small Screens -->
+        <div class="offcanvas offcanvas-end d-block d-lg-none" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+          <div class="offcanvas-header">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body p-0">
+            <ul class="navbar-nav flex-column w-100">
+              <!-- Search Bar (Small Screens) -->
+              <li class="nav-item">
+                <form class="search-form mb-3" action="{% url 'search' %}" style="padding: 15px;">
+                  <div class="d-flex flex-column">
+                    <input class="form-control search mb-2" type="search" placeholder="Search for products" name="query" style="width: 100%;" />
+                    <button class="btn btn-secondary" type="submit" style="width: 100%;">Search</button>
+                  </div>
+                </form>
+              </li>
+              <!-- Header Sections -->
+              
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'paints' %}">Gallery</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'about' %}">About</a>
+              </li>
+              {% if user.is_authenticated and user.is_superuser %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'dashboard:store_items_list' %}">Shop Management</a>
+                </li>
+
+                {% if on_dashboard_page %}
+                  <hr class="hr--large" />
+                  <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'store_items_list' %}active{% endif %}" href="{% url 'dashboard:store_items_list' %}">Shop</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'section_list' %}active{% endif %}" href="{% url 'dashboard:section_list' %}">Categories</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'discount_list' %}active{% endif %}" href="{% url 'dashboard:discount_list' %}">Financials</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}" href="{% url 'dashboard:order_list' %}">Orders</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'newsletter_list' %}active{% endif %}" href="{% url 'dashboard:newsletter_list' %}">News Letter</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}" href="{% url 'dashboard:users_list' %}">Users</a>
+                  </li>
+                {% endif %}
+              {% endif %}
+              <!-- Separator -->
+              <li>
+                <hr class="hr--large" />
+              </li>
+              {% if on_paints_page %}
+                <!-- Categories (only visible on paints page) -->
+                <li class="nav-item"><a class="nav-link" href="{% url 'originals' %}">Originals</a></li>
+                  
+                <li class="nav-item"><a class="nav-link" href="{% url 'prints' %}">Prints</a></li>
+                
+                
+                  
+                {% comment %} {% for section in sections %}
+                  {% if section.category == 'OR' %}
+                   <li class="nav-item">
+                     <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
+                    </li>
+
+                  {% endif %}
+                {% endfor %} {% endcomment %}
+                
+            
+              
+              
+              
+                
+                
+                <!-- Separator -->
+                <li>
+                  <hr class="hr--large" />
+                </li>
+              {% endif %}
+                {% if on_originals_page %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'originals' %}">Originals</a></li>
+             
+                
+                {% for section in sections %}
+                {% if section.category == 'OR' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                <hr class="hr--large" />
+                <li class="nav-item"><a class="nav-link" href="{% url 'prints' %}">Prints</a></li>
+                {% endif %}
+                
+
+
+                {% if on_prints_page %}
+                  
+                      
+                  <li class="nav-item"><a class="nav-link" href="{% url 'prints' %}">Prints</a></li>
+                  {% for section in sections %}
+                  {% if section.category == 'PR' %}
+                   <li class="nav-item">
+                     <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
+                    </li>
+
+                  {% endif %}
+                {% endfor %}
+                <hr class="hr--large" />
+                <li class="nav-item"><a class="nav-link" href="{% url 'originals' %}">Originals</a></li>
+                {% endif %}
+              <!-- Auth and Cart -->
+              <li class="nav-item">
+                {% if user.is_authenticated %}
+                  <a href="{% url 'account' %}" class="nav-link d-flex align-items-center">
+                    <img src="{% static 'icons/person.svg' %}" loading="lazy" alt="Login Icon" style="width: clamp(20px, 4vw, 26px); height: auto; margin-right: 8px;" />
+                    Account
+                  </a>
+                {% else %}
+                  <a href="{% url 'login' %}" class="nav-link d-flex align-items-center">
+                    <img src="{% static 'icons/person.svg' %}" loading="lazy" alt="Login Icon" style="width: clamp(20px, 4vw, 26px); height: auto; margin-right: 8px;" />
+                    Login
+                  </a>
+                {% endif %}
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'cart:cart_detail' %}" class="nav-link d-flex align-items-center">
+                  <img src="{% static 'icons/cart.svg' %}" alt="Cart Icon" loading="lazy" style="width: clamp(20px, 4vw, 26px); height: auto; margin-right: 8px;" />
+                  Cart
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Large Screen Layout -->
+        <div class="collapse navbar-collapse d-lg-flex d-none" id="navbarColor01">
+  <ul class="navbar-nav me-auto">
+
+    
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'paints' %}">Gallery</a>
+    </li>
+
+    
+
+    <!-- Categories Dropdown -->
+    
+    <li class="nav-item dropdown position-static">
+      <a class="nav-link dropdown-toggle"
+        href="#"
+        id="categoriesDropdown"
+        role="button">
+        Shop
+      </a>
+
+      <div class="dropdown-menu categories-dropdown p-4" aria-labelledby="categoriesDropdown">
+        <div class="categories-grid">
+          <a class="dropdown-item" href="{% url 'originals' %}">Originals</a>
+          <a class="dropdown-item" href="{% url 'prints' %}">Prints</a>
+          
+          
+        </div>
+      </div>
+    </li>
+
+    {% if user.is_authenticated and user.is_superuser %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'dashboard:store_items_list' %}">
+        Shop Management
+      </a>
+    </li>
+    {% endif %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'about' %}">About</a>
+    </li>
+
+    
+
+  </ul>
+
+  <!-- RIGHT SIDE ICONS -->
+  <div class="header-icon d-flex align-items-center">
+
+    <!-- Search Icon -->
+    <div class="nav-item position-relative me-2">
+      <a href="javascript:void(0);" id="searchToggle" class="nav-link p-0">
+       <img src="{% static 'icons/search.svg' %}" style="color: #eceeef;"/>
+      </a>
+    </div>
+
+    <!-- Search Box (Hidden Initially) -->
+    <form id="desktopSearchForm"
+      action="{% url 'search' %}"
+      class="desktop-search-wrapper align-items-center">
+      <input class="form-control me-2 search desktop-search-input"
+             type="search"
+             placeholder="Search for products"
+             name="query"/>
+    </form>
+
+    {% if user.is_authenticated %}
+      <a href="{% url 'account' %}" class="nav-link d-flex align-items-center">
+        <img src="{% static 'icons/person.svg' %}" />
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}" class="nav-link d-flex align-items-center">
+        <img src="{% static 'icons/person.svg' %}" />
+      </a>
+    {% endif %}
+
+    <div class="position-relative">
+      <a href="{% url 'cart:cart_detail' %}" class="btn-sm">
+        <img src="{% static 'icons/cart.svg' %}" />
+      </a>
+      {% with total_items=cart.cart.values|length %}
+        {% if total_items > 0 %}
+          <span class="cart-badge">{{ total_items }}</span>
+        {% endif %}
+      {% endwith %}
+    </div>
+
+  </div>
+</div>
+      </div>
+    </nav>
+  </div>
+</header>
+<style>
+  .form-control::placeholder{
+    color: #808080;
+  }
+</style>

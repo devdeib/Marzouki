@@ -4,27 +4,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Waseem Marzouki</title>
+    <meta name="theme-color" content="#1a1a1a" />
+
+    {# --- SEO ---------------------------------------------------------- #}
+    <title>{% block title %}Waseem Marzouki{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Original paintings and prints by Waseem Marzouki - collect contemporary fine art directly from the artist.{% endblock %}" />
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}" />
+    <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}" />
+
+    {# --- Open Graph / Twitter ---------------------------------------- #}
+    <meta property="og:site_name" content="Waseem Marzouki" />
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+    <meta property="og:title" content="{% block og_title %}Waseem Marzouki{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}Original paintings and prints by Waseem Marzouki.{% endblock %}" />
+    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}" />
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'imgs/default.png' %}{% endblock %}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{% block twitter_title %}Waseem Marzouki{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}Original paintings and prints by Waseem Marzouki.{% endblock %}" />
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'imgs/default.png' %}{% endblock %}" />
+
+    {# --- Styles ------------------------------------------------------- #}
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="{% static 'scripts/home.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+    {# Page-specific extra head content (e.g., structured data) #}
+    {% block extra_head %}{% endblock %}
+
+    <script src="{% static 'scripts/home.js' %}" defer></script>
   </head>
   <body>
-    <!-- Header content -->
+    {# Header #}
     {% include 'partials/_header.html' %}
 
+    {# Bootstrap toast/messages slot for flash messages #}
+    {% if messages %}
+      <div class="container mt-2" role="region" aria-label="Notifications">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <main>
-      {% block content %}
-      {% endblock %}
+      {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer content -->
+    {# Footer #}
     <div class="footer-wrapper" style="text-align: center;">
       {% include 'partials/_footer.html' %}
     </div>
 
-    <!-- Add Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    {# Bootstrap JS (kept on CDN for now; self-host in a future cycle) #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+    {% block extra_scripts %}{% endblock %}
   </body>
 </html>

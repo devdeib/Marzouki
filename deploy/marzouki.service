@@ -1,0 +1,40 @@
+###############################################################################
+# systemd unit for the Marzouki Django app (Gunicorn).
+#
+# Install:
+#   sudo cp deploy/marzouki.service /etc/systemd/system/marzouki.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now marzouki
+###############################################################################
+
+[Unit]
+Description=Marzouki Django (Gunicorn)
+After=network.target redis.service postgresql.service
+Wants=redis.service
+
+[Service]
+# Replace with your deploy user and project path on the VPS.
+User=marzouki
+Group=www-data
+WorkingDirectory=/srv/marzouki
+EnvironmentFile=/srv/marzouki/.env
+
+# Activate the project's venv before launching Gunicorn.
+ExecStart=/srv/marzouki/venv/bin/gunicorn \
+    --config /srv/marzouki/deploy/gunicorn.conf.py \
+    TheProject.wsgi:application
+
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGQUIT
+TimeoutStopSec=30
+PrivateTmp=true
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/srv/marzouki/media /srv/marzouki/staticfiles /srv/marzouki/logs
+
+[Install]
+WantedBy=multi-user.target

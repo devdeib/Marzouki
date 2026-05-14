@@ -1,10 +1,9 @@
-from .models import ArtistProfile
 from django.contrib import admin
 from nested_admin import NestedTabularInline, NestedModelAdmin
-from .models import StoreItems, Section, Color, Tag, Discount, Variation, ItemVariation, StoreItemImage, Choices, NewsletterSubscriber
-from django.core.mail import send_mass_mail
-# Inlines
-
+from .models import (
+    StoreItems, Section, Color, Tag, Discount, Variation,
+    ItemVariation, StoreItemImage, Choices, NewsletterSubscriber, ArtistProfile
+)
 
 class ItemImageInline(NestedTabularInline):
     model = StoreItemImage
@@ -35,7 +34,8 @@ class StoreItemAdmin(NestedModelAdmin):
 
 
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ('name', 'category')
+    list_filter = ('category',)
 
 
 class VariationAdmin(admin.ModelAdmin):

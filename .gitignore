@@ -1,0 +1,70 @@
+# ---------------------------------------------------------------------------
+# Marzouki / Django e-commerce — .gitignore
+# ---------------------------------------------------------------------------
+
+# --- Secrets ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+develop-eggs/
+.installed.cfg
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Virtualenvs -----------------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+
+# --- Django ----------------------------------------------------------------
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+db.sqlite3-wal
+db.sqlite3-shm
+*.sqlite3
+*.sqlite3-journal
+media/
+staticfiles/
+collected_static/
+
+# --- IDE / Editor ----------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Coverage / Tests ------------------------------------------------------
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+.cache/
+
+# --- mypy / Ruff -----------------------------------------------------------
+.mypy_cache/
+.ruff_cache/
+
+# --- Misc ------------------------------------------------------------------
+*.bak
+*.orig
+*.rej
+node_modules/

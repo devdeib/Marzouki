@@ -1,16 +1,179 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block title %}{{ item.item_name }} - Paint Detail{% endblock %}
+{% block meta_description %}{{ item.item_description|default:item.item_name|truncatechars:158 }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ item.item_name }} | Waseem Marzouki{% endblock %}
+{% block og_description %}{{ item.item_description|default:item.item_name|truncatechars:200 }}{% endblock %}
+{% block og_image %}{% if item.item_photo %}{{ request.scheme }}://{{ request.get_host }}{{ item.item_photo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'imgs/default.png' %}{% endif %}{% endblock %}
+{% block twitter_title %}{{ item.item_name }} | Waseem Marzouki{% endblock %}
+{% block twitter_description %}{{ item.item_description|default:item.item_name|truncatechars:200 }}{% endblock %}
+{% block twitter_image %}{% if item.item_photo %}{{ request.scheme }}://{{ request.get_host }}{{ item.item_photo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'imgs/default.png' %}{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+    z-index: 2000;
+    padding: 10px 20px;
+    opacity: 0.5;
+    transition: 0.2s ease;
+}
+
+.nav-arrow:hover {
+    opacity: 1;
+}
+
+.fullscreen-viewer{
+    display:none;
+    position:fixed;
+    z-index:5000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.95);
+    justify-content:center;
+    align-items:center;
+}
+
+.fullscreen-image{
+    max-width:90%;
+    max-height:90%;
+}
+
+.close-viewer{
+    position:absolute;
+    top:20px;
+    right:40px;
+    font-size:40px;
+    color:white;
+    cursor:pointer;
+}
+
+.nav{
+    position:absolute;
+    top:50%;
+    font-size:60px;
+    color:white;
+    cursor:pointer;
+    user-select:none;
+    padding:20px;
+}
+
+.prev{ left:20px; }
+.next{ right:20px; }
+@media (min-width: 992px) {
+
+.sidebar-wrapper {
+    position: fixed;
+    left: -280px;
+    top: 75px;
+    width: 280px;
+    height: calc(100% - 80px);
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-right: 1px solid #ddd;
+    transition: left 0.3s ease;
+    z-index: 999;
+    overflow-y: auto;
+}
+
+#hover-zone {
+    position: fixed;
+    left: 0;
+    top: 80px;
+    width: 45px;
+    height: calc(100% - 80px);
+    z-index: 998;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+#hover-zone img{
+    width:30px;
+    height:30px;
+    opacity:0.7;
+    transition:0.2s;
+}
+
+#hover-zone img:hover{
+    opacity:1;
+}
+
+.sidebar-open #hover-zone img{
+    opacity:0;
+}
+
+}
+
+@media (max-width: 991.98px) {
+.sidebar-wrapper,
+#hover-zone{
+    display:none !important;
+}
+}
+
+    .description {
+    white-space: pre-wrap;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ item.item_name }} - Paint Detail</title>
-</head>
-<body>
+<div id="fullscreenViewer" class="fullscreen-viewer">
+    <span class="close-viewer">&times;</span>
+
+    <img id="fullscreenImage" class="fullscreen-image">
+
+    <span class="nav prev">&#10094;</span>
+    <span class="nav next">&#10095;</span>
+</div>
+    <div id="hover-zone">
+    <img src="{% static 'icons/menu.svg' %}" alt="">
+</div>
+
+<div class="sidebar-wrapper">
+    {% if on_paints_page %}
+        <a href="{% url 'originals' %}" class="text-decoration-none"><h4>Originals</h4></a>
+        <hr style="width: 100%" />
+
+        {% for section in sections %}
+            {% if section.category == 'OR' %}
+            <div>
+                <h5><a href="{% url 'category_browse' section.id %}" class="text-decoration-none">{{ section.name }}</a></h5>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <br>
+        <hr class="hr--large">
+        <br>
+
+        <a href="{% url 'prints' %}" class="text-decoration-none"><h4>Prints</h4></a>
+        <hr style="width: 100%" />
+
+        {% for section in sections %}
+            {% if section.category == 'PR' %}
+            <div>
+                <h5><a href="{% url 'category_browse' section.id %}" class="text-decoration-none">{{ section.name }}</a></h5>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
     <hr class="hr--large">
     <div class="paint-detail-header text-center mt-1 font-weight-bold"></div>
+
     <div class="details-container">
         <div class="paint-img-container">
             <div class="paint-img">
@@ -36,23 +199,32 @@
         </div>
         <div class="details">
             <h4 class="title mb-2 mt-3">{{ item.item_name }}</h4>
-            <div class="price mb-2" id="price-section">
+
+            {% if item.status != 'SC' %}
+               <div class="price mb-2" id="price-section">
                 {% if item.get_final_price < item.item_price %}
                     <span id="discounted-price" style="color: green; font-weight: bold; font-size: 30px;">${{ item.get_final_price|floatformat:2 }}</span>
                     <span id="original-price" style="text-decoration: line-through; font-size: 20px;">${{ item.item_price|floatformat:2 }}</span>
                 {% else %}
                     <span id="original-price" style="font-weight: bolder; font-size: 30px; color: #2a2a2a;">${{ item.item_price|floatformat:2 }}</span>
                 {% endif %}
-            </div>
+                </div>
+            {% endif %}
+
+
             <div class="tags mb-2">
                 {% for tag in item.tags.all %}
                     <span class="tag badge bg-light">{{ tag.name }}</span>
                 {% endfor %}
             </div>
             <p class="card-text description mb-3">{{ item.item_description }}</p>
-            <p class="width mb-2">Width: <span>{{ item.width }} cm</span></p>
+            {% if item.width %}
+                <p class="width mb-2">Width: <span>{{ item.width }} cm</span></p>
+            {% endif %}
+            {% if item.height %}
             <p class="height mb-3">Height: <span>{{ item.height }} cm</span></p>
-
+            {% endif %}
+            {% if item.status != "SC" %}
             <form action="{% url 'cart:cart_add' item.id %}" method="post">
                 <hr>
                 {% csrf_token %}
@@ -88,15 +260,27 @@
                     </select>
                 </div>
 
-                
+
 
                 {{ cart_product_form.override }}
 
+
+                {% if item.status != "SO" %}
                 <button type="submit" class="btn btn-warning column mt-3">Add To Cart</button>
+
+                {% endif %}
+
+
             </form>
+            {% if item.status == "SO" %}
+            <button type="submit" class="btn btn-primary column mt-3" style="width: 100%;" disabled>Sold Out</button>
+            {% endif %}
+            {% endif %}
         </div>
     </div>
+{% endblock %}
 
+{% block extra_scripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const basePrice = parseFloat('{{ item.item_price }}');
@@ -150,6 +334,62 @@
             });
         });
     </script>
-</body>
-</html>
+<script>
+    const viewer = document.getElementById("fullscreenViewer");
+const viewerImg = document.getElementById("fullscreenImage");
+const closeViewer = document.querySelector(".close-viewer");
+
+const images = [];
+document.querySelectorAll('.media-thumb[data-type="image"]').forEach(img=>{
+    images.push(img.dataset.src);
+});
+
+images.unshift('{{ item.item_photo.url }}');
+
+let currentIndex = 0;
+
+function showImage(index){
+    currentIndex = index;
+    viewerImg.src = images[index];
+}
+
+document.getElementById("mainMediaContainer").addEventListener("click",function(){
+    viewer.style.display = "flex";
+    showImage(currentIndex);
+});
+
+closeViewer.onclick = ()=>{
+    viewer.style.display="none";
+};
+
+document.querySelector(".next").onclick = ()=>{
+    currentIndex++;
+    if(currentIndex >= images.length) currentIndex = 0;
+    showImage(currentIndex);
+};
+
+document.querySelector(".prev").onclick = ()=>{
+    currentIndex--;
+    if(currentIndex < 0) currentIndex = images.length -1;
+    showImage(currentIndex);
+};
+</script>
+<script>
+    const sidebar = document.querySelector('.sidebar-wrapper');
+const hoverZone = document.getElementById('hover-zone');
+
+if(hoverZone && sidebar){
+
+hoverZone.addEventListener('mouseenter', () => {
+    sidebar.style.left = '0';
+    document.body.classList.add('sidebar-open');
+});
+
+sidebar.addEventListener('mouseleave', () => {
+    sidebar.style.left = '-280px';
+    document.body.classList.remove('sidebar-open');
+});
+
+}
+</script>
 {% endblock %}

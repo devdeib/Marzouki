@@ -1,48 +1,239 @@
-<!-- templates/create.html -->
 {% extends 'base.html' %}
-{% block title %} Checkout {% endblock %}
+{% block title %}Checkout{% endblock %}
+
 {% block content %}
-<div class="paints-header text-center mt-3 font-weight-bold">
-  <h1>Checkout</h1>
-  <h3 class="font-weight-light">Please provide your informations:</h3>
+<div class="container mt-5">
+  <div class="row g-4 align-items-start">
+
+    <!-- LEFT: FORM -->
+    <div class="col-12 col-lg-7 mx-auto mb-4 mb-lg-0">
+      <div class="pe-lg-4">
+        <h3 class="mb-4 text-center text-lg-start">Checkout</h3>
+
+        <form method="post" id="checkout-form" class="order-form">
+          {% csrf_token %}
+
+          <!-- Contact -->
+          <div class="mb-4">
+            <h5 class="fw-bold mb-3">Contact</h5>
+
+            <input type="email" class="form-control mb-3 {% if form.email.errors %}is-invalid{% endif %}"
+              name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}" />
+            {% for error in form.email.errors %}
+              <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+            {% endfor %}
+
+            <!-- Phone Number -->
+            <input type="tel" class="form-control mb-3 {% if form.phone.errors %}is-invalid{% endif %}"
+              name="phone" placeholder="Phone number" value="{{ form.phone.value|default_if_none:'' }}" />
+            {% for error in form.phone.errors %}
+              <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Delivery -->
+          <div class="mb-4">
+            <h5 class="fw-bold mb-3">Delivery</h5>
+
+            <!-- Country Dropdown -->
+            <div class="mb-3">
+              <select class="form-control {% if form.country.errors %}is-invalid{% endif %}" name="country">
+                {% for value, label in form.fields.country.choices %}
+                  <option value="{{ value }}" {% if form.country.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% for error in form.country.errors %}
+                <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- First + Last -->
+            <div class="row">
+              <div class="col-6 mb-3">
+                <input type="text" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                  name="first_name" placeholder="First name" value="{{ form.first_name.value|default_if_none:'' }}" />
+                {% for error in form.first_name.errors %}
+                  <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-6 mb-3">
+                <input type="text" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                  name="last_name" placeholder="Last name" value="{{ form.last_name.value|default_if_none:'' }}" />
+                {% for error in form.last_name.errors %}
+                  <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-3">
+              <input type="text" class="form-control {% if form.address.errors %}is-invalid{% endif %}"
+                name="address" placeholder="Address" value="{{ form.address.value|default_if_none:'' }}" />
+              {% for error in form.address.errors %}
+                <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- City + ZIP -->
+            <div class="row">
+              <div class="col-6 mb-3">
+                <input type="text" class="form-control {% if form.city.errors %}is-invalid{% endif %}"
+                  name="city" placeholder="City" value="{{ form.city.value|default_if_none:'' }}" />
+                {% for error in form.city.errors %}
+                  <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-6 mb-3">
+                <input type="text" class="form-control {% if form.postal_code.errors %}is-invalid{% endif %}"
+                  name="postal_code" placeholder="ZIP code" value="{{ form.postal_code.value|default_if_none:'' }}" />
+                {% for error in form.postal_code.errors %}
+                  <div class="invalid-feedback" style="display:block;">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <p class="text-muted small">Your information will be used to process your order.</p>
+
+          <button type="submit" class="btn btn-primary w-100 mt-3 d-none d-lg-block">Place Order</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT: ORDER SUMMARY -->
+    <div class="col-12 col-lg-5 border-start ps-lg-4 mt-4 mt-lg-0">
+      <div class="card p-4 shadow-sm sticky-summary">
+        <h4 style="color:black">Order Summary</h4>
+        <hr />
+
+        {% for item in cart %}
+          <div class="d-flex justify-content-between align-items-start py-3">
+            <!-- Item Photo + Info -->
+            <div class="d-flex align-items-start gap-3">
+              <!-- Thumbnail with quantity badge -->
+              <div class="item-thumb-wrap">
+                {% if item.item_photo %}
+                  <img src="{{ item.item_photo }}" alt="{{ item.item_name }}" class="item-thumb" />
+                  {% else %}
+                    <div class="item-thumb item-thumb-placeholder"></div>
+                {% endif %}
+                <span class="item-qty-badge">{{ item.quantity }}</span>
+              </div>
+
+              <!-- Name + Variations + Personalization -->
+              <div>
+                <div class="fw-semibold item-title" style="color: black;">{{ item.item_name }}</div>
+
+                {% if item.variation_choices %}
+                  <div class="small text-muted">
+                    {% for vc in item.variation_choices %}
+                      <div>
+                        {{ vc.variation_name }}: {{ vc.choice_name }}
+                        {% if vc.price_increment|floatformat:2 != '0.00' %}
+                          (+${{ vc.price_increment|floatformat:2 }})
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                {% if item.personalization %}
+                  <div class="small mt-1 text-muted">
+                    <strong>Personalization:</strong> {{ item.personalization }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Price -->
+            <div class="text-end ms-2">
+              <div class="fw-bold" style="color:black;">${{ item.total_price|floatformat:2 }}</div>
+            </div>
+          </div>
+
+          {% if not forloop.last %}<hr class="my-2" />{% endif %}
+        {% endfor %}
+
+        <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+          <strong style="color: black; font-weight: 600;">Total</strong>
+          <strong class="fs-5" style="color:black; font-weight:600;">${{ total_price|floatformat:2 }}</strong>
+        </div>
+
+        <div class="d-lg-none mobile-checkout-btn">
+          <button type="submit" form="checkout-form" class="btn btn-primary w-100">Place Order</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
-<br>
-<div class="d-flex justify-content-center align-items-center"">
-<form method="post" class="order-form">
-  {% csrf_token %}
-  <div class="form-group">
-    <label for="id_first_name">First name</label>
-    <input type="text" class="form-control" id="id_first_name" name="first_name" placeholder="First name" value="{{ form.first_name.value|default_if_none:'' }}">
-  </div>
-  <p></p>
-  <div class="form-group">
-    <label for="id_last_name">Last name</label>
-    <input type="text" class="form-control" id="id_last_name" name="last_name" placeholder="Last name" value="{{ form.last_name.value|default_if_none:'' }}">
-  </div>
-  <p></p>
-  <div class="form-group">
-    <label for="id_email">Email</label>
-    <input type="email" class="form-control" id="id_email" name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}">
-  </div>
-  <p></p>
-  <div class="form-group">
-    <label for="id_address">Address</label>
-    <input type="text" class="form-control" id="id_address" name="address" placeholder="Address" value="{{ form.address.value|default_if_none:'' }}">
-  </div>
-  <p></p>
-  <div class="form-group">
-    <label for="id_postal_code">Postal code</label>
-    <input type="text" class="form-control" id="id_postal_code" name="postal_code" placeholder="Postal code" value="{{ form.postal_code.value|default_if_none:'' }}">
-  </div>
-  <p></p>
-  <div class="form-group">
-    <label for="id_city">City</label>
-    <input type="text" class="form-control" id="id_city" name="city" placeholder="City" value="{{ form.city.value|default_if_none:'' }}">
-  </div>
-  <p></p>
-  <p style="color: red; font-size: small;">All of the provided informations at your own responsibility</p>
-  <button type="submit" class="btn btn-primary">Place order</button>
-</form>
-</div>
-<br>
+
+<style>
+  .item-title { font-size: 15px; font-weight: 600; }
+
+  .sticky-summary { position: sticky; top: 100px; }
+
+  /* Thumbnail + badge */
+  .item-thumb-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .item-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e5e5;
+  }
+  .item-thumb-placeholder {
+    background: #f0f0f0;
+    display: block;
+  }
+  .item-qty-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #333;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Select styling to match inputs */
+  .order-form select.form-control {
+    height: 48px;
+    appearance: auto;
+    color: #495057;
+  }
+  .order-form select.form-control:focus {
+    box-shadow: none;
+    border-color: #000;
+  }
+  .order-form input { height: 48px; }
+  .order-form h5 { font-size: 16px; }
+  .order-form .form-control:focus { box-shadow: none; border-color: #000; }
+
+  @media (max-width: 991px) {
+    .border-start { border-left: none !important; }
+    body { padding-bottom: 80px; }
+    .mobile-checkout-btn {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      background: white;
+      padding: 12px;
+      border-top: 1px solid #eee;
+      z-index: 9999;
+    }
+  }
+  @media (min-width: 992px) {
+    .border-start { border-left: 1px solid #e5e5e5 !important; opacity: 0.7; }
+  }
+</style>
 {% endblock %}

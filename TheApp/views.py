@@ -1,295 +1,455 @@
-from TheApp.models import StoreItems, ItemVariation, Choices, StoreItemImage, StoreItemVideo
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.urls import reverse
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth import authenticate, login as auth_login
-from .forms import *
-from .models import *
-from cart.forms import CartAddProductForm
-from django.utils import timezone
-from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from dashboard.forms import NewsletterForm
+"""
+Public-facing views for the catalog, auth, and informational pages.
+"""
+
+from __future__ import annotations
+
+import logging
 import os
+
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, logout
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.validators import FileExtensionValidator
+from django.db.models import Prefetch, Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+
+from cart.forms import CartAddProductForm
+from orders.models import Order
+
+from .forms import (
+    ArtistBioForm,
+    ArtistPhotoForm,
+    NewsletterSubscriptionForm,
+    SignupForm,
+    SocialProfilesForm,
+)
+from .models import (
+    ArtistProfile,
+    Choices,
+    ItemVariation,
+    NewsletterSubscriber,
+    Section,
+    StoreItemImage,
+    StoreItems,
+    StoreItemVideo,
+)
+
+logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+HERO_IMAGE_RELATIVE_PATH = "hero/hero.jpg"
+HERO_IMAGE_MAX_BYTES = 5 * 1024 * 1024  # 5 MB
+HERO_IMAGE_ALLOWED_EXTENSIONS = ("jpg", "jpeg", "png", "webp")
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def _paginate(request, queryset, per_page=12):
+    paginator = Paginator(queryset, per_page)
+    page = request.GET.get("page")
+    try:
+        return paginator.page(page)
+    except PageNotAnInteger:
+        return paginator.page(1)
+    except EmptyPage:
+        return paginator.page(paginator.num_pages)
+
+
+# ---------------------------------------------------------------------------
+# Error pages
+# ---------------------------------------------------------------------------
+def error_500(request, *args, **kwargs):
+    # Standalone template — no DB lookups — so a 500 caused by DB outage
+    # still renders cleanly.
+    return render(request, "error.html", status=500)
+
+
+def robots_txt(request):
+    """Plain-text robots.txt with dynamic absolute sitemap URL."""
+    scheme = "https" if request.is_secure() else request.scheme
+    host = request.get_host()
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "\n"
+        f"Sitemap: {scheme}://{host}/sitemap.xml\n"
+    )
+    return HttpResponse(body, content_type="text/plain")
+
+
+# ---------------------------------------------------------------------------
+# Auth
+# ---------------------------------------------------------------------------
 def signup(request):
-    if request.method == 'POST':
+    if request.user.is_authenticated:
+        return redirect("paints")
+
+    if request.method == "POST":
         form = SignupForm(request.POST)
         if form.is_valid():
-            # Check if a user with the same email already exists
-            email = form.cleaned_data['email']
-            if User.objects.filter(email=email).exists():
-                user_exists = True
-                return render(request, 'signup.html', {'form': form, 'user_exists': user_exists})
-
-            # Create a new user
+            email = form.cleaned_data["email"]
+            if User.objects.filter(email__iexact=email).exists():
+                return render(
+                    request,
+                    "signup.html",
+                    {"form": form, "user_exists": True},
+                )
             user = form.save()
-            user.refresh_from_db()
-            user.save()
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=user.username, password=raw_password)
-            return redirect('login')
+            raw_password = form.cleaned_data.get("password1")
+            auth_user = authenticate(username=user.username, password=raw_password)
+            if auth_user:
+                auth_login(request, auth_user)
+            return redirect("paints")
     else:
         form = SignupForm()
-    return render(request, 'signup.html', {'form': form})
+    return render(request, "signup.html", {"form": form})
 
 
 def login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+    if request.user.is_authenticated:
+        return redirect("paints")
+
+    error = None
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth_login(request, user)
-            return redirect('paints')
-        else:
-            return redirect('login')
-    return render(request, 'login.html')
+            return redirect("paints")
+        error = "Invalid username or password."
+    return render(request, "login.html", {"error": error})
+
+
+@require_POST
+@login_required
+def user_logout(request):
+    logout(request)
+    return redirect("home")
+
+
+@login_required
+def account(request):
+    orders = (
+        Order.objects.filter(user=request.user)
+        .prefetch_related("items", "items__storeitem")
+        .order_by("-created")
+    )
+    return render(
+        request,
+        "account.html",
+        {"user": request.user, "orders": orders},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Home
+# ---------------------------------------------------------------------------
+def _save_hero_image(uploaded_file) -> None:
+    """Validate and write the new hero image to MEDIA_ROOT/hero/hero.jpg."""
+    if uploaded_file.size > HERO_IMAGE_MAX_BYTES:
+        raise ValidationError(
+            f"Image too large ({uploaded_file.size} bytes). Max is {HERO_IMAGE_MAX_BYTES}."
+        )
+    FileExtensionValidator(allowed_extensions=list(HERO_IMAGE_ALLOWED_EXTENSIONS))(uploaded_file)
+
+    hero_dir = os.path.join(settings.MEDIA_ROOT, "hero")
+    os.makedirs(hero_dir, exist_ok=True)
+    target = os.path.join(hero_dir, "hero.jpg")
+    with open(target, "wb+") as destination:
+        for chunk in uploaded_file.chunks():
+            destination.write(chunk)
 
 
 def home(request):
-    
     subscription_form = NewsletterSubscriptionForm()
-    hero_image_url = '/media/hero/hero.jpg'
+    hero_image_url = settings.MEDIA_URL + HERO_IMAGE_RELATIVE_PATH
 
-    if request.method == 'POST':
-        # Handle image upload from admin
-        if request.FILES.get('image') and request.user.is_authenticated and request.user.is_staff:
-            uploaded_image = request.FILES['image']
-            hero_dir = os.path.join(settings.MEDIA_ROOT, 'hero')
-            os.makedirs(hero_dir, exist_ok=True)
-            with open(os.path.join(hero_dir, 'hero.jpg'), 'wb+') as f:
-                for chunk in uploaded_image.chunks():
-                    f.write(chunk)
-            return redirect('home')  # refresh with new image
+    if request.method == "POST":
+        if request.FILES.get("image"):
+            if not (request.user.is_authenticated and request.user.is_superuser):
+                return redirect("home")
+            try:
+                _save_hero_image(request.FILES["image"])
+                messages.success(request, "Hero image updated.")
+            except ValidationError as exc:
+                messages.error(request, " ".join(exc.messages))
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("Hero image save failed")
+                messages.error(request, f"Could not save image: {exc}")
+            return redirect("home")
 
-        # Handle newsletter subscription
-        elif request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             form = NewsletterSubscriptionForm(request.POST)
             if form.is_valid():
-                email = form.cleaned_data['email']
-                subscriber, created = NewsletterSubscriber.objects.get_or_create(
-                    email=email)
+                email = form.cleaned_data["email"]
+                subscriber, created = NewsletterSubscriber.objects.get_or_create(email=email)
                 if not created and not subscriber.is_active:
                     subscriber.is_active = True
-                    subscriber.save()
-                return JsonResponse({'success': True, 'message': 'Thank you for subscribing!'})
-            else:
-                errors = form.errors.as_data()
-                error_message = "There was an issue with your subscription:"
-                if 'email' in errors:
-                    for error in errors['email']:
-                        if "already exists" in str(error):
-                            error_message = "This email is already subscribed."
-                        elif "valid email" in str(error):
-                            error_message = "Please enter a valid email address."
-                        else:
-                            error_message = f"Email error: {str(error)}"
-                return JsonResponse({'success': False, 'message': error_message}, status=400)
+                    subscriber.save(update_fields=["is_active"])
+                return JsonResponse(
+                    {"success": True, "message": "Thank you for subscribing!"}
+                )
+            errors = form.errors.as_data()
+            error_message = "There was an issue with your subscription."
+            if "email" in errors:
+                for error in errors["email"]:
+                    code = getattr(error, "code", None)
+                    if code == "unique":
+                        error_message = "This email is already subscribed."
+                        break
+                    if code == "invalid":
+                        error_message = "Please enter a valid email address."
+                        break
+            return JsonResponse({"success": False, "message": error_message}, status=400)
 
-    return render(request, 'home.html', {
-        'subscription_form': subscription_form,
-        'hero_image_url': hero_image_url
-    })
+    return render(
+        request,
+        "home.html",
+        {"subscription_form": subscription_form, "hero_image_url": hero_image_url},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Catalog listings
+# ---------------------------------------------------------------------------
+def _catalog_queryset(extra_filter=None):
+    """Base queryset for product listing pages with prefetches that match
+    what the listing templates actually access."""
+    qs = (
+        StoreItems.objects.all()
+        .select_related("primary_color", "secondary_color")
+        .prefetch_related(
+            "tags",
+            "section",
+            Prefetch("discount_set"),
+        )
+        .order_by("order")
+    )
+    if extra_filter is not None:
+        qs = qs.filter(extra_filter)
+    return qs
 
 
 def paints(request):
-    items = StoreItems.objects.all()
-    paginator = Paginator(items, 12)
-    sections = Section.objects.all()
-    page = request.GET.get('page')
-    try:
-        itemss = paginator.page(page)
-    except PageNotAnInteger:
-        itemss = paginator.page(1)
-    except EmptyPage:
-        itemss = paginator.page(paginator.num_pages)
-    return render(request, 'paints.html', {'items': items, 'sections': sections, 'itemss': itemss, 'on_paints_page': True, })
+    items = _catalog_queryset()
+    page_obj = _paginate(request, items)
+    return render(
+        request,
+        "paints.html",
+        {
+            "items": items,
+            "itemss": page_obj,
+            "on_paints_page": True,
+        },
+    )
 
 
+def originals(request):
+    items = (
+        _catalog_queryset(extra_filter=Q(section__category="OR", status__in=["AC", "SO"]))
+        .distinct()
+    )
+    page_obj = _paginate(request, items)
+    return render(
+        request,
+        "originals.html",
+        {
+            "items": items,
+            "itemss": page_obj,
+            "on_originals_page": True,
+        },
+    )
+
+
+def prints(request):
+    items = (
+        _catalog_queryset(extra_filter=Q(section__category="PR", status__in=["AC", "SO"]))
+        .distinct()
+    )
+    page_obj = _paginate(request, items)
+    return render(
+        request,
+        "prints.html",
+        {
+            "items": items,
+            "itemss": page_obj,
+            "on_prints_page": True,
+        },
+    )
+
+
+def category_browse(request, section_id):
+    section = get_object_or_404(Section, id=section_id)
+    items = (
+        section.items.all()
+        .select_related("primary_color", "secondary_color")
+        .prefetch_related("tags", "section")
+        .order_by("order")
+    )
+    page_obj = _paginate(request, items)
+    return render(
+        request,
+        "category_page.html",
+        {
+            "section": section,
+            "items": items,
+            "itemss": page_obj,
+            "on_category_page": True,
+            "on_paints_page": True,
+        },
+    )
+
+
+def paint_detail(request, item_id):
+    store_item = get_object_or_404(
+        StoreItems.objects.select_related("primary_color", "secondary_color").prefetch_related(
+            "tags", "section", "images", "videos", "item_variations__variation",
+        ),
+        pk=item_id,
+    )
+
+    items_sc = StoreItems.objects.filter(status="SC").order_by("order")
+    next_item = items_sc.filter(order__gt=store_item.order).order_by("order").first()
+    prev_item = items_sc.filter(order__lt=store_item.order).order_by("order").last()
+
+    tags_of_item = store_item.tags.all()
+    related_items = (
+        StoreItems.objects.filter(tags__in=tags_of_item)
+        .exclude(id=store_item.id)
+        .select_related("primary_color")
+        .distinct()
+    )
+
+    item_images = store_item.images.all()
+    item_videos = store_item.videos.all()
+
+    item_variations = store_item.item_variations.all().select_related("variation").prefetch_related("choices")
+    variations_with_choices = [
+        {"variation": iv.variation, "choices": iv.choices.all()}
+        for iv in item_variations
+    ]
+
+    cart_product_form = CartAddProductForm(item=store_item)
+
+    return render(
+        request,
+        "paint_detail.html",
+        {
+            "item": store_item,
+            "variations_with_choices": variations_with_choices,
+            "cart_product_form": cart_product_form,
+            "related_items": related_items,
+            "item_images": item_images,
+            "item_videos": item_videos,
+            "next_item": next_item,
+            "prev_item": prev_item,
+            "on_paints_page": True,
+        },
+    )
+
+
+def search(request):
+    query = request.GET.get("query", "").strip()[:200]  # cap length
+
+    if query:
+        results = (
+            StoreItems.objects.filter(
+                Q(item_name__icontains=query)
+                | Q(tags__name__icontains=query)
+                | Q(primary_color__name__icontains=query)
+                | Q(secondary_color__name__icontains=query)
+            )
+            .select_related("primary_color", "secondary_color")
+            .prefetch_related("tags")
+            .distinct()
+            .order_by("order")
+        )
+    else:
+        results = StoreItems.objects.none()
+
+    return render(
+        request,
+        "search_results.html",
+        {
+            "results": results,
+            "query": query,
+            "on_paints_page": True,
+        },
+    )
+
+
+# ---------------------------------------------------------------------------
+# About
+# ---------------------------------------------------------------------------
 def about(request):
     artist = ArtistProfile.get_solo()
     bio_form = ArtistBioForm(instance=artist)
     photo_form = ArtistPhotoForm(instance=artist)
 
-    # Use artist's social profile data directly
     social_profiles = {
-        'twitter': {'url': artist.twitter_url, 'show': artist.twitter_show},
-        'instagram': {'url': artist.instagram_url, 'show': artist.instagram_show},
-        'facebook': {'url': artist.facebook_url, 'show': artist.facebook_show},
+        "twitter": {"url": artist.twitter_url, "show": artist.twitter_show},
+        "instagram": {"url": artist.instagram_url, "show": artist.instagram_show},
+        "facebook": {"url": artist.facebook_url, "show": artist.facebook_show},
     }
     social_form = SocialProfilesForm(initial={
-        'twitter_url': artist.twitter_url,
-        'twitter_active': artist.twitter_show,
-        'instagram_url': artist.instagram_url,
-        'instagram_active': artist.instagram_show,
-        'facebook_url': artist.facebook_url,
-        'facebook_active': artist.facebook_show,
+        "twitter_url": artist.twitter_url,
+        "twitter_active": artist.twitter_show,
+        "instagram_url": artist.instagram_url,
+        "instagram_active": artist.instagram_show,
+        "facebook_url": artist.facebook_url,
+        "facebook_active": artist.facebook_show,
     })
 
-    if request.method == 'POST':
-        if 'bio_submit' in request.POST and request.user.is_superuser:
+    if request.method == "POST" and request.user.is_authenticated and request.user.is_superuser:
+        if "bio_submit" in request.POST:
             bio_form = ArtistBioForm(request.POST, instance=artist)
             if bio_form.is_valid():
                 bio_form.save()
-                return redirect('about')
-        elif 'photo_submit' in request.POST and request.user.is_superuser:
-            photo_form = ArtistPhotoForm(
-                request.POST, request.FILES, instance=artist)
+                return redirect("about")
+        elif "photo_submit" in request.POST:
+            photo_form = ArtistPhotoForm(request.POST, request.FILES, instance=artist)
             if photo_form.is_valid():
                 photo_form.save()
-                return redirect('about')
-        elif 'social_submit' in request.POST and request.user.is_superuser:
+                return redirect("about")
+        elif "social_submit" in request.POST:
             social_form = SocialProfilesForm(request.POST)
             if social_form.is_valid():
-                # Save social profiles to the artist instance
-                artist.twitter_url = social_form.cleaned_data['twitter_url'] or ''
-                artist.twitter_show = social_form.cleaned_data['twitter_active']
-                artist.instagram_url = social_form.cleaned_data['instagram_url'] or ''
-                artist.instagram_show = social_form.cleaned_data['instagram_active']
-                artist.facebook_url = social_form.cleaned_data['facebook_url'] or ''
-                artist.facebook_show = social_form.cleaned_data['facebook_active']
+                artist.twitter_url = social_form.cleaned_data["twitter_url"] or ""
+                artist.twitter_show = social_form.cleaned_data["twitter_active"]
+                artist.instagram_url = social_form.cleaned_data["instagram_url"] or ""
+                artist.instagram_show = social_form.cleaned_data["instagram_active"]
+                artist.facebook_url = social_form.cleaned_data["facebook_url"] or ""
+                artist.facebook_show = social_form.cleaned_data["facebook_active"]
                 artist.save()
-                return redirect('about')
+                return redirect("about")
 
-    return render(request, 'about.html', {
-        'artist': artist,
-        'bio_form': bio_form,
-        'photo_form': photo_form,
-        'social_form': social_form,
-        'social_profiles': social_profiles,
-    })
-# Optional: Restrict to superusers if you add separate edit views
-
-
-def superuser_required(user):
-    return user.is_superuser
-
-
-def paint_detail(request, item_id):
-    store_item = get_object_or_404(StoreItems, pk=item_id)
-
-    # Related tags and items
-    tags_of_item = store_item.tags.all()
-    related_items = StoreItems.objects.filter(
-        tags__in=tags_of_item
-    ).exclude(id=store_item.id).distinct()
-
-    # Fetch images and videos
-    item_images = StoreItemImage.objects.filter(item=store_item)
-    item_videos = StoreItemVideo.objects.filter(item=store_item)
-
-    # Fetch item variations and their corresponding choices
-    item_variations = ItemVariation.objects.filter(
-        item=store_item).select_related('variation')
-
-    # Structure variations with all related choices
-    variations_with_choices = []
-
-
-    for item_variation in item_variations:
-        choices = Choices.objects.filter(variation=item_variation)
-        variations_with_choices.append({
-            # still pass the base variation object for display
-            'variation': item_variation.variation,
-            'choices': choices,
-        })
-
-
-    # Initialize cart form with dynamic quantity range
-    cart_product_form = CartAddProductForm(item=store_item)
-
-    # Optional: if using percentage discount metadata in future
-    variation_percentage_info = [
+    return render(
+        request,
+        "about.html",
         {
-            'variation_id': item_variation.variation.id,
-            'variation_name': item_variation.variation.name
-        }
-        for item_variation in item_variations
-    ]
-
-    context = {
-        'item': store_item,
-        'variations_with_choices': variations_with_choices,
-        'variation_percentage_info': variation_percentage_info,
-        'cart_product_form': cart_product_form,
-        'related_items': related_items,
-        'item_images': item_images,
-        'item_videos': item_videos,
-    }
-
-    return render(request, 'paint_detail.html', context)
+            "artist": artist,
+            "bio_form": bio_form,
+            "photo_form": photo_form,
+            "social_form": social_form,
+            "social_profiles": social_profiles,
+        },
+    )
 
 
-# Make sure the argument here is 'section_id'
-def category_browse(request, section_id):
-    # Get the specific section
-    sections = Section.objects.all()
-    section = get_object_or_404(Section, id=section_id)
-
-    # Filter items using the related name 'section'
-    items = section.items.all()  # Use the related name 'section' to access related items
-
-    # Render the filtered items to a template
-    return render(request, 'category_page.html', {'section': section, 'items': items, 'sections': sections, 'on_paints_page': True, })
-
-
-def add_to_cart(request, item_id):
-    item = get_object_or_404(StoreItems, pk=item_id)
-    user = request.user
-    # Get the chosen size from the form
-    variation = request.POST.get('variation')
-    # Get the personalization text from the form
-    personalization = request.POST.get('personalization')
-    if user.is_authenticated:
-        if Cart.objects.filter(user=user, item=item).exists():
-            cart_item = Cart.objects.get(user=user, item=item)
-            cart_item.save()
-        else:
-            Cart.objects.create(user=user, item=item, quantity=1)
-        cart = Cart(request)
-        cart.add(item=item, quantity=1, variation=variation,
-                 personalization=personalization)
-        return redirect(reverse('paint_detail', args=[item_id]))
-    else:
-        return redirect('login')
-
-
-def search(request):
-    # Get the query and remove extra whitespace
-    query = request.GET.get('query', '').strip()
-    sections = Section.objects.all()
-
-    if query:
-        # Use Q objects to search across multiple fields
-        results = StoreItems.objects.filter(
-            Q(item_name__icontains=query) |              # Search in item name
-            Q(tags__name__icontains=query) |             # Search in tags
-            # Search in primary color name
-            Q(primary_color__name__icontains=query) |
-            # Search in secondary color name
-            Q(secondary_color__name__icontains=query)
-        ).distinct()  # Ensure no duplicate results
-
-        # Handle case where colors might be null
-        results = results.filter(
-            Q(primary_color__isnull=False) | Q(secondary_color__isnull=False) |
-            Q(item_name__icontains=query) | Q(tags__name__icontains=query)
-        ).distinct()
-    else:
-        results = StoreItems.objects.none()  # Return empty queryset if no query
-
-    context = {
-        'results': results,
-        'sections': sections,
-        'query': query,
-        'on_paints_page': True,
-    }
-    return render(request, 'search_results.html', context)
-
-def admin(request):
-    return render(request, 'base_admin.html')
+# ---------------------------------------------------------------------------
+# Static-ish helpers
+# ---------------------------------------------------------------------------
+def how_to_use(request):
+    return render(request, "how_to_use.html")

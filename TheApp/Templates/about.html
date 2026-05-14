@@ -12,9 +12,9 @@
     <div class="about-content">
       <div class="about-photo">
         {% if artist.photo %}
-          <img src="{{ artist.photo.url }}" alt="Artist Photo" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
+          <img src="{{ artist.photo.url }}" alt="Artist Photo" loading="lazy" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
         {% else %}
-          <img src="{% static 'imgs/default_artist.png' %}" alt="Default Artist Photo" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
+          <img src="{% static 'imgs/default_artist.png' %}" loading="lazy" alt="Default Artist Photo" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
         {% endif %}
         {% if user.is_superuser %}
           <button class="edit-btn photo-edit-btn btn btn-warning" data-toggle="modal" data-target="#photoModal">Change Photo</button>
@@ -283,11 +283,9 @@
     }
 
     footer {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 20px 0;
+    display: block !important;
+    text-align: left !important;
+    padding: 0 !important;
     }
 
     /* Mobile and smaller screen adjustments */

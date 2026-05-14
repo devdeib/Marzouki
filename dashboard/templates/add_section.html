@@ -32,6 +32,13 @@
         <label for="id_item_description">Category name</label>
         {{ form.name|add_class:"form-control" }}
       </div>
+      <br>
+      <div class="form-group">
+          <label for="id_category" class="form-label mt-2">
+              Category type:
+          </label>
+          {{ form.category }}
+      </div>
         <br />
     
         <button type="submit" class="btn btn-success">Create Category</button>

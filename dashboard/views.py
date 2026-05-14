@@ -257,10 +257,31 @@ def edit_store_item(request, pk):
             prefix="variation",
         )
 
+        # Build a mapping of existing variation instances keyed by form index
+        # so ChoiceFormSet can be bound to the correct instance on POST.
+        existing_variations = {
+            v.pk: v for v in store_item.item_variations.all()
+        }
+
         total_variations = int(request.POST.get("variation-TOTAL_FORMS", 0))
         choices_formsets = []
         for i in range(total_variations):
-            choices_formsets.append(ChoiceFormSet(request.POST, prefix=f"choices_{i}"))
+            # Try to resolve the existing ItemVariation instance for this slot
+            # so the formset can match & update existing Choices rows.
+            variation_id_raw = request.POST.get(f"variation-{i}-id")
+            try:
+                variation_instance = existing_variations[int(variation_id_raw)] if variation_id_raw else None
+            except (ValueError, KeyError):
+                variation_instance = None
+
+            if variation_instance is not None:
+                choices_formsets.append(
+                    ChoiceFormSet(request.POST, prefix=f"choices_{i}", instance=variation_instance)
+                )
+            else:
+                choices_formsets.append(
+                    ChoiceFormSet(request.POST, prefix=f"choices_{i}")
+                )
         choices_valid = all(fs.is_valid() for fs in choices_formsets)
 
         if (
@@ -296,6 +317,7 @@ def edit_store_item(request, pk):
                         if cd.get("DELETE"):
                             continue
                         variation = form.instance
+                        # Re-attach the saved instance so choices save against it
                         choices_formsets[i].instance = variation
                         choices_formsets[i].save()
 

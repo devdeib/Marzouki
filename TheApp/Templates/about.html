@@ -17,7 +17,7 @@
           <img src="{% static 'imgs/default_artist.png' %}" loading="lazy" alt="Default Artist Photo" class="artist-img" onerror="this.src='{% static 'imgs/default.png' %}'">
         {% endif %}
         {% if user.is_superuser %}
-          <button class="edit-btn photo-edit-btn btn btn-warning" data-toggle="modal" data-target="#photoModal">Change Photo</button>
+          <button class="edit-btn photo-edit-btn btn btn-warning" data-bs-toggle="modal" data-bs-target="#photoModal">Change Photo</button>
         {% endif %}
       </div>
       <div class="about-bio">
@@ -31,7 +31,7 @@
           <!-- Bio text with proper wrapping -->
           <div class="bio-text">{{ artist.bio|default:"The artist has not yet provided a bio."|linebreaksbr }}</div>
           {% if user.is_superuser %}
-            <button class="edit-btn bio-edit-btn btn btn-warning" data-toggle="modal" data-target="#bioModal">Edit Bio</button>
+            <button class="edit-btn bio-edit-btn btn btn-warning" data-bs-toggle="modal" data-bs-target="#bioModal">Edit Bio</button>
           {% endif %}
         </div>
       </div>
@@ -57,7 +57,7 @@
         {% endif %}
       </div>
       {% if user.is_superuser %}
-        <button class="edit-btn social-edit-btn btn btn-warning" data-toggle="modal" data-target="#socialModal">Edit Social Profiles</button>
+        <button class="edit-btn social-edit-btn btn btn-warning" data-bs-toggle="modal" data-bs-target="#socialModal">Edit Social Profiles</button>
       {% endif %}
     </div>
   </div>
@@ -70,7 +70,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="bioModalLabel">Edit Bio</h5>
-            <button type="button" class="modal-close-btn" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="Close">
               <span>×</span>
             </button>
           </div>
@@ -80,7 +80,7 @@
               {{ bio_form.as_p }}
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="submit" name="bio_submit" class="btn btn-primary">Save changes</button>
             </div>
           </form>
@@ -94,7 +94,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="photoModalLabel">Change Photo</h5>
-            <button type="button" class="modal-close-btn" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="Close">
               <span>×</span>
             </button>
           </div>
@@ -104,7 +104,7 @@
               {{ photo_form.as_p }}
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="submit" name="photo_submit" class="btn btn-primary">Save changes</button>
             </div>
           </form>
@@ -118,7 +118,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="socialModalLabel">Edit Social Profiles</h5>
-            <button type="button" class="modal-close-btn" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="Close">
               <span>×</span>
             </button>
           </div>
@@ -148,7 +148,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="submit" name="social_submit" class="btn btn-primary">Save changes</button>
             </div>
           </form>
@@ -324,7 +324,4 @@
   </style>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">   
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}

@@ -1010,8 +1010,8 @@ html {
 }
 
 .main-content {
-  margin-left: 270px;
-  /* Leave space for the sidebar */
+  margin-left: 0;
+  /* Sidebar offset handled by Bootstrap grid (col-md-2 / col-lg-10) */
   padding: 20px;
   /* Add padding for spacing */
 }

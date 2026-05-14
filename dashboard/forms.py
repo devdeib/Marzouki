@@ -33,7 +33,7 @@ ItemVariationsFormSet = inlineformset_factory(
     ItemVariation,
     form=ItemVariationsForm,
     fields=['id', 'variation'],
-    extra=1,
+    extra=0,
     can_delete=True
 )
 

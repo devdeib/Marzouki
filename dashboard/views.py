@@ -282,7 +282,19 @@ def edit_store_item(request, pk):
                 choices_formsets.append(
                     ChoiceFormSet(request.POST, prefix=f"choices_{i}")
                 )
-        choices_valid = all(fs.is_valid() for fs in choices_formsets)
+
+        def choices_all_valid(formsets):
+            for i, fs in enumerate(formsets):
+                # Skip validation for variation forms marked DELETE or with no data
+                is_deleted = request.POST.get(f"variation-{i}-DELETE") in ("on", "1", "true")
+                has_name = bool(request.POST.get(f"variation-{i}-variation", "").strip())
+                if is_deleted or not has_name:
+                    continue
+                if not fs.is_valid():
+                    return False
+            return True
+
+        choices_valid = choices_all_valid(choices_formsets)
 
         if (
             store_item_form.is_valid()

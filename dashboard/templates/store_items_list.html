@@ -33,11 +33,11 @@
       </div>
 
       <!-- ACTIONS -->
-      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3">
+      <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 mb-3">
         <a href="{% url 'dashboard:add_store_item' %}" class="btn btn-success add_btn">Add New Listing</a>
 
-        <div class="d-flex align-items-center mb-2 mb-md-0">
-          <select id="action-select" class="form-select me-2">
+        <div class="d-flex align-items-center gap-2 ms-sm-auto">
+          <select id="action-select" class="form-select">
             <option value="">------</option>
             <option value="AC">Active</option>
             <option value="DR">Draft</option>
@@ -46,8 +46,7 @@
             <option value="SO">Sold</option>
             <option value="delete">Delete</option>
           </select>
-
-          <button class="btn btn-primary" style="margin-left: 5px;" type="button" onclick="submitForm()">Apply</button>
+          <button class="btn btn-primary flex-shrink-0" type="button" onclick="submitForm()">Apply</button>
         </div>
       </div>
 
@@ -185,6 +184,8 @@ document.addEventListener("DOMContentLoaded", function () {
   Sortable.create(el, {
     animation: 150,
     ghostClass: 'sortable-ghost',
+    delay: 200,
+    delayOnTouchOnly: true,
 
     onEnd: function (evt) {
       const order = [];

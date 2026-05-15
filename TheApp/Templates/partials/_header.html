@@ -80,33 +80,70 @@ document.addEventListener("DOMContentLoaded", function() {
                   </li>
                 {% endif %}
               {% endif %}
-              <!-- Shop categories (mobile) -->
+              <!-- Separator -->
               <li>
                 <hr class="hr--large" />
               </li>
-              <li class="nav-item">
-                <a class="nav-link fw-semibold" href="{% url 'originals' %}">Originals</a>
-              </li>
-              {% for section in sections %}
+              {% if on_paints_page %}
+                <!-- Categories (only visible on paints page) -->
+                <li class="nav-item"><a class="nav-link" href="{% url 'originals' %}">Originals</a></li>
+                  
+                <li class="nav-item"><a class="nav-link" href="{% url 'prints' %}">Prints</a></li>
+                
+                
+                  
+                {% comment %} {% for section in sections %}
+                  {% if section.category == 'OR' %}
+                   <li class="nav-item">
+                     <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
+                    </li>
+
+                  {% endif %}
+                {% endfor %} {% endcomment %}
+                
+            
+              
+              
+              
+                
+                
+                <!-- Separator -->
+                <li>
+                  <hr class="hr--large" />
+                </li>
+              {% endif %}
+                {% if on_originals_page %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'originals' %}">Originals</a></li>
+             
+                
+                {% for section in sections %}
                 {% if section.category == 'OR' %}
-                  <li class="nav-item ps-3">
-                    <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
-                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
+                </li>
                 {% endif %}
-              {% endfor %}
-              <li class="nav-item mt-2">
-                <a class="nav-link fw-semibold" href="{% url 'prints' %}">Prints</a>
-              </li>
-              {% for section in sections %}
-                {% if section.category == 'PR' %}
-                  <li class="nav-item ps-3">
-                    <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
-                  </li>
-                {% endif %}
-              {% endfor %}
-              <li>
+                {% endfor %}
                 <hr class="hr--large" />
-              </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'prints' %}">Prints</a></li>
+                {% endif %}
+                
+
+
+                {% if on_prints_page %}
+                  
+                      
+                  <li class="nav-item"><a class="nav-link" href="{% url 'prints' %}">Prints</a></li>
+                  {% for section in sections %}
+                  {% if section.category == 'PR' %}
+                   <li class="nav-item">
+                     <a class="nav-link" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
+                    </li>
+
+                  {% endif %}
+                {% endfor %}
+                <hr class="hr--large" />
+                <li class="nav-item"><a class="nav-link" href="{% url 'originals' %}">Originals</a></li>
+                {% endif %}
               <!-- Auth and Cart -->
               <li class="nav-item">
                 {% if user.is_authenticated %}
@@ -154,23 +191,11 @@ document.addEventListener("DOMContentLoaded", function() {
       </a>
 
       <div class="dropdown-menu categories-dropdown p-4" aria-labelledby="categoriesDropdown">
-        <div class="categories-dropdown-columns">
-          <div class="categories-column">
-            <a class="dropdown-item categories-column-title" href="{% url 'originals' %}">Originals</a>
-            {% for section in sections %}
-              {% if section.category == 'OR' %}
-                <a class="dropdown-item" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
-              {% endif %}
-            {% endfor %}
-          </div>
-          <div class="categories-column">
-            <a class="dropdown-item categories-column-title" href="{% url 'prints' %}">Prints</a>
-            {% for section in sections %}
-              {% if section.category == 'PR' %}
-                <a class="dropdown-item" href="{% url 'category_browse' section.id %}">{{ section.name }}</a>
-              {% endif %}
-            {% endfor %}
-          </div>
+        <div class="categories-grid">
+          <a class="dropdown-item" href="{% url 'originals' %}">Originals</a>
+          <a class="dropdown-item" href="{% url 'prints' %}">Prints</a>
+          
+          
         </div>
       </div>
     </li>

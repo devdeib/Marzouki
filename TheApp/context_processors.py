@@ -14,7 +14,7 @@ from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
-_CACHE_KEY = "marzouki:sections:all:v1"
+_CACHE_KEY = "marzouki:sections:all:v2"
 _CACHE_TTL = 60 * 5  # 5 minutes
 
 

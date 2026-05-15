@@ -1085,6 +1085,64 @@ html {
   vertical-align: middle;
 }
 
+/* ---------------- Shop sidebar (CATEGORIES tab, burger-style hover) ---------------- */
+@media (min-width: 992px) {
+  .shop-sidebar-root .sidebar-wrapper {
+    position: fixed;
+    left: -280px;
+    top: 75px;
+    width: 280px;
+    height: calc(100% - 80px);
+    background-color: #f8f9fa;
+    padding: 20px 15px;
+    border-right: 1px solid #e0e0e0;
+    transition: left 0.3s ease;
+    z-index: 999;
+    overflow-y: auto;
+  }
+
+  .shop-sidebar-root #hover-zone {
+    position: fixed;
+    left: 0;
+    top: 75px;
+    width: 45px;
+    height: calc(100% - 80px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .shop-sidebar-root #sidebar-tab {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    background: #111;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 14px 7px;
+    border-radius: 0 4px 4px 0;
+    user-select: none;
+    transition: background 0.2s, padding 0.2s;
+    white-space: nowrap;
+  }
+
+  .shop-sidebar-root #hover-zone:hover #sidebar-tab,
+  body.sidebar-open .shop-sidebar-root #sidebar-tab {
+    background: #333;
+    padding: 14px 10px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .shop-sidebar-root {
+    display: none !important;
+  }
+}
+
 /* --- Global content / footer breathing room (site-wide) --- */
 body > main {
   padding-bottom: clamp(3rem, 10vw, 7rem);

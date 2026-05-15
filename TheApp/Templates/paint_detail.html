@@ -70,59 +70,6 @@
 
 .prev{ left:20px; }
 .next{ right:20px; }
-@media (min-width: 992px) {
-
-.sidebar-wrapper {
-    position: fixed;
-    left: -280px;
-    top: 75px;
-    width: 280px;
-    height: calc(100% - 80px);
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-right: 1px solid #ddd;
-    transition: left 0.3s ease;
-    z-index: 999;
-    overflow-y: auto;
-}
-
-#hover-zone {
-    position: fixed;
-    left: 0;
-    top: 80px;
-    width: 45px;
-    height: calc(100% - 80px);
-    z-index: 998;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 10px;
-}
-
-#hover-zone img{
-    width:30px;
-    height:30px;
-    opacity:0.7;
-    transition:0.2s;
-}
-
-#hover-zone img:hover{
-    opacity:1;
-}
-
-.sidebar-open #hover-zone img{
-    opacity:0;
-}
-
-}
-
-@media (max-width: 991.98px) {
-.sidebar-wrapper,
-#hover-zone{
-    display:none !important;
-}
-}
-
     .description {
     white-space: pre-wrap;
 }
@@ -138,39 +85,7 @@
     <span class="nav prev">&#10094;</span>
     <span class="nav next">&#10095;</span>
 </div>
-    <div id="hover-zone">
-    <img src="{% static 'icons/menu.svg' %}" alt="">
-</div>
-
-<div class="sidebar-wrapper">
-    {% if on_paints_page %}
-        <a href="{% url 'originals' %}" class="text-decoration-none"><h4>Originals</h4></a>
-        <hr style="width: 100%" />
-
-        {% for section in sections %}
-            {% if section.category == 'OR' %}
-            <div>
-                <h5><a href="{% url 'category_browse' section.id %}" class="text-decoration-none">{{ section.name }}</a></h5>
-            </div>
-            {% endif %}
-        {% endfor %}
-
-        <br>
-        <hr class="hr--large">
-        <br>
-
-        <a href="{% url 'prints' %}" class="text-decoration-none"><h4>Prints</h4></a>
-        <hr style="width: 100%" />
-
-        {% for section in sections %}
-            {% if section.category == 'PR' %}
-            <div>
-                <h5><a href="{% url 'category_browse' section.id %}" class="text-decoration-none">{{ section.name }}</a></h5>
-            </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-</div>
+{% include 'partials/_shop_sidebar.html' %}
     <hr class="hr--large">
     <div class="paint-detail-header text-center mt-1 font-weight-bold"></div>
 
@@ -373,23 +288,5 @@ document.querySelector(".prev").onclick = ()=>{
     if(currentIndex < 0) currentIndex = images.length -1;
     showImage(currentIndex);
 };
-</script>
-<script>
-    const sidebar = document.querySelector('.sidebar-wrapper');
-const hoverZone = document.getElementById('hover-zone');
-
-if(hoverZone && sidebar){
-
-hoverZone.addEventListener('mouseenter', () => {
-    sidebar.style.left = '0';
-    document.body.classList.add('sidebar-open');
-});
-
-sidebar.addEventListener('mouseleave', () => {
-    sidebar.style.left = '-280px';
-    document.body.classList.remove('sidebar-open');
-});
-
-}
 </script>
 {% endblock %}

@@ -1,0 +1,23 @@
+{% with sidebar_sections=sections|default:global_sections %}
+  <a href="{% url 'originals' %}" class="text-decoration-none"><h4>Originals</h4></a>
+  <hr style="width: 100%" />
+  {% for section in sidebar_sections %}
+    {% if section.category == 'OR' %}
+      <div>
+        <h5><a href="{% url 'category_browse' section.id %}" class="text-decoration-none">{{ section.name }}</a></h5>
+      </div>
+    {% endif %}
+  {% endfor %}
+  <br />
+  <hr class="hr--large" />
+  <br />
+  <a href="{% url 'prints' %}" class="text-decoration-none"><h4>Prints</h4></a>
+  <hr style="width: 100%" />
+  {% for section in sidebar_sections %}
+    {% if section.category == 'PR' %}
+      <div>
+        <h5><a href="{% url 'category_browse' section.id %}" class="text-decoration-none">{{ section.name }}</a></h5>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endwith %}

@@ -1,12 +1,10 @@
 <div class="shop-sidebar-root">
-  <div class="shop-sidebar-panel">
-    <div id="hover-zone" class="shop-sidebar-trigger">
-      <span id="sidebar-tab">CATEGORIES</span>
-    </div>
-    <nav class="sidebar-wrapper" aria-label="Shop categories">
-      {% include 'partials/_shop_sidebar_categories.html' %}
-    </nav>
+  <div id="hover-zone" class="shop-sidebar-trigger">
+    <span id="sidebar-tab">CATEGORIES</span>
   </div>
+  <nav class="sidebar-wrapper" aria-label="Shop categories">
+    {% include 'partials/_shop_sidebar_categories.html' %}
+  </nav>
 </div>
 
 <script>
@@ -14,21 +12,21 @@
   const root = document.querySelector('.shop-sidebar-root');
   if (!root) return;
 
-  const panel = root.querySelector('.shop-sidebar-panel');
   const sidebar = root.querySelector('.sidebar-wrapper');
   const hoverZone = root.querySelector('#hover-zone');
-  if (!panel || !sidebar || !hoverZone) return;
+  if (!sidebar || !hoverZone) return;
 
   const open = () => {
-    panel.classList.add('is-open');
+    sidebar.style.left = '0';
     document.body.classList.add('sidebar-open');
   };
 
   const close = () => {
-    panel.classList.remove('is-open');
+    sidebar.style.left = '-280px';
     document.body.classList.remove('sidebar-open');
   };
 
+  /* Same interaction as the legacy burger menu */
   hoverZone.addEventListener('mouseenter', open);
   sidebar.addEventListener('mouseenter', open);
   sidebar.addEventListener('mouseleave', close);

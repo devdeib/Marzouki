@@ -1085,49 +1085,33 @@ html {
   vertical-align: middle;
 }
 
-/* ---------------- Shop sidebar (CATEGORIES tab moves with panel) ---------------- */
+/* ---------------- Shop sidebar (CATEGORIES tab, burger-style hover) ---------------- */
 @media (min-width: 992px) {
-  .shop-sidebar-root {
+  .shop-sidebar-root .sidebar-wrapper {
     position: fixed;
-    left: 0;
+    left: -280px;
     top: 75px;
+    width: 280px;
     height: calc(100% - 80px);
-    z-index: 1000;
-  }
-
-  .shop-sidebar-panel {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    height: 100%;
-    transform: translateX(-280px);
-    transition: transform 0.3s ease;
-  }
-
-  .shop-sidebar-panel.is-open {
-    transform: translateX(0);
+    background-color: #f8f9fa;
+    padding: 20px 15px;
+    border-right: 1px solid #e0e0e0;
+    transition: left 0.3s ease;
+    z-index: 999;
+    overflow-y: auto;
   }
 
   .shop-sidebar-root #hover-zone {
-    flex: 0 0 45px;
+    position: fixed;
+    left: 0;
+    top: 75px;
+    width: 45px;
+    height: calc(100% - 80px);
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 1;
-  }
-
-  .shop-sidebar-root .sidebar-wrapper {
-    position: relative;
-    left: auto;
-    top: auto;
-    flex: 0 0 280px;
-    width: 280px;
-    height: 100%;
-    background-color: #f8f9fa;
-    padding: 20px 15px;
-    border-right: 1px solid #e0e0e0;
-    overflow-y: auto;
   }
 
   .shop-sidebar-root #sidebar-tab {
@@ -1142,8 +1126,14 @@ html {
     padding: 14px 7px;
     border-radius: 0 4px 4px 0;
     user-select: none;
+    transition: background 0.2s, padding 0.2s;
     white-space: nowrap;
-    opacity: 1;
+  }
+
+  .shop-sidebar-root #hover-zone:hover #sidebar-tab,
+  body.sidebar-open .shop-sidebar-root #sidebar-tab {
+    background: #333;
+    padding: 14px 10px;
   }
 }
 

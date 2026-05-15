@@ -3,9 +3,9 @@
 {% block content %}
   <div class="container-fluid px-4 mt-3">
     <div class="row">
-     <!-- المنطقة الصغيرة للـ hover -->
+     <!-- Pull tab trigger -->
       <div id="hover-zone">
-        <img src="{% static 'icons/menu.svg' %}" alt="">
+        <div id="sidebar-tab">CATEGORIES</div>
       </div>
       
       <!-- Sidebar -->
@@ -92,140 +92,104 @@
   </div>
 
 <style>
-    .image-container {
+  .image-container {
     width: 90%;
-    aspect-ratio: 1 / 1; /* Make all images square */
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative; /* << هنا */
-}
-
-
-.image-container img {
+    position: relative;
+  }
+  .image-container img {
     width: auto;
     height: 100%;
     object-fit: cover;
-}
-
-.sold-badge {
+  }
+  .sold-badge {
     position: absolute;
     top: 8px;
     left: 8px;
-
     width: 70px !important;
     height: auto !important;
     max-width: none !important;
     max-height: none !important;
     z-index: 20;
-    pointer-events: none; /* ما يخرب الclick */
-}
+    pointer-events: none;
+  }
 
-/* Sidebar مخفي على اليسار للشاشات الكبيرة فقط */
-@media (min-width: 992px) {
-  .sidebar-wrapper {
+  @media (min-width: 992px) {
+    .sidebar-wrapper {
       position: fixed;
-      left: -280px;      /* نفس العرض المخفي */
-      top: 75px;         /* حسب الهيدر */
-      width: 280px;      /* عرض Sidebar */
-      height: calc(100% - 80px); /* طول كامل بعد الهيدر */
+      left: -280px;
+      top: 75px;
+      width: 280px;
+      height: calc(100% - 80px);
       background-color: #f8f9fa;
-      padding: 15px;
-      border-right: 1px solid #ddd;
+      padding: 20px 15px;
+      border-right: 1px solid #e0e0e0;
       transition: left 0.3s ease;
       z-index: 999;
+      overflow-y: auto;
+    }
 
-      /* إضافة التمرير */
-      overflow-y: auto;   /* scrollbar يظهر إذا المحتوى كبير */
-  }
-
-  /* يظهر عند hover على المنطقة الصغيرة */
-  body::before {
-      content: "";
+    #hover-zone {
       position: fixed;
       left: 0;
-      top: 80px;
-      width: 20px; /* المنطقة اللي المستخدم يمرر عليها الماوس */
-      height: calc(100% - 80px);
-      z-index: 998;
-  }
-
-  /* عندما يكون الـ hover على المنطقة الصغيرة، نحرك sidebar ليظهر */
-  body::before:hover + .sidebar-wrapper {
-      left: 0;
-  }
-
-#hover-zone {
-    position: fixed;
-    left: 0;
-    top: 80px;
-    width: 45px; 
-    height: calc(100% - 80px);
-    z-index: 998;
-
-    display: flex;
-    align-items: flex-start; /* الأيقونة فوق */
-    justify-content: center;
-
-    padding-top: 10px;
-}
-
-#hover-zone img{
-    width: 30px;
-    height: 30px;
-    opacity: 0.7;
-    transition: 0.2s;
-}
-
-#hover-zone img:hover{
-    opacity: 1;
-}
-.sidebar-open #hover-zone img{
-    opacity:0;
-}
-  /* إضافة شريط صغير مع سهم */
-  #hover-zone::after {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 60px;
-      background-color: #000; /* لون الشريط */
-      color: #fff;
-      font-size: 16px;
-      border-radius: 0 5px 5px 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1000;
       cursor: pointer;
-      transition: transform 0.3s;
+      transition: left 0.3s ease;
+    }
+
+    #sidebar-tab {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      background: #111;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      padding: 14px 7px;
+      border-radius: 0 4px 4px 0;
+      user-select: none;
+      transition: background 0.2s, padding 0.2s;
+      white-space: nowrap;
+    }
+
+    #hover-zone:hover #sidebar-tab,
+    .sidebar-open #sidebar-tab {
+      background: #333;
+      padding: 14px 10px;
+    }
+
+    .sidebar-open #hover-zone {
+      left: 280px;
+    }
   }
 
-  /* حركة السهم عند hover على الـ hover-zone */
-  #hover-zone:hover::after {
-      transform: translateX(8px); /* تحريك السهم شوي للداخل */
-  }
-}
-
-/* إخفاء sidebar والـ hover-zone على الشاشات الصغيرة */
-@media (max-width: 991.98px) {
-  .sidebar-wrapper,
-  #hover-zone {
+  @media (max-width: 991.98px) {
+    .sidebar-wrapper,
+    #hover-zone {
       display: none !important;
+    }
   }
-}
 </style>
-  
+
 <script>
 const sidebar = document.querySelector('.sidebar-wrapper');
 const hoverZone = document.getElementById('hover-zone');
 
 hoverZone.addEventListener('mouseenter', () => {
-    sidebar.style.left = '0';
-    document.body.classList.add('sidebar-open');
+  sidebar.style.left = '0';
+  document.body.classList.add('sidebar-open');
 });
 
 sidebar.addEventListener('mouseleave', () => {
-    sidebar.style.left = '-280px';
-    document.body.classList.remove('sidebar-open');
+  sidebar.style.left = '-280px';
+  document.body.classList.remove('sidebar-open');
 });
 </script>
 

@@ -19,16 +19,15 @@ _CACHE_TTL = 60 * 5  # 5 minutes
 
 
 def sections(request):  # noqa: D401 — Django context processor
-    """Return ``{'global_sections': [Section, ...]}`` for templates.
+    """Return section lists for header/sidebar templates.
 
-    Templates already receive a per-view ``sections`` variable in many places;
-    we expose ``global_sections`` here so partials can fall back to it without
-    forcing every view to query the DB.
+    Exposes both ``sections`` and ``global_sections`` (same queryset) so
+    templates do not need per-view DB queries.
     """
     try:
         cached = cache.get(_CACHE_KEY)
         if cached is not None:
-            return {"global_sections": cached}
+            return {"sections": cached, "global_sections": cached}
     except Exception:  # pragma: no cover — Redis down etc.
         logger.warning("sections context_processor: cache.get failed", exc_info=True)
         cached = None
@@ -40,14 +39,14 @@ def sections(request):  # noqa: D401 — Django context processor
         result = list(Section.objects.all().order_by("name"))
     except Exception:  # pragma: no cover
         logger.exception("sections context_processor: DB query failed")
-        return {"global_sections": []}
+        return {"sections": [], "global_sections": []}
 
     try:
         cache.set(_CACHE_KEY, result, _CACHE_TTL)
     except Exception:  # pragma: no cover
         logger.warning("sections context_processor: cache.set failed", exc_info=True)
 
-    return {"global_sections": result}
+    return {"sections": result, "global_sections": result}
 
 
 def invalidate_sections_cache() -> None:

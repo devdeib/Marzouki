@@ -20,6 +20,7 @@ from django.db.models import Prefetch, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django_ratelimit.decorators import ratelimit
 
 from cart.forms import CartAddProductForm
 from orders.models import Order
@@ -116,6 +117,7 @@ def signup(request):
     return render(request, "signup.html", {"form": form})
 
 
+@ratelimit(key="ip", rate="10/5m", method="POST", block=True)
 def login(request):
     if request.user.is_authenticated:
         return redirect("paints")

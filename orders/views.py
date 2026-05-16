@@ -20,6 +20,7 @@ from django.urls import reverse
 from cart.cart import Cart
 from cart.forms import CartAddProductForm
 from TheApp.models import StoreItems
+from django_ratelimit.decorators import ratelimit
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
@@ -37,6 +38,7 @@ def _to_decimal(value) -> Decimal:
 
 
 @login_required
+@ratelimit(key="ip", rate="20/h", method="POST", block=True)
 def order_create(request):
     cart = Cart(request)
     total_price = cart.get_total_price()

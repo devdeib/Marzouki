@@ -12,6 +12,26 @@
 {% block twitter_image %}{% if item.item_photo %}{{ request.scheme }}://{{ request.get_host }}{{ item.item_photo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'imgs/default.png' %}{% endif %}{% endblock %}
 
 {% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ item.item_name|escapejs }}",
+  "description": "{{ item.item_description|escapejs|truncatechars:500 }}",
+  {% if item.item_photo %}"image": "{{ request.scheme }}://{{ request.get_host }}{{ item.item_photo.url }}",{% endif %}
+  "brand": {
+    "@type": "Brand",
+    "name": "Waseem Marzouki"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "USD",
+    "price": "{{ item.get_final_price|floatformat:2 }}",
+    "availability": "{% if item.status == 'SO' %}https://schema.org/SoldOut{% elif item.status == 'SC' %}https://schema.org/OutOfStock{% else %}https://schema.org/InStock{% endif %}"
+  }
+}
+</script>
 <style>
     .nav-arrow {
     position: fixed;

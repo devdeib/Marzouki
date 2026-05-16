@@ -1108,16 +1108,16 @@ html {
     width: 45px;
     height: calc(100% - 80px);
     z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
   }
 
   .shop-sidebar-root #sidebar-tab {
+    position: absolute;
+    right: -29px;
+    top: 50%;
+    transform: translateY(-50%) rotate(180deg);
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    transform: rotate(180deg);
     background: #111;
     color: #fff;
     font-size: 10px;
@@ -1126,14 +1126,8 @@ html {
     padding: 14px 7px;
     border-radius: 0 4px 4px 0;
     user-select: none;
-    transition: background 0.2s, padding 0.2s;
     white-space: nowrap;
-  }
-
-  .shop-sidebar-root #hover-zone:hover #sidebar-tab,
-  body.sidebar-open .shop-sidebar-root #sidebar-tab {
-    background: #333;
-    padding: 14px 10px;
+    pointer-events: none;
   }
 }
 

@@ -1094,11 +1094,17 @@ html {
     width: 280px;
     height: calc(100% - 80px);
     background-color: #f8f9fa;
-    padding: 20px 15px;
     border-right: 1px solid #e0e0e0;
     transition: left 0.3s ease;
     z-index: 999;
+    overflow: visible;
+  }
+
+  .shop-sidebar-root .sidebar-wrapper .sidebar-inner {
+    width: 100%;
+    height: 100%;
     overflow-y: auto;
+    padding: 20px 15px;
   }
 
   .shop-sidebar-root #hover-zone {

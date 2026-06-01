@@ -54,6 +54,21 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+
+def _client_ip_for_ratelimit(request) -> str:
+    """Resolve the real client IP when Django sits behind Nginx/Gunicorn.
+
+    With a unix socket or local proxy, REMOTE_ADDR is often empty; Nginx sets
+    X-Forwarded-For / X-Real-IP instead (see deploy/nginx.conf.example).
+    """
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    real_ip = request.META.get("HTTP_X_REAL_IP", "")
+    if real_ip:
+        return real_ip.strip()
+    return request.META.get("REMOTE_ADDR", "")
+
 # ---------------------------------------------------------------------------
 # Core security
 # ---------------------------------------------------------------------------
@@ -286,9 +301,10 @@ CACHES = {
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
 
-# Rate-limit counters use the DB cache alias so login/checkout are not blocked
-# when Redis is down (django-redis fail-closed would deny every POST otherwise).
+# Rate limiting (django-ratelimit)
 RATELIMIT_USE_CACHE = "ratelimit"
+RATELIMIT_IP_META_KEY = _client_ip_for_ratelimit
+RATELIMIT_FAIL_OPEN = True
 
 
 # ---------------------------------------------------------------------------

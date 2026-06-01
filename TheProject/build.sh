@@ -21,4 +21,7 @@ python manage.py collectstatic --no-input
 echo "[build] Applying database migrations..."
 python manage.py migrate --no-input
 
+echo "[build] Ensuring rate-limit cache table exists..."
+python manage.py createcachetable django_ratelimit_cache
+
 echo "[build] Done."

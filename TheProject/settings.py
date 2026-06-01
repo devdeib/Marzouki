@@ -273,12 +273,22 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,  # never crash a page because Redis is down
         },
         "TIMEOUT": _env_int("DJANGO_CACHE_TIMEOUT", 60 * 5),
-    }
+    },
+    # Rate-limit counters live in the DB so login/checkout still work when Redis
+    # is unavailable (django-redis fail-closed would block every POST otherwise).
+    "ratelimit": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_ratelimit_cache",
+    },
 }
 
 # If Redis is unavailable at boot we still want the site up.
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
+
+# Rate-limit counters use the DB cache alias so login/checkout are not blocked
+# when Redis is down (django-redis fail-closed would deny every POST otherwise).
+RATELIMIT_USE_CACHE = "ratelimit"
 
 
 # ---------------------------------------------------------------------------

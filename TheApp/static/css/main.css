@@ -1143,6 +1143,13 @@ html {
   }
 }
 
+/* Gallery listing page: no hover categories sidebar */
+@media (min-width: 992px) {
+  body.gallery-page .shop-sidebar-root {
+    display: none !important;
+  }
+}
+
 /* --- Global content / footer breathing room (site-wide) --- */
 body > main {
   padding-bottom: clamp(3rem, 10vw, 7rem);

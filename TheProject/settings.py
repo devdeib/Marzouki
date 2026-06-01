@@ -54,6 +54,17 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+
+def _client_ip_for_ratelimit(request) -> str:
+    """Resolve the real client IP when Django sits behind Nginx/Gunicorn."""
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    real_ip = request.META.get("HTTP_X_REAL_IP", "")
+    if real_ip:
+        return real_ip.strip()
+    return request.META.get("REMOTE_ADDR", "")
+
 # ---------------------------------------------------------------------------
 # Core security
 # ---------------------------------------------------------------------------
@@ -276,12 +287,20 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,  # never crash a page because Redis is down
         },
         "TIMEOUT": _env_int("DJANGO_CACHE_TIMEOUT", 60 * 5),
-    }
+    },
+    "ratelimit": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_ratelimit_cache",
+    },
 }
 
 # If Redis is unavailable at boot we still want the site up.
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
+
+RATELIMIT_USE_CACHE = "ratelimit"
+RATELIMIT_IP_META_KEY = _client_ip_for_ratelimit
+RATELIMIT_FAIL_OPEN = True
 
 
 # ---------------------------------------------------------------------------

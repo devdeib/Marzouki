@@ -54,21 +54,6 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
-
-def _client_ip_for_ratelimit(request) -> str:
-    """Resolve the real client IP when Django sits behind Nginx/Gunicorn.
-
-    With a unix socket or local proxy, REMOTE_ADDR is often empty; Nginx sets
-    X-Forwarded-For / X-Real-IP instead (see deploy/nginx.conf.example).
-    """
-    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    real_ip = request.META.get("HTTP_X_REAL_IP", "")
-    if real_ip:
-        return real_ip.strip()
-    return request.META.get("REMOTE_ADDR", "")
-
 # ---------------------------------------------------------------------------
 # Core security
 # ---------------------------------------------------------------------------
@@ -244,13 +229,16 @@ STATICFILES_DIRS = [BASE_DIR / "TheApp" / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT", BASE_DIR / "media"))
 
-# Django 5.x storages API.  Manifest storage gives cache-busted filenames.
+# Django 5.x storages API.  CompressedStaticFilesStorage does not require
+# staticfiles.json — the site keeps working if collectstatic was skipped after
+# a deploy (Manifest storage crashes every {% static %} tag when the manifest
+# is missing).
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
@@ -288,23 +276,12 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,  # never crash a page because Redis is down
         },
         "TIMEOUT": _env_int("DJANGO_CACHE_TIMEOUT", 60 * 5),
-    },
-    # Rate-limit counters live in the DB so login/checkout still work when Redis
-    # is unavailable (django-redis fail-closed would block every POST otherwise).
-    "ratelimit": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "django_ratelimit_cache",
-    },
+    }
 }
 
 # If Redis is unavailable at boot we still want the site up.
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
-
-# Rate limiting (django-ratelimit)
-RATELIMIT_USE_CACHE = "ratelimit"
-RATELIMIT_IP_META_KEY = _client_ip_for_ratelimit
-RATELIMIT_FAIL_OPEN = True
 
 
 # ---------------------------------------------------------------------------

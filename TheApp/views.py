@@ -345,6 +345,8 @@ def paint_detail(request, item_id):
 
     cart_product_form = CartAddProductForm(item=store_item)
 
+    disable_category_sidebar = request.GET.get("from") == "gallery"
+
     return render(
         request,
         "paint_detail.html",
@@ -358,6 +360,7 @@ def paint_detail(request, item_id):
             "next_item": next_item,
             "prev_item": prev_item,
             "on_paints_page": True,
+            "disable_category_sidebar": disable_category_sidebar,
         },
     )
 

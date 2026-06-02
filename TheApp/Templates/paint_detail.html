@@ -105,7 +105,8 @@
     <span class="nav prev">&#10094;</span>
     <span class="nav next">&#10095;</span>
 </div>
-{% if not disable_category_sidebar %}
+{# Disable the categories sidebar only for Gallery items (status == 'SC'). #}
+{% if item.status != 'SC' %}
   {% include 'partials/_shop_sidebar.html' %}
 {% endif %}
     <hr class="hr--large">

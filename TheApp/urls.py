@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import views
 
@@ -9,7 +10,9 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("logout/", views.user_logout, name="logout"),
     path("account/", views.account, name="account"),
-    path("paints/", views.paints, name="paints"),
+    path("gallery/", views.paints, name="paints"),
+    # Permanent redirect: /paints/ → /gallery/ (keeps old links & SEO working)
+    path("paints/", RedirectView.as_view(url="/gallery/", permanent=True)),
     path("about/", views.about, name="about"),
     path("paints/<int:item_id>/", views.paint_detail, name="paint_detail"),
     path("category/<int:section_id>/", views.category_browse, name="category_browse"),

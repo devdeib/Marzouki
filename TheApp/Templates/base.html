@@ -24,6 +24,10 @@
     <meta name="twitter:description" content="{% block twitter_description %}Original paintings and prints by Waseem Marzouki.{% endblock %}" />
     <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'imgs/default.png' %}{% endblock %}" />
 
+    {# --- Favicon ------------------------------------------------------- #}
+    <link rel="icon" type="image/png" href="{% static 'icons/favicon.png' %}" />
+    <link rel="apple-touch-icon" href="{% static 'icons/favicon.png' %}" />
+
     {# --- Styles ------------------------------------------------------- #}
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />

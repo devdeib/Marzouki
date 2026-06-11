@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     <!-- Shop inline expand -->
     <li class="nav-item shop-expand-trigger">
-      <a class="nav-link shop-label {% if on_originals_page or on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Shop</a>
+      <span class="nav-link shop-label {% if on_originals_page or on_prints_page %}nav-active{% endif %}">Shop</span>
       <div class="shop-inline-items">
         <a class="shop-sub-link {% if on_originals_page %}nav-active{% endif %}" href="{% url 'originals' %}">Originals</a>
         <a class="shop-sub-link {% if on_prints_page %}nav-active{% endif %}" href="{% url 'prints' %}">Prints</a>

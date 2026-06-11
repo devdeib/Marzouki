@@ -1305,36 +1305,33 @@ body > main {
 }
 
 .sug-arrow {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid #1a1a1a;
-  color: #1a1a1a;
-  font-size: 18px;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 50%;
+  color: #2a2a2a;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  line-height: 1;
   padding: 0;
   align-self: center;
-  opacity: 0.65;
-  border-radius: 0;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 
 .sug-arrow:hover {
-  opacity: 1;
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #fff;
 }
 
-.sug-arrow#sugPrev:hover {
-  transform: translateX(-3px);
-}
-
-.sug-arrow#sugNext:hover {
-  transform: translateX(3px);
+.sug-arrow:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .suggestions-track-wrap {

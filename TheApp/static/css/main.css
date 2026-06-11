@@ -1061,7 +1061,50 @@ html {
 
   .shop-label {
     white-space: nowrap;
-    cursor: default;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .shop-label::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 1px;
+    background: rgba(255,255,255,0.35);
+    transform: scaleX(0.4);
+    transform-origin: left;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+
+  .shop-expand-trigger:hover .shop-label::after {
+    transform: scaleX(1);
+    background: rgba(255,255,255,0.7);
+  }
+
+  .shop-hint-dot {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    margin-left: 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    animation: shop-dot-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes shop-dot-pulse {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50%       { opacity: 1;    transform: scale(1.5); }
+  }
+
+  .shop-expand-trigger:hover .shop-hint-dot {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.2s;
   }
 
   .shop-inline-items {
@@ -1070,25 +1113,58 @@ html {
     overflow: hidden;
     max-width: 0;
     opacity: 0;
-    transition: max-width 0.35s ease, opacity 0.25s ease;
+    transition: max-width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.3s ease 0.05s;
+  }
+
+  .shop-expand-trigger:hover .shop-inline-items {
+    max-width: 320px;
+    opacity: 1;
+  }
+
+  .shop-inline-divider {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 0.6rem;
+    flex-shrink: 0;
   }
 
   .shop-sub-link {
     white-space: nowrap;
-    padding-left: 1rem !important;
-    font-size: 0.9rem;
-    opacity: 0.8;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6) !important;
+    padding: 0.2rem 0.55rem !important;
+    border-radius: 3px;
+    position: relative;
+    transition: color 0.2s ease, background 0.2s ease;
+    text-decoration: none !important;
+  }
+
+  .shop-sub-link:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.08);
   }
 
   .shop-sub-link::before {
-    content: "·";
-    margin-right: 0.5rem;
-    opacity: 0.4;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0.55rem;
+    right: 0.55rem;
+    height: 1px;
+    background: rgba(255,255,255,0.55);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
   }
 
-  .shop-expand-trigger:hover .shop-inline-items {
-    max-width: 200px;
-    opacity: 1;
+  .shop-sub-link:hover::before {
+    transform: scaleX(1);
   }
 }
 

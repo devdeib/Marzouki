@@ -1121,6 +1121,32 @@ html {
   }
 }
 
+/* --- Navbar active underline --- */
+@media (min-width: 992px) {
+  .nav-link.nav-active,
+  .shop-sub-link.nav-active {
+    color: rgba(255,255,255,0.92) !important;
+    position: relative;
+  }
+
+  .nav-link.nav-active::after,
+  .shop-sub-link.nav-active::after {
+    content: "";
+    position: absolute;
+    bottom: 10px;
+    left: 1rem;
+    right: 1rem;
+    height: 1px;
+    background: rgba(255,255,255,0.5);
+  }
+
+  .shop-sub-link.nav-active::after {
+    bottom: 12px;
+    left: 0.9rem;
+    right: 0.9rem;
+  }
+}
+
 /* ---------------- Shop sidebar (CATEGORIES tab, burger-style hover) ---------------- */
 @media (min-width: 992px) {
   .shop-sidebar-root .sidebar-wrapper {
@@ -1193,4 +1219,168 @@ body > main {
 
 .footer-wrapper {
   margin-top: clamp(1.5rem, 5vw, 3.5rem);
+}
+
+/* ===== Quantity counter ===== */
+.qty-counter {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 40px;
+}
+
+.qty-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  width: 38px;
+  height: 40px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.qty-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.qty-input {
+  width: 44px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  border-left: 1px solid rgba(255,255,255,0.1);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  padding: 0;
+  outline: none;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* ===== Suggestions / You may also like ===== */
+.suggestions-section {
+  margin-top: 4rem;
+  padding: 0 0 3rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.suggestions-header {
+  padding: 1.75rem 2rem 1.25rem;
+}
+
+.suggestions-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+.suggestions-track-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 1.5rem 1rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.suggestions-track-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.suggestions-track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+}
+
+.suggestion-card {
+  width: 200px;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.suggestion-card:hover {
+  opacity: 0.82;
+  text-decoration: none;
+  color: inherit;
+}
+
+.suggestion-img-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+
+.suggestion-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.suggestion-sold {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0,0,0,0.65);
+  color: rgba(255,255,255,0.6);
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.suggestion-info {
+  padding: 0.6rem 0 0;
+}
+
+.suggestion-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  margin: 0 0 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.s-price-new {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.s-price-old {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  text-decoration: line-through;
+  margin-left: 0.4rem;
 }

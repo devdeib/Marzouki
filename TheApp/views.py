@@ -326,13 +326,39 @@ def paint_detail(request, item_id):
     next_item = items_sc.filter(order__gt=store_item.order).order_by("order").first()
     prev_item = items_sc.filter(order__lt=store_item.order).order_by("order").last()
 
-    tags_of_item = store_item.tags.all()
-    related_items = (
-        StoreItems.objects.filter(tags__in=tags_of_item)
-        .exclude(id=store_item.id)
-        .select_related("primary_color")
-        .distinct()
-    )
+    # Suggestions: only for shop items (Originals / Prints), not gallery (SC)
+    suggested_items = []
+    item_sections = store_item.section.all()
+    if store_item.status != "SC" and item_sections.exists():
+        section_categories = item_sections.values_list("category", flat=True)
+        tags_of_item = store_item.tags.all()
+
+        # Start from same section category (OR or PR)
+        qs = (
+            StoreItems.objects
+            .filter(section__category__in=section_categories, status__in=["AC", "SO"])
+            .exclude(id=store_item.id)
+            .select_related("primary_color", "secondary_color")
+            .prefetch_related("tags", "section")
+            .distinct()
+        )
+
+        # Boost tag matches by pulling them first, then fill with rest
+        if tags_of_item.exists():
+            tag_matched = list(
+                qs.filter(tags__in=tags_of_item).distinct()[:6]
+            )
+            tag_matched_ids = [i.id for i in tag_matched]
+            fillers = list(
+                qs.exclude(id__in=tag_matched_ids).order_by("order")[:max(0, 6 - len(tag_matched))]
+            )
+            suggested_items = tag_matched + fillers
+        else:
+            suggested_items = list(qs.order_by("order")[:6])
+    else:
+        tags_of_item = store_item.tags.all()
+
+    related_items = []  # kept for template compatibility but unused now
 
     item_images = store_item.images.all()
     item_videos = store_item.videos.all()
@@ -355,6 +381,7 @@ def paint_detail(request, item_id):
             "variations_with_choices": variations_with_choices,
             "cart_product_form": cart_product_form,
             "related_items": related_items,
+        "suggested_items": suggested_items,
             "item_images": item_images,
             "item_videos": item_videos,
             "next_item": next_item,

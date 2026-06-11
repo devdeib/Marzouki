@@ -187,15 +187,17 @@
 
 
 
-                <label for="id_quantity"><strong>Quantity:</strong></label>
-                <div class="quantitys mt-3">
-                    <select name="quantity" class="qdropbtn mb-3">
-                        {% for value, label in cart_product_form.fields.quantity.choices %}
-                            <option value="{{ value }}" {% if cart_product_form.quantity.value == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                <div class="qty-counter mt-3 mb-3">
+                    <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">&#8722;</button>
+                    <input type="number"
+                           name="quantity"
+                           id="qty-input"
+                           value="1"
+                           min="1"
+                           max="{{ item.item_quantity }}"
+                           class="qty-input"
+                           readonly />
+                    <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">&#43;</button>
                 </div>
 
 
@@ -216,9 +218,65 @@
             {% endif %}
         </div>
     </div>
+
+{% if suggested_items %}
+<section class="suggestions-section">
+  <div class="suggestions-header">
+    <span class="suggestions-label">You may also like</span>
+  </div>
+  <div class="suggestions-track-wrap">
+    <div class="suggestions-track" id="suggestionsTrack">
+      {% for s in suggested_items %}
+      <a class="suggestion-card" href="{% url 'paint_detail' s.id %}">
+        <div class="suggestion-img-wrap">
+          {% if s.item_photo %}
+            <img src="{{ s.item_photo.url }}" alt="{{ s.item_name }}" loading="lazy" />
+          {% endif %}
+          {% if s.status == 'SO' %}
+            <span class="suggestion-sold">Sold</span>
+          {% endif %}
+        </div>
+        <div class="suggestion-info">
+          <p class="suggestion-name">{{ s.item_name }}</p>
+          <p class="suggestion-price">
+            {% if s.get_final_price < s.item_price %}
+              <span class="s-price-new">${{ s.get_final_price|floatformat:2 }}</span>
+              <span class="s-price-old">${{ s.item_price|floatformat:2 }}</span>
+            {% else %}
+              <span class="s-price-new">${{ s.item_price|floatformat:2 }}</span>
+            {% endif %}
+          </p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}
+<script>
+  // Quantity counter
+  (function() {
+    const input  = document.getElementById('qty-input');
+    const minus  = document.getElementById('qty-minus');
+    const plus   = document.getElementById('qty-plus');
+    if (!input) return;
+    const max = parseInt(input.getAttribute('max')) || 1;
+
+    function update(val) {
+      val = Math.max(1, Math.min(max, val));
+      input.value = val;
+      minus.disabled = val <= 1;
+      plus.disabled  = val >= max;
+    }
+
+    minus.addEventListener('click', () => update(parseInt(input.value) - 1));
+    plus.addEventListener('click',  () => update(parseInt(input.value) + 1));
+    update(1);
+  })();
+</script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const basePrice = parseFloat('{{ item.item_price }}');

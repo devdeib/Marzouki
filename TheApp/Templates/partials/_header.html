@@ -48,10 +48,10 @@ document.addEventListener("DOMContentLoaded", function() {
               <!-- Header Sections -->
               
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'paints' %}">Gallery</a>
+                <a class="nav-link {% if request.resolver_match.url_name in 'paints,paint_detail,category_browse,search' and on_paints_page and not on_originals_page and not on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Gallery</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'about' %}">About</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'about' %}nav-active{% endif %}" href="{% url 'about' %}">About</a>
               </li>
               {% if user.is_authenticated and user.is_superuser %}
                 <li class="nav-item">
@@ -175,17 +175,17 @@ document.addEventListener("DOMContentLoaded", function() {
     
 
     <li class="nav-item">
-      <a class="nav-link" href="{% url 'paints' %}">Gallery</a>
+      <a class="nav-link {% if request.resolver_match.url_name in 'paints,paint_detail,category_browse,search' and on_paints_page and not on_originals_page and not on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Gallery</a>
     </li>
 
     
 
     <!-- Shop inline expand -->
     <li class="nav-item shop-expand-trigger">
-      <a class="nav-link shop-label" href="{% url 'paints' %}">Shop</a>
+      <a class="nav-link shop-label {% if on_originals_page or on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Shop</a>
       <div class="shop-inline-items">
-        <a class="shop-sub-link" href="{% url 'originals' %}">Originals</a>
-        <a class="shop-sub-link" href="{% url 'prints' %}">Prints</a>
+        <a class="shop-sub-link {% if on_originals_page %}nav-active{% endif %}" href="{% url 'originals' %}">Originals</a>
+        <a class="shop-sub-link {% if on_prints_page %}nav-active{% endif %}" href="{% url 'prints' %}">Prints</a>
       </div>
     </li>
 
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </li>
     {% endif %}
     <li class="nav-item">
-      <a class="nav-link" href="{% url 'about' %}">About</a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'about' %}nav-active{% endif %}" href="{% url 'about' %}">About</a>
     </li>
 
     

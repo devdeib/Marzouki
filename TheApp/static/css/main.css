@@ -1301,7 +1301,13 @@ body > main {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0 1.5rem;
+  padding: 0 1.5rem 0 60px; /* 60px left: clears the 45px sidebar hover-zone */
+}
+
+@media (max-width: 991px) {
+  .suggestions-slider-row {
+    padding: 0 1rem;
+  }
 }
 
 .sug-arrow {

@@ -334,16 +334,28 @@ def paint_detail(request, item_id):
         tags_of_item = store_item.tags.all()
         SUGGEST_LIMIT = 20
 
-        # Collect candidate IDs — use dict.fromkeys to deduplicate while preserving order
-        raw_ids = (
+        # Collect candidate IDs from TWO sources, merged and deduplicated:
+        # 1. Items in the same specific sections (e.g. "Landscapes" category)
+        # 2. Items in the same broad category (OR / PR) as a fallback fill
+        item_section_ids = list(item_sections.values_list("id", flat=True))
+
+        same_section_raw = (
+            StoreItems.objects
+            .filter(section__id__in=item_section_ids, status__in=["AC", "SO"])
+            .exclude(id=store_item.id)
+            .order_by("order")
+            .values_list("id", flat=True)
+        )
+        same_category_raw = (
             StoreItems.objects
             .filter(section__category__in=section_categories, status__in=["AC", "SO"])
             .exclude(id=store_item.id)
             .order_by("order")
             .values_list("id", flat=True)
         )
-        # dict.fromkeys deduplicates while preserving order (M2M joins can repeat IDs)
-        candidate_ids = list(dict.fromkeys(raw_ids))
+        # Same-section items first (most relevant), then same-category fill
+        # dict.fromkeys deduplicates while preserving insertion order
+        candidate_ids = list(dict.fromkeys(list(same_section_raw) + list(same_category_raw)))
 
         if not candidate_ids:
             suggested_items = []

@@ -1058,14 +1058,17 @@ html {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    padding: 0 !important;
   }
 
+  /* Shop label inherits nav-link but we control its padding */
   .shop-label {
     white-space: nowrap;
     cursor: pointer;
     color: #fff !important;
     font-weight: 500;
     flex-shrink: 0;
+    padding: 0.5rem 1rem !important;
   }
 
   .shop-inline-items {
@@ -1083,27 +1086,27 @@ html {
     opacity: 1;
   }
 
+  /* Sub-links: no Bootstrap nav-link class, full control */
   .shop-sub-link {
     white-space: nowrap;
-    color: rgba(255,255,255,0.42) !important;
+    color: rgba(255,255,255,0.42);
     font-size: 0.875rem;
-    padding: 0 0.9rem !important;
-    height: 100%;
+    padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     transition: color 0.15s ease;
-    text-decoration: none !important;
+    text-decoration: none;
     flex-shrink: 0;
   }
 
   .shop-sub-link:hover {
-    color: #fff !important;
+    color: #fff;
   }
 
   /* Short centered separator before Originals */
   .shop-sub-link:first-child {
-    margin-left: 0.25rem;
     position: relative;
+    padding-left: 1.1rem;
   }
 
   .shop-sub-link:first-child::before {

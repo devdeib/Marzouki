@@ -1052,37 +1052,44 @@ html {
 }
 /* ---------------- Categories Dropdown ---------------- */
 
-.categories-dropdown {
-  background-color: rgb(26, 26, 26);
-  border: none;
-  width: 300px;
-}
-
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 10px;
-}
-
-.categories-dropdown .dropdown-item {
-  color: #fff;
-  padding: 6px 10px;
-  font-size: 0.95rem;
-}
-
-.categories-dropdown .dropdown-item:hover {
-  background-color: rgba(255,255,255,0.1);
-}
-
-/* Open dropdown on hover */
+/* --- Shop inline push expand --- */
 @media (min-width: 992px) {
-  .navbar .dropdown:hover .dropdown-menu {
-    display: block;
-    margin-top: 0;
+  .shop-expand-trigger {
+    display: flex;
+    align-items: center;
   }
-}/* Prevent jump on click */
-.navbar .dropdown-toggle::after {
-  vertical-align: middle;
+
+  .shop-label {
+    white-space: nowrap;
+    cursor: default;
+  }
+
+  .shop-inline-items {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    max-width: 0;
+    opacity: 0;
+    transition: max-width 0.35s ease, opacity 0.25s ease;
+  }
+
+  .shop-sub-link {
+    white-space: nowrap;
+    padding-left: 1rem !important;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .shop-sub-link::before {
+    content: "·";
+    margin-right: 0.5rem;
+    opacity: 0.4;
+  }
+
+  .shop-expand-trigger:hover .shop-inline-items {
+    max-width: 200px;
+    opacity: 1;
+  }
 }
 
 /* ---------------- Shop sidebar (CATEGORIES tab, burger-style hover) ---------------- */

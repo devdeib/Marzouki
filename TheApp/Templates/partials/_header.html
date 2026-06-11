@@ -180,23 +180,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     
 
-    <!-- Categories Dropdown -->
-    
-    <li class="nav-item dropdown position-static">
-      <a class="nav-link dropdown-toggle"
-        href="#"
-        id="categoriesDropdown"
-        role="button">
-        Shop
-      </a>
-
-      <div class="dropdown-menu categories-dropdown p-4" aria-labelledby="categoriesDropdown">
-        <div class="categories-grid">
-          <a class="dropdown-item" href="{% url 'originals' %}">Originals</a>
-          <a class="dropdown-item" href="{% url 'prints' %}">Prints</a>
-          
-          
-        </div>
+    <!-- Shop inline expand -->
+    <li class="nav-item shop-expand-trigger">
+      <a class="nav-link shop-label" href="{% url 'paints' %}">Shop</a>
+      <div class="shop-inline-items">
+        <a class="nav-link shop-sub-link" href="{% url 'originals' %}">Originals</a>
+        <a class="nav-link shop-sub-link" href="{% url 'prints' %}">Prints</a>
       </div>
     </li>
 

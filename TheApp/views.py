@@ -343,18 +343,23 @@ def paint_detail(request, item_id):
             .distinct()
         )
 
-        # Boost tag matches by pulling them first, then fill with rest
+        # Boost tag matches first, then fill remaining slots up to 8
+        SUGGEST_LIMIT = 8
         if tags_of_item.exists():
             tag_matched = list(
-                qs.filter(tags__in=tags_of_item).distinct()[:6]
+                qs.filter(tags__in=tags_of_item).distinct()[:SUGGEST_LIMIT]
             )
             tag_matched_ids = [i.id for i in tag_matched]
-            fillers = list(
-                qs.exclude(id__in=tag_matched_ids).order_by("order")[:max(0, 6 - len(tag_matched))]
-            )
-            suggested_items = tag_matched + fillers
+            remaining = SUGGEST_LIMIT - len(tag_matched)
+            if remaining > 0:
+                fillers = list(
+                    qs.exclude(id__in=tag_matched_ids).order_by("order")[:remaining]
+                )
+                suggested_items = tag_matched + fillers
+            else:
+                suggested_items = tag_matched
         else:
-            suggested_items = list(qs.order_by("order")[:6])
+            suggested_items = list(qs.order_by("order")[:SUGGEST_LIMIT])
     else:
         tags_of_item = store_item.tags.all()
 

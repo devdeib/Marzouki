@@ -223,8 +223,12 @@
 <section class="suggestions-section">
   <div class="suggestions-header">
     <span class="suggestions-label">You may also like</span>
+    <div class="suggestions-arrows">
+      <button class="sug-arrow" id="sugPrev" aria-label="Previous">&#8592;</button>
+      <button class="sug-arrow" id="sugNext" aria-label="Next">&#8594;</button>
+    </div>
   </div>
-  <div class="suggestions-track-wrap">
+  <div class="suggestions-track-wrap" id="suggestionsWrap">
     <div class="suggestions-track" id="suggestionsTrack">
       {% for s in suggested_items %}
       <a class="suggestion-card" href="{% url 'paint_detail' s.id %}">
@@ -369,5 +373,27 @@ document.querySelector(".prev").onclick = ()=>{
     if(currentIndex < 0) currentIndex = images.length -1;
     showImage(currentIndex);
 };
+</script>
+<script>
+  // Suggestions slider arrows
+  (function() {
+    const wrap = document.getElementById('suggestionsWrap');
+    const prev = document.getElementById('sugPrev');
+    const next = document.getElementById('sugNext');
+    if (!wrap || !prev || !next) return;
+    const STEP = 260;
+    next.addEventListener('click', function() {
+      wrap.scrollBy({ left: STEP, behavior: 'smooth' });
+    });
+    prev.addEventListener('click', function() {
+      wrap.scrollBy({ left: -STEP, behavior: 'smooth' });
+    });
+    function updateArrows() {
+      prev.style.opacity = wrap.scrollLeft <= 0 ? '0.3' : '1';
+      next.style.opacity = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 2 ? '0.3' : '1';
+    }
+    wrap.addEventListener('scroll', updateArrows);
+    updateArrows();
+  })();
 </script>
 {% endblock %}

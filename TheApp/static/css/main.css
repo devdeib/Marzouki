@@ -1133,15 +1133,15 @@ html {
   .shop-sub-link.nav-active::after {
     content: "";
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     left: 1rem;
     right: 1rem;
     height: 1px;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.45);
   }
 
   .shop-sub-link.nav-active::after {
-    bottom: 12px;
+    bottom: 5px;
     left: 0.9rem;
     right: 0.9rem;
   }
@@ -1284,18 +1284,49 @@ body > main {
 .suggestions-section {
   margin-top: 4rem;
   padding: 0 0 3rem;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid #e0e0e0;
 }
 
 .suggestions-header {
   padding: 1.75rem 2rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .suggestions-label {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: #888;
+}
+
+.suggestions-arrows {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.sug-arrow {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid #d0d0d0;
+  color: #444;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.sug-arrow:hover {
+  border-color: #999;
+  color: #111;
+  background: #f0f0f0;
 }
 
 .suggestions-track-wrap {
@@ -1312,12 +1343,12 @@ body > main {
 
 .suggestions-track {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   width: max-content;
 }
 
 .suggestion-card {
-  width: 200px;
+  width: 240px;
   flex-shrink: 0;
   text-decoration: none;
   color: inherit;
@@ -1326,17 +1357,17 @@ body > main {
 }
 
 .suggestion-card:hover {
-  opacity: 0.82;
+  opacity: 0.78;
   text-decoration: none;
   color: inherit;
 }
 
 .suggestion-img-wrap {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 260px;
   overflow: hidden;
-  background: #1a1a1a;
+  background: #e8e8e8;
 }
 
 .suggestion-img-wrap img {
@@ -1353,20 +1384,20 @@ body > main {
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: rgba(0,0,0,0.65);
-  color: rgba(255,255,255,0.6);
+  background: rgba(0,0,0,0.55);
+  color: rgba(255,255,255,0.85);
   padding: 3px 8px;
   border-radius: 2px;
 }
 
 .suggestion-info {
-  padding: 0.6rem 0 0;
+  padding: 0.65rem 0 0;
 }
 
 .suggestion-name {
   font-size: 13px;
-  color: rgba(255,255,255,0.75);
-  margin: 0 0 0.25rem;
+  color: #2a2a2a;
+  margin: 0 0 0.2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1375,12 +1406,12 @@ body > main {
 .s-price-new {
   font-size: 13px;
   font-weight: 500;
-  color: #fff;
+  color: #111;
 }
 
 .s-price-old {
   font-size: 12px;
-  color: rgba(255,255,255,0.35);
+  color: #aaa;
   text-decoration: line-through;
   margin-left: 0.4rem;
 }

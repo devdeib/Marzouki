@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
               <!-- Header Sections -->
               
               <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name in 'paints,paint_detail,category_browse,search' and on_paints_page and not on_originals_page and not on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Gallery</a>
+                <a class="nav-link {% if on_paints_page and not on_originals_page and not on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Gallery</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'about' %}nav-active{% endif %}" href="{% url 'about' %}">About</a>
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
 
     <li class="nav-item">
-      <a class="nav-link {% if request.resolver_match.url_name in 'paints,paint_detail,category_browse,search' and on_paints_page and not on_originals_page and not on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Gallery</a>
+      <a class="nav-link {% if on_paints_page and not on_originals_page and not on_prints_page %}nav-active{% endif %}" href="{% url 'paints' %}">Gallery</a>
     </li>
 
     

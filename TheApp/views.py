@@ -334,19 +334,21 @@ def paint_detail(request, item_id):
         tags_of_item = store_item.tags.all()
         SUGGEST_LIMIT = 20
 
-        # Collect candidate IDs via same-category sections — avoids M2M join duplicates
-        candidate_ids = list(
+        # Collect candidate IDs — use dict.fromkeys to deduplicate while preserving order
+        raw_ids = (
             StoreItems.objects
             .filter(section__category__in=section_categories, status__in=["AC", "SO"])
             .exclude(id=store_item.id)
+            .order_by("order")
             .values_list("id", flat=True)
-            .distinct()
         )
+        # dict.fromkeys deduplicates while preserving order (M2M joins can repeat IDs)
+        candidate_ids = list(dict.fromkeys(raw_ids))
 
         if not candidate_ids:
             suggested_items = []
         else:
-            # Build clean queryset from IDs
+            # Build clean queryset from deduplicated IDs
             qs = (
                 StoreItems.objects
                 .filter(id__in=candidate_ids)
@@ -354,26 +356,24 @@ def paint_detail(request, item_id):
                 .prefetch_related("tags", "section")
             )
 
-            # Tag-matched first, then fill with rest ordered by order field
+            # Tag-matched first, then fill with rest
             if tags_of_item.exists():
                 tag_ids = list(tags_of_item.values_list("id", flat=True))
-                tag_matched_ids = list(
+                raw_tag_ids = (
                     StoreItems.objects
                     .filter(id__in=candidate_ids, tags__id__in=tag_ids)
                     .values_list("id", flat=True)
-                    .distinct()
                 )
-                other_ids = [i for i in candidate_ids if i not in tag_matched_ids]
+                tag_matched_ids = list(dict.fromkeys(raw_tag_ids))
+                tag_matched_set = set(tag_matched_ids)
+                other_ids = [i for i in candidate_ids if i not in tag_matched_set]
                 ordered_ids = tag_matched_ids + other_ids
             else:
-                # No tags — just sort by order
-                ordered_ids = list(
-                    qs.order_by("order").values_list("id", flat=True)
-                )
+                ordered_ids = candidate_ids  # already sorted by order
 
-            # Fetch in desired order, up to limit
+            # Fetch up to limit in desired order
             ordered_ids = ordered_ids[:SUGGEST_LIMIT]
-            items_by_id = {item.id: item for item in qs.filter(id__in=ordered_ids)}
+            items_by_id = {obj.id: obj for obj in qs.filter(id__in=ordered_ids)}
             suggested_items = [items_by_id[i] for i in ordered_ids if i in items_by_id]
     else:
         tags_of_item = store_item.tags.all()

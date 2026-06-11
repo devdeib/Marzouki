@@ -221,15 +221,11 @@
 
 {% if suggested_items %}
 <section class="suggestions-section">
-  <div class="suggestions-header">
-    <span class="suggestions-label">You may also like</span>
-    <div class="suggestions-arrows">
-      <button class="sug-arrow" id="sugPrev" aria-label="Previous">&#8592;</button>
-      <button class="sug-arrow" id="sugNext" aria-label="Next">&#8594;</button>
-    </div>
-  </div>
-  <div class="suggestions-track-wrap" id="suggestionsWrap">
-    <div class="suggestions-track" id="suggestionsTrack">
+  <div class="suggestions-heading">You may also like</div>
+  <div class="suggestions-slider-row">
+    <button class="sug-arrow" id="sugPrev" aria-label="Previous">&#8592;</button>
+    <div class="suggestions-track-wrap" id="suggestionsWrap">
+      <div class="suggestions-track" id="suggestionsTrack">
       {% for s in suggested_items %}
       <a class="suggestion-card" href="{% url 'paint_detail' s.id %}">
         <div class="suggestion-img-wrap">
@@ -253,7 +249,9 @@
         </div>
       </a>
       {% endfor %}
+      </div>
     </div>
+    <button class="sug-arrow" id="sugNext" aria-label="Next">&#8594;</button>
   </div>
 </section>
 {% endif %}

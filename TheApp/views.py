@@ -330,36 +330,51 @@ def paint_detail(request, item_id):
     suggested_items = []
     item_sections = store_item.section.all()
     if store_item.status != "SC" and item_sections.exists():
-        section_categories = item_sections.values_list("category", flat=True)
+        section_categories = list(item_sections.values_list("category", flat=True))
         tags_of_item = store_item.tags.all()
+        SUGGEST_LIMIT = 20
 
-        # Start from same section category (OR or PR)
-        qs = (
+        # Collect candidate IDs via same-category sections — avoids M2M join duplicates
+        candidate_ids = list(
             StoreItems.objects
             .filter(section__category__in=section_categories, status__in=["AC", "SO"])
             .exclude(id=store_item.id)
-            .select_related("primary_color", "secondary_color")
-            .prefetch_related("tags", "section")
+            .values_list("id", flat=True)
             .distinct()
         )
 
-        # Boost tag matches first, then fill remaining slots up to 8
-        SUGGEST_LIMIT = 8
-        if tags_of_item.exists():
-            tag_matched = list(
-                qs.filter(tags__in=tags_of_item).distinct()[:SUGGEST_LIMIT]
-            )
-            tag_matched_ids = [i.id for i in tag_matched]
-            remaining = SUGGEST_LIMIT - len(tag_matched)
-            if remaining > 0:
-                fillers = list(
-                    qs.exclude(id__in=tag_matched_ids).order_by("order")[:remaining]
-                )
-                suggested_items = tag_matched + fillers
-            else:
-                suggested_items = tag_matched
+        if not candidate_ids:
+            suggested_items = []
         else:
-            suggested_items = list(qs.order_by("order")[:SUGGEST_LIMIT])
+            # Build clean queryset from IDs
+            qs = (
+                StoreItems.objects
+                .filter(id__in=candidate_ids)
+                .select_related("primary_color", "secondary_color")
+                .prefetch_related("tags", "section")
+            )
+
+            # Tag-matched first, then fill with rest ordered by order field
+            if tags_of_item.exists():
+                tag_ids = list(tags_of_item.values_list("id", flat=True))
+                tag_matched_ids = list(
+                    StoreItems.objects
+                    .filter(id__in=candidate_ids, tags__id__in=tag_ids)
+                    .values_list("id", flat=True)
+                    .distinct()
+                )
+                other_ids = [i for i in candidate_ids if i not in tag_matched_ids]
+                ordered_ids = tag_matched_ids + other_ids
+            else:
+                # No tags — just sort by order
+                ordered_ids = list(
+                    qs.order_by("order").values_list("id", flat=True)
+                )
+
+            # Fetch in desired order, up to limit
+            ordered_ids = ordered_ids[:SUGGEST_LIMIT]
+            items_by_id = {item.id: item for item in qs.filter(id__in=ordered_ids)}
+            suggested_items = [items_by_id[i] for i in ordered_ids if i in items_by_id]
     else:
         tags_of_item = store_item.tags.all()
 

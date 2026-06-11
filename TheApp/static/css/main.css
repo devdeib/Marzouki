@@ -1057,25 +1057,15 @@ html {
   .shop-expand-trigger {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
 
   .shop-label {
     white-space: nowrap;
     cursor: pointer;
-  }
-
-  /* Chevron hint */
-  .shop-label::after {
-    content: "›";
-    margin-left: 4px;
-    opacity: 0.4;
-    display: inline-block;
-    transition: transform 0.25s ease, opacity 0.25s ease;
-  }
-
-  .shop-expand-trigger:hover .shop-label::after {
-    transform: rotate(90deg);
-    opacity: 0.8;
+    color: #fff !important;
+    font-weight: 500;
+    flex-shrink: 0;
   }
 
   .shop-inline-items {
@@ -1084,29 +1074,47 @@ html {
     overflow: hidden;
     max-width: 0;
     opacity: 0;
-    transition: max-width 0.35s ease, opacity 0.25s ease;
+    transition: max-width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.22s ease;
   }
 
   .shop-expand-trigger:hover .shop-inline-items {
-    max-width: 320px;
+    max-width: 260px;
     opacity: 1;
   }
 
   .shop-sub-link {
     white-space: nowrap;
-    color: rgba(255,255,255,0.55) !important;
+    color: rgba(255,255,255,0.42) !important;
     font-size: 0.875rem;
-    padding: 0 0.75rem !important;
-    transition: color 0.2s ease;
+    padding: 0 0.9rem !important;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s ease;
     text-decoration: none !important;
+    flex-shrink: 0;
   }
 
   .shop-sub-link:hover {
     color: #fff !important;
   }
 
-  .shop-sub-link + .shop-sub-link {
-    border-left: 1px solid rgba(255,255,255,0.15);
+  /* Short centered separator before Originals */
+  .shop-sub-link:first-child {
+    margin-left: 0.25rem;
+    position: relative;
+  }
+
+  .shop-sub-link:first-child::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 14px;
+    background: rgba(255,255,255,0.18);
   }
 }
 

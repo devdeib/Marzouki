@@ -295,7 +295,7 @@ def prints(request):
 def category_browse(request, section_id):
     section = get_object_or_404(Section, id=section_id)
     items = (
-        section.items.all()
+        section.items.filter(status__in=["AC", "SO"])
         .select_related("primary_color", "secondary_color")
         .prefetch_related("tags", "section")
         .order_by("order")

@@ -380,25 +380,34 @@ document.querySelector(".prev").onclick = ()=>{
 };
 </script>
 <script>
-  // Suggestions slider arrows
-  (function() {
-    const wrap = document.getElementById('suggestionsWrap');
-    const prev = document.getElementById('sugPrev');
-    const next = document.getElementById('sugNext');
+  document.addEventListener('DOMContentLoaded', function() {
+    var wrap = document.getElementById('suggestionsWrap');
+    var prev = document.getElementById('sugPrev');
+    var next = document.getElementById('sugNext');
     if (!wrap || !prev || !next) return;
-    const STEP = 260;
+    var STEP = 265;
+
+    function updateArrows() {
+      var atStart = wrap.scrollLeft <= 1;
+      var atEnd = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 1;
+      prev.disabled = atStart;
+      next.disabled = atEnd;
+      prev.style.opacity = atStart ? '0.3' : '1';
+      next.style.opacity = atEnd ? '0.3' : '1';
+    }
+
     next.addEventListener('click', function() {
       wrap.scrollBy({ left: STEP, behavior: 'smooth' });
     });
     prev.addEventListener('click', function() {
       wrap.scrollBy({ left: -STEP, behavior: 'smooth' });
     });
-    function updateArrows() {
-      prev.disabled = wrap.scrollLeft <= 0;
-      next.disabled = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 2;
-    }
     wrap.addEventListener('scroll', updateArrows);
-    updateArrows();
-  })();
+
+    // Wait for layout to settle before checking scroll boundaries
+    requestAnimationFrame(function() {
+      requestAnimationFrame(updateArrows);
+    });
+  });
 </script>
 {% endblock %}

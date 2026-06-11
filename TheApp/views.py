@@ -393,6 +393,11 @@ def paint_detail(request, item_id):
 
     disable_category_sidebar = request.GET.get("from") == "gallery"
 
+    # Determine which shop section this item belongs to for nav active state
+    section_categories = list(store_item.section.values_list("category", flat=True))
+    on_originals_page = "OR" in section_categories
+    on_prints_page = "PR" in section_categories and not on_originals_page
+
     return render(
         request,
         "paint_detail.html",
@@ -401,12 +406,14 @@ def paint_detail(request, item_id):
             "variations_with_choices": variations_with_choices,
             "cart_product_form": cart_product_form,
             "related_items": related_items,
-        "suggested_items": suggested_items,
+            "suggested_items": suggested_items,
             "item_images": item_images,
             "item_videos": item_videos,
             "next_item": next_item,
             "prev_item": prev_item,
             "on_paints_page": True,
+            "on_originals_page": on_originals_page,
+            "on_prints_page": on_prints_page,
             "disable_category_sidebar": disable_category_sidebar,
         },
     )

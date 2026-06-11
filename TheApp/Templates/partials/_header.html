@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     {% if user.is_authenticated and user.is_superuser %}
     <li class="nav-item">
-      <a class="nav-link" href="{% url 'dashboard:store_items_list' %}">
+      <a class="nav-link {% if request.resolver_match.url_name in 'store_items_list,section_list,discount_list,order_list,newsletter_list,users_list' %}nav-active{% endif %}" href="{% url 'dashboard:store_items_list' %}">
         Shop Management
       </a>
     </li>

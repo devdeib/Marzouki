@@ -166,7 +166,6 @@
             <form action="{% url 'cart:cart_add' item.id %}" method="post">
                 <hr>
                 {% csrf_token %}
-                {{ form.quantity.label_tag }} {{ form.quantity }}
                 {% for item_variation in item.item_variations.all %}
                     <div>
                         <label for="variation_{{ item_variation.variation.id }}">

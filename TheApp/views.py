@@ -245,7 +245,7 @@ def _catalog_queryset(extra_filter=None):
 
 
 def paints(request):
-    items = _catalog_queryset()
+    items = _catalog_queryset(extra_filter=Q(status="SC"))
     page_obj = _paginate(request, items)
     return render(
         request,

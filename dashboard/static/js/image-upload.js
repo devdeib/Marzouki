@@ -16,7 +16,11 @@ function initializeImageUpload() {
     fileInput.addEventListener("change", function () {
       if (this.files && this.files.length > 0) {
         Array.from(this.files).forEach((file) => {
-          const formCount = document.querySelectorAll(".image-form").length;
+          // Use the management form's TOTAL_FORMS value as the index.
+          // querySelectorAll(".image-form") would count the hidden empty-form
+          // template too, producing an off-by-one that breaks form name binding.
+          const totalFormsInput = document.querySelector('[name="images-TOTAL_FORMS"]');
+          const formCount = totalFormsInput ? parseInt(totalFormsInput.value) : 0;
           addNewImageForm(file, formCount);
           addImageToList(file, formCount);
         });

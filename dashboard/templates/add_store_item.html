@@ -363,6 +363,7 @@
                       {% if form.instance.pk and form.instance.image %}
                         <li>
                           {{ form.id }}
+                          <img src="{{ form.instance.image.url }}" alt="{{ form.instance.image.name }}" class="media-thumb-preview">
                           <span class="file-name">{{ form.instance.image.name }}</span>
                           <button type="button" class="remove-image" title="Remove image"><i class="fa fa-times"></i></button>
                           {{ form.DELETE.as_hidden }}

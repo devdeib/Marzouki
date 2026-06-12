@@ -734,10 +734,17 @@ function initializeExistingMediaHandlers() {
     .querySelectorAll(".remove-media, .remove-image, .remove-video")
     .forEach((btn) => {
       btn.addEventListener("click", function () {
-        const mediaForm = this.closest(".image-form, .video-form");
         const li = this.closest("li");
 
+        // Saved-image/video rows are rendered by the Django template as <li>
+        // elements inside #image-list / #video-list. The DELETE and id inputs
+        // live directly inside that <li> — NOT inside .image-form/.video-form.
+        // The .image-form divs in #images-container are a parallel hidden
+        // structure for file inputs only and are NOT ancestors of the <li>.
+        const mediaForm = this.closest(".image-form, .video-form");
+
         if (mediaForm) {
+          // Covers any future edge-case where the button is inside .image-form
           const deleteInput = mediaForm.querySelector('input[name$="-DELETE"]');
           if (deleteInput) {
             deleteInput.value = "on";
@@ -751,11 +758,17 @@ function initializeExistingMediaHandlers() {
             }
             mediaForm.remove();
           }
-
           const formType = mediaForm.classList.contains("image-form")
             ? "images"
             : "videos";
           updateFormCount(formType);
+        } else if (li) {
+          // Normal path for saved items: set DELETE on the hidden input
+          // that Django rendered inside this <li>
+          const deleteInput = li.querySelector('input[name$="-DELETE"]');
+          if (deleteInput) {
+            deleteInput.value = "on";
+          }
         }
 
         if (li) {

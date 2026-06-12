@@ -802,7 +802,19 @@ function createMediaListItem(file, formIndex, type) {
   li.dataset.formIndex = formIndex;
   li.className = "d-flex align-items-center p-2 mb-2";
 
-  if (type === "video") {
+  if (type === "image") {
+    // Thumbnail: small square preview of the actual image
+    const thumb = document.createElement("img");
+    thumb.className = "media-thumb-preview";
+    const objectUrl = URL.createObjectURL(file);
+    thumb.src = objectUrl;
+    thumb.alt = file.name;
+    // Revoke the object URL once the image has loaded to free memory
+    thumb.addEventListener("load", function () {
+      URL.revokeObjectURL(objectUrl);
+    });
+    li.appendChild(thumb);
+  } else if (type === "video") {
     const videoIcon = document.createElement("i");
     videoIcon.className = "fa fa-video-camera mr-2";
     li.appendChild(videoIcon);
@@ -822,7 +834,7 @@ function createMediaListItem(file, formIndex, type) {
   removeBtn.type = "button";
   removeBtn.className = `remove-${type} btn btn-link text-danger p-0 ml-2`;
   removeBtn.title = `Remove ${type}`;
-  
+  removeBtn.innerHTML = '<i class="fa fa-times"></i>';
 
   removeBtn.addEventListener("click", function () {
     handleMediaRemoval(type, formIndex, li);
@@ -833,7 +845,9 @@ function createMediaListItem(file, formIndex, type) {
 }
 
 function handleMediaRemoval(type, formIndex, li) {
-  const forms = document.querySelectorAll(`.${type}-form`);
+  // Exclude the hidden empty-form template (.empty-form) so that formIndex
+  // correctly maps to the form that was appended at that TOTAL_FORMS position.
+  const forms = document.querySelectorAll(`.${type}-form:not(.empty-form)`);
   const form = forms[parseInt(formIndex)];
 
   if (form) {
@@ -1140,6 +1154,15 @@ styles.textContent = `
         margin-bottom: 0.5rem;
         padding: 0.5rem;
         background: #f0f0f0;
+    }
+    .media-thumb-preview {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        flex-shrink: 0;
+        margin-right: 10px;
+        border: 1px solid #dee2e6;
     }
     .fa-video-camera {
         color: #6c757d;

@@ -763,12 +763,20 @@ function initializeExistingMediaHandlers() {
             : "videos";
           updateFormCount(formType);
         } else if (li) {
-          // Normal path for saved items: set DELETE on the hidden input
-          // that Django rendered inside this <li>
-          const deleteInput = li.querySelector('input[name$="-DELETE"]');
-          if (deleteInput) {
-            deleteInput.value = "on";
-          }
+          // Normal path for saved items: the DELETE and id hidden inputs live
+          // inside the <li>. We must move them to the <form> BEFORE removing
+          // the <li> — otherwise li.remove() takes them out of the DOM and
+          // they never get submitted, so Django never sees the DELETE flag.
+          const formEl = li.closest("form");
+          const hiddenInputs = li.querySelectorAll('input[type="hidden"]');
+          hiddenInputs.forEach((input) => {
+            if (input.name && input.name.endsWith("-DELETE")) {
+              input.value = "on";
+            }
+            if (formEl) {
+              formEl.appendChild(input);
+            }
+          });
         }
 
         if (li) {

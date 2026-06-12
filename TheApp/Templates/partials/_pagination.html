@@ -1,7 +1,7 @@
 {% comment %}
 Reusable pagination block. Pass a paginator Page object as `page_obj`.
 {% endcomment %}
-{% if page_obj.paginator.num_pages > 1 %}
+{% if page_obj.paginator.count > 0 %}
 <nav aria-label="Page navigation" class="mt-4">
   <ul class="pagination justify-content-center">
     {% if page_obj.has_previous %}

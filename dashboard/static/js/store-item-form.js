@@ -695,11 +695,10 @@ function initializeMediaButtons() {
 
       fileInput.addEventListener("change", function () {
         if (this.files && this.files[0]) {
+          const totalFormsInput = document.querySelector('[name="images-TOTAL_FORMS"]');
+          const indexBefore = totalFormsInput ? parseInt(totalFormsInput.value) : 0;
           addNewImageForm(this.files[0]);
-          addImageToList(
-            this.files[0],
-            document.querySelectorAll(".image-form").length - 1
-          );
+          addImageToList(this.files[0], indexBefore);
         }
       });
 
@@ -874,8 +873,12 @@ function addNewImageForm(file) {
   const container = document.getElementById("images-container");
   if (!container) return;
 
-  const formCount = container.querySelectorAll(".image-form").length;
+  // Read the index from TOTAL_FORMS — this is the source of truth.
+  // DO NOT use querySelectorAll(".image-form").length: the hidden empty-form
+  // template div also has the class, so it inflates the count by 1 and makes
+  // Django unable to match the uploaded file to any form field.
   const totalForms = document.querySelector('[name="images-TOTAL_FORMS"]');
+  const formCount = totalForms ? parseInt(totalForms.value) : 0;
   const template = document.querySelector(".empty-form.image-form");
 
   if (template) {
